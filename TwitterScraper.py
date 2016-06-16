@@ -123,7 +123,16 @@ class Scraper:
 
 			
 
-topics = ['Trump', 'Clinton']
-filename = 'output.csv'
-scraper1 = Scraper(topics, filename = filename)
-scraper1.scrape()
+topics = ['Trump']
+authors = []
+filename = 'output2.csv'
+
+#Examples
+scraper = Scraper(topics, filename = filename)
+scraper.scrape()
+#scraper = Scraper(topics, lang='en', filename=filename)
+#scraper = Scraper(topics, authors = 'ataspinar2', filename = filename)
+#scraper = Scraper(topics, authors = ['ataspinar2', 'Ronald_vanLoon'], filename = filename)
+#scraper = Scraper(topics, filename= filename, begin_date = '2016-01-01', end_date = '2016-06-16')
+#scraper = Scraper(topics, near='Florida', within='20mi', filename = filename)
+#scraper = Scraper(topics, near=[51.5073510,-0.1277580], within='20km', filename = filename)

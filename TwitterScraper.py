@@ -123,7 +123,7 @@ class Scraper:
 
 			
 
-topics = ['Trump']
-filename = 'output2.csv'
-scraper1 = Scraper(topics, near=[51.5073510,-0.1277580], within='20km', filename = filename)
+topics = ['Trump', 'Clinton']
+filename = 'output.csv'
+scraper1 = Scraper(topics, filename = filename)
 scraper1.scrape()

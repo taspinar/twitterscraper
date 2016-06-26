@@ -18,6 +18,7 @@ class Scraper:
 		self.last_tweet_id = 0
 		self.collected_tweets = 0
 		self.location = self.parse_location(near, within)
+		self.min_position = -1
 		self.writer = csv.writer(open(filename, 'wb'), delimiter="\t")
 	
 	def parse_topics(*topics):
@@ -53,18 +54,22 @@ class Scraper:
 			return location_string
 		
 	def is_first_iteration(self):
-		if ((self.first_tweet_id == 0) and (self.last_tweet_id == 0)):
+		return True if self.min_position == -1 else False
+
+	def continue_scraping(self, tweets):
+		if (self.collected_tweets < self.no_tweets) \
+		and (self.is_first_iteration() or len(tweets)>0):
 			return True
 		else:
 			return False
 		
 	def parse_url(self):
 		url_1 = "https://twitter.com/search?f=tweets&vertical=default&q="
-		url_2 = "https://twitter.com/i/search/timeline?vertical=default&include_available_features=1&include_entities=1&reset_error_state=false&f=tweets&"
+		url_2 = "https://twitter.com/i/search/timeline?f=tweets&vertical=default&include_available_features=1&include_entities=1&reset_error_state=false&src=typd"
 		if self.is_first_iteration():
 			url = url_1 + self.topic
 		else:
-			url = url_2 + "&max_position=TWEET-%s-%s&q=" % (self.last_tweet_id, self.first_tweet_id) + self.topic
+			url = url_2 + "&max_position=%s&q=%s" % (self.min_position, self.topic)
 		if self.lang: url += "%20lang%3A" + self.lang
 		if self.begin_date: url += "%20since%3A" + self.begin_date
 		if self.end_date: url+= "%20until%3A" + self.end_date
@@ -75,22 +80,26 @@ class Scraper:
 
 	def scrape_tweets(self):
 		url = self.parse_url()
-		response = urllib2.urlopen(url).read()
-		if self.is_first_iteration():
-			html = response
-		else:
-			html = json.loads(response)['items_html']
-		soup = BeautifulSoup(html, "lxml")
-		tweets = soup.find_all('li','js-stream-item')
-		if self.is_first_iteration():
-			if tweets:
-				self.first_tweet_id = tweets[0]['data-item-id']
-				self.last_tweet_id = tweets[-1]['data-item-id']
+		try:
+			response = urllib2.urlopen(url).read()
+			if self.is_first_iteration():
+				html = response
 			else:
-				self.first_tweet_id = -1 
-		else:
-			if tweets:
-				self.last_tweet_id = tweets[-1]['data-item-id']
+				response_json = json.loads(response)
+				html = response_json['items_html']
+				self.min_position = response_json['min_position']
+			soup = BeautifulSoup(html, "lxml")
+			tweets = soup.find_all('li','js-stream-item')
+			if self.is_first_iteration():
+				if tweets:
+					self.first_tweet_id = tweets[0]['data-item-id']
+					self.last_tweet_id = tweets[-1]['data-item-id']
+					self.min_position = "TWEET-%s-%s" % (self.last_tweet_id, self.first_tweet_id)
+				else:
+					self.first_tweet_id = -1 
+		except:
+			print "http error"
+			tweets = []
 		return tweets
 
 	def extract_data_from_tweet(self, tweet):
@@ -103,7 +112,7 @@ class Scraper:
 		tweet_id = tweet['data-item-id']
 		permalink_path = tweet.find('div','js-original-tweet')['data-permalink-path']
 		timestamp = tweet.find('a','tweet-timestamp')['title']
-		post  = [tweet_user,tweet_fullname,tweet_text,timestamp]
+		post  = [tweet_user, tweet_id, timestamp, tweet_fullname, tweet_text]
 		return post
 		
 	def write(self, post):
@@ -113,7 +122,9 @@ class Scraper:
 			print post
 		
 	def scrape(self):
-		while self.collected_tweets < self.no_tweets and (self.is_first_iteration() or len(tweets)>0):
+		tweets = []
+		print "collecting %s number of Tweets on the topics: %s" % (self.no_tweets, topics)
+		while self.continue_scraping(tweets):
 			tweets = self.scrape_tweets()
 			for tweet in tweets:
 				self.collected_tweets += 1
@@ -123,12 +134,12 @@ class Scraper:
 
 			
 
-topics = ['Trump']
+topics = ['Trump', 'Clinton']
 authors = []
 filename = 'output2.csv'
 
 #Examples
-scraper = Scraper(topics, filename = filename)
+scraper = Scraper(topics, 10000, filename = filename)
 scraper.scrape()
 #scraper = Scraper(topics, lang='en', filename=filename)
 #scraper = Scraper(topics, authors = 'ataspinar2', filename = filename)

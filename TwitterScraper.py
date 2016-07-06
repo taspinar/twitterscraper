@@ -87,16 +87,17 @@ class Scraper:
 			else:
 				response_json = json.loads(response)
 				html = response_json['items_html']
-				self.min_position = response_json['min_position']
 			soup = BeautifulSoup(html, "lxml")
 			tweets = soup.find_all('li','js-stream-item')
-			if self.is_first_iteration():
-				if tweets:
-					self.first_tweet_id = tweets[0]['data-item-id']
-					self.last_tweet_id = tweets[-1]['data-item-id']
+			if tweets:
+				self.last_tweet_id = tweets[-1]['data-item-id']
+				self.first_tweet_id = tweets[0]['data-item-id']
+				if self.is_first_iteration():
 					self.min_position = "TWEET-%s-%s" % (self.last_tweet_id, self.first_tweet_id)
 				else:
-					self.first_tweet_id = -1 
+					minp_splitted = response_json['min_position'].split('-')
+					minp_splitted[1] = last_tweet_id
+					self.min_position = "-".join(minp_splitted)
 		except:
 			print "http error"
 			tweets = []

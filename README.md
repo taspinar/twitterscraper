@@ -52,7 +52,7 @@ scraper.scrape()
 
 
 
-The **language** in which the to be collected Tweets have to be written can be specified. For a full list of the 34 supported languages go to [Twitter](https://dev.twitter.com/web/overview/languages).
+The **language** in which the to be collected Tweets have to be written can be specified. For a full list of the 34 supported languages go to [Twitters website](https://dev.twitter.com/web/overview/languages).
 ```python
 filename = 'output.csv'
 scraper = Scraper(topics, 10000, lang='en', filename = filename)
@@ -93,3 +93,6 @@ scraper = Scraper(topics, near='Florida', within='20mi', filename = filename)
 scraper2 = Scraper(topics, near=[51.5073510,-0.1277580], within='20km', filename = filename)
 scraper.scrape()
 ```
+
+#TO DO
+I am thinking of making TwitterScraper multithreaded. It will collect the Tweets much much faster by starting a different thread for each keyword, for each seperate date, for each different author etc.

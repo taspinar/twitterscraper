@@ -1,6 +1,19 @@
 # Synopsis
 
 A simple script to scrape for Tweets using the Python package Beautifullsoup (bs4). To use it, first [install bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/). 
+__
+
+# Motivation
+Twitter has provided [REST API's](https://dev.twitter.com/rest/public) which can be used by developers to access and read Twitter data. They have also provided a [Streaming API](https://dev.twitter.com/streaming/overview) which can be used to access Twitter Data in real-time. 
+Most of the software written to access Twitter data provide a library which functions as a wrapper around Twitters Search and Streaming API's and therefore are limited by the limitations of the API's. 
+__
+
+
+With Twitter's Search API you can only sent 180 Requests every 15 minutes. With a maximum number of 100 tweets per Request this means you can mine for 4 x 180 x 100 = 72.000 tweets per hour. One way to increase number of tweets is to authenticate as an application instead of an user. This will increase the rate-limit from 180 Requests to 450 Requests while reducing some of the possibilities you had as an user. By using TwitterScraper you are not limited by this number but by your internet speed/bandwith and the number of instances of TwitterScraper you are willing to start.
+__
+
+One of the bigger disadvantages of the Search API is that you can only access Tweets written in the **past 7 days**. This is a major bottleneck for anyone looking for older past data to make a model from. With TwitterScraper there is no such limitation.
+__
 
 
 # Code Example
@@ -83,14 +96,6 @@ scraper.scrape()
 ```
 
 
-
-# Motivation
-Twitter has provided [REST API's](https://dev.twitter.com/rest/public) which can be used by developers to access and read Twitter data. They have also provided a [Streaming API](https://dev.twitter.com/streaming/overview) which can be used to access Twitter Data in real-time. 
-Most of the software written to access Twitter data provide a library which functions as a wrapper around Twitters Search and Streaming API's and therefore are limited by the limitations of the API's. 
-
-
-With Twitter's Search API you can only sent 180 Requests every 15 minutes. With a maximum number of 100 tweets per Request this means you can mine for 4 x 180 x 100 = 72.000 tweets per hour. One way to increase number of tweets is to authenticate as an application instead of an user. This will increase the rate-limit from 180 Requests to 450 Requests while reducing some of the possibilities you had as an user. By using TwitterScraper you are not limited by this number but by your internet speed/bandwith and the number of instances of TwitterScraper you are willing to start.
-One of the bigger disadvantages of the Search API is that you can only access Tweets written in the **past 7 days**. This is a major bottleneck for anyone looking for older past data to make a model from. With TwitterScraper there is no such limitation.
 
 
 

@@ -2,6 +2,8 @@ from bs4 import BeautifulSoup
 import json
 import csv
 import urllib2
+import logging
+logging.basicConfig(filename='err.log',level=logging.ERROR)
 
 class Scraper:
 	def __init__(self, topics, no_tweets = float('inf'), lang = '', begin_date = '', end_date = '', authors = '', recipients = '', near = '', within = 1, filename = ''):
@@ -96,12 +98,19 @@ class Scraper:
 					self.min_position = "TWEET-%s-%s" % (self.last_tweet_id, self.first_tweet_id)
 				else:
 					minp_splitted = response_json['min_position'].split('-')
-					minp_splitted[1] = last_tweet_id
+					minp_splitted[1] = self.last_tweet_id
 					self.min_position = "-".join(minp_splitted)
-		except:
-			print "http error"
-			tweets = []
-		return tweets
+		except urllib2.HTTPError, e:
+			logging.error('HTTPError = ' + str(e.code))
+		except urllib2.URLError, e:
+			logging.error('URLError = ' + str(e.reason))
+		except httplib.HTTPException, e:
+			logging.error('HTTPException')
+		except Exception:
+			import traceback
+			logging.error('generic exception: ' + traceback.format_exc())
+		return tweets if tweets else []
+
 
 	def extract_data_from_tweet(self, tweet):
 		tweet_user = tweet.find('span','username').text

@@ -9,7 +9,6 @@ class Scraper:
 	def __init__(self, topics, no_tweets = float('inf'), lang = '', begin_date = '', end_date = '', authors = '', recipients = '', near = '', within = 1, filename = ''):
 		self.topic = self.parse_topics(topics)
 		self.no_tweets = no_tweets
-		#see supported languages at https://dev.twitter.com/web/overview/languages
 		self.lang = lang
 		self.begin_date = begin_date
 		self.end_date = end_date
@@ -149,7 +148,7 @@ topics = ['Trump', 'Clinton']
 filename = 'output2.csv'
 
 #Examples
-scraper = Scraper('Trump')
+scraper = Scraper(topics, 10000, filename = filename)
 scraper.scrape()
 #scraper = Scraper(topics, lang='en', filename=filename)
 #scraper = Scraper(topics, authors = 'ataspinar2', filename = filename)

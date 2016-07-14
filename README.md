@@ -1,8 +1,8 @@
-## Synopsis
+# Synopsis
 
 A simple script to scrape for Tweets using the Python package Beautifullsoup (bs4). To use it, first [install bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/). 
 
-## Code Example
+# Code Example
 TwitterScraper is very versatile and can be initialized with **one or more keywords**:
 ```python
 topic = 'Trump'
@@ -20,11 +20,13 @@ collecting inf number of Tweets on the topics: ['Trump', 'Clinton']
 ...
 ```
 
+
 If an upper limit is given to the **number of Tweets** to be collected, it will stop once this amount of Tweets has been collected:
 ```python
 scraper = Scraper(topics, 100000)
 scraper.scrape()
 ```
+
 
 If an **outputfile** is given, the result will be written to file, otherwise to screen:
 ```python
@@ -33,6 +35,7 @@ scraper = Scraper(topics, 10000, filename = filename)
 scraper.scrape()
 ```
 
+
 The **language** in which the to be collected Tweets have to be written can be specified. For a full list of the 34 supported languages go to [Twitter](https://dev.twitter.com/web/overview/languages).
 ```python
 filename = 'output.csv'
@@ -40,12 +43,14 @@ scraper = Scraper(topics, 10000, lang='en', filename = filename)
 scraper.scrape()
 ```
 
+
 A **begin date** and/or **end date** can be specified to limit the date-range in which you want to search.
 ```python
 filename = 'output.csv'
 scraper = Scraper(topics, 10000, filename = filename, begin_date = '2016-01-01', end_date = '2016-06-16')
 scraper.scrape()
 ```
+
 
 The **author(s)** of the Tweets as well as the **recipient(s)** can be specified. 
 ```python
@@ -61,6 +66,7 @@ scraper4 = Scraper(topics, 10000, recipients=recipients, filename = filename)
 scraper.scrape()
 ```
 
+
 The **location** of the Tweets can be specified. This can also be done with **longitude and latitude coordinates**. 
 ```python
 filename = 'output.csv'
@@ -68,3 +74,14 @@ scraper = Scraper(topics, near='Florida', within='20mi', filename = filename)
 scraper2 = Scraper(topics, near=[51.5073510,-0.1277580], within='20km', filename = filename)
 scraper.scrape()
 ```
+
+
+# Motivation
+Twitter has provided [REST API's](https://dev.twitter.com/rest/public) which can be used by developers to access and read Twitter data. They have also provided a [Streaming API](https://dev.twitter.com/streaming/overview) which can be used to access Twitter Data in real-time. 
+Most of the software written to access Twitter data provide a library which functions as a wrapper around Twitters Search and Streaming API's and therefore are limited by the limitations of the API's. 
+
+With Twitter's Search API you can only sent 180 Requests every 15 minutes. With a maximum number of 100 tweets per Request this means you can mine for 4 x 180 x 100 = 72.000 tweets per hour. One way to increase number of tweets is to authenticate as an application instead of an user. This will increase the rate-limit from 180 Requests to 450 Requests while reducing some of the possibilities you had as an user. By using TwitterScraper you are not limited by this number but by your internet speed/bandwith and the number of instances of TwitterScraper you are willing to start.
+One of the bigger disadvantages of the Search API is that you can only access Tweets written in the **past 7 days**. This is a major bottleneck for anyone looking for older past data to make a model from. With TwitterScraper there is no such limitation.
+
+
+

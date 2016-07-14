@@ -21,7 +21,8 @@ class Scraper:
 		self.collected_tweets = 0
 		self.location = self.parse_location(near, within)
 		self.min_position = -1
-		self.writer = csv.writer(open(filename, 'wb'), delimiter="\t")
+		if self.filename:
+			self.writer = csv.writer(open(self.filename, 'wb'), delimiter="\t")
 	
 	def parse_topics(*topics):
 		if type(topics[1]) is str:
@@ -145,11 +146,10 @@ class Scraper:
 			
 
 topics = ['Trump', 'Clinton']
-authors = []
 filename = 'output2.csv'
 
 #Examples
-scraper = Scraper(topics, 10000, filename = filename)
+scraper = Scraper('Trump')
 scraper.scrape()
 #scraper = Scraper(topics, lang='en', filename=filename)
 #scraper = Scraper(topics, authors = 'ataspinar2', filename = filename)

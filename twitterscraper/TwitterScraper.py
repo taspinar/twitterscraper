@@ -3,6 +3,7 @@ import json
 import csv
 import urllib2
 import logging
+import sys
 logging.basicConfig(filename='err.log',level=logging.ERROR)
 
 class Scraper:
@@ -82,6 +83,7 @@ class Scraper:
 
 	def scrape_tweets(self):
 		url = self.parse_url()
+		tweets = []
 		try:
 			response = urllib2.urlopen(url).read()
 			if self.is_first_iteration():
@@ -102,14 +104,15 @@ class Scraper:
 					self.min_position = "-".join(minp_splitted)
 		except urllib2.HTTPError, e:
 			logging.error('HTTPError = ' + str(e.code))
+			sys.exit('HTTPError = ' + str(e.code))
 		except urllib2.URLError, e:
 			logging.error('URLError = ' + str(e.reason))
-		except httplib.HTTPException, e:
-			logging.error('HTTPException')
+			sys.exit('URLError = ' + str(e.reason))
 		except Exception:
 			import traceback
 			logging.error('generic exception: ' + traceback.format_exc())
-		return tweets if tweets else []
+			sys.exit('generic exception: ' + traceback.format_exc())
+		return tweets 
 
 
 	def extract_data_from_tweet(self, tweet):

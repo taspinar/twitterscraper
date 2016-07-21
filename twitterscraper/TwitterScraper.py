@@ -140,19 +140,3 @@ class Scraper:
 				self.collected_tweets += 1
 				post = self.extract_data_from_tweet(tweet)
 				self.write(post)
-
-
-			
-
-#topics = ['Trump', 'Clinton']
-#filename = 'output2.csv'
-
-#Examples
-#scraper = Scraper(topics, 10000, filename = filename)
-#scraper.scrape()
-#scraper = Scraper(topics, lang='en', filename=filename)
-#scraper = Scraper(topics, authors = 'ataspinar2', filename = filename)
-#scraper = Scraper(topics, authors = ['ataspinar2', 'Ronald_vanLoon'], filename = filename)
-#scraper = Scraper(topics, filename= filename, begin_date = '2016-01-01', end_date = '2016-06-16')
-#scraper = Scraper(topics, near='Florida', within='20mi', filename = filename)
-#scraper = Scraper(topics, near=[51.5073510,-0.1277580], within='20km', filename = filename)

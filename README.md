@@ -16,7 +16,9 @@ One of the bigger disadvantages of the Search API is that you can only access Tw
 
 
 # Code Example
-TwitterScraper is very versatile and can be initialized with **one or more keywords**:
+TwitterScraper is very versatile and can be initialized with various parameters:
+
+-**one or more keywords**.
 ```python
 topic = 'Trump'
 topics = ['Trump', 'Clinton'] #if there are more than one keywords, use an array. 
@@ -35,7 +37,7 @@ collecting inf number of Tweets on the topics: ['Trump', 'Clinton']
 
 
 
-If an upper limit is given to the **number of Tweets** to be collected, it will stop once this amount of Tweets has been collected:
+-If an upper limit is given with the argument **no_tweets**, it will stop once this amount of Tweets has been collected:
 ```python
 scraper = Scraper(topics, 100000)
 scraper.scrape()
@@ -43,7 +45,7 @@ scraper.scrape()
 
 
 
-If an **outputfile** is given, the result will be written to file, otherwise to screen:
+-If an **outputfile** is defined, the result will be written to file, otherwise to screen:
 ```python
 filename = 'output.csv'
 scraper = Scraper(topics, 10000, filename = filename)
@@ -52,7 +54,7 @@ scraper.scrape()
 
 
 
-The **language** in which the to be collected Tweets have to be written can be specified. For a full list of the 34 supported languages go to [Twitters website](https://dev.twitter.com/web/overview/languages).
+-The **language** in which the to be collected Tweets have to be written can be specified. For a full list of the 34 supported languages go to [Twitters website](https://dev.twitter.com/web/overview/languages).
 ```python
 filename = 'output.csv'
 scraper = Scraper(topics, 10000, lang='en', filename = filename)
@@ -61,7 +63,7 @@ scraper.scrape()
 
 
 
-A **begin date** and/or **end date** can be specified to limit the date-range in which you want to search.
+-A **begin date** and/or **end date** can be specified to limit the date-range in which you want to search.
 ```python
 filename = 'output.csv'
 scraper = Scraper(topics, 10000, filename = filename, begin_date = '2016-01-01', end_date = '2016-06-16')
@@ -70,7 +72,7 @@ scraper.scrape()
 
 
 
-The **author(s)** of the Tweets as well as the **recipient(s)** can be specified. 
+-The **author(s)** of the Tweets as well as the **recipient(s)** can be specified. 
 ```python
 filename = 'output.csv'
 author = 'realDonaldTrump'
@@ -86,7 +88,7 @@ scraper.scrape()
 
 
 
-The **location** of the Tweets can be specified. This can also be done with **longitude and latitude coordinates**. 
+-The **location** of the Tweets can be specified. This can also be done with **longitude and latitude coordinates**. 
 ```python
 filename = 'output.csv'
 scraper = Scraper(topics, near='Florida', within='20mi', filename = filename)

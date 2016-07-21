@@ -14,15 +14,27 @@ With Twitter's Search API you can only sent 180 Requests every 15 minutes. With 
 One of the bigger disadvantages of the Search API is that you can only access Tweets written in the **past 7 days**. This is a major bottleneck for anyone looking for older past data to make a model from. With TwitterScraper there is no such limitation.
     
 
+# Installation
+To install **twitterscraper**:
+```python
+(sudo) pip install twitterscraper
+```
+
+or you can clone the repository and in the folder containing setup.py
+```python
+python setup.py install
+```
+
 
 # Code Example
 TwitterScraper is very versatile and can be initialized with various parameters:
 
 -**one or more keywords**.
 ```python
+from twitterscraper import TwitterScraper
 topic = 'Trump'
 topics = ['Trump', 'Clinton'] #if there are more than one keywords, use an array. 
-scraper1 = Scraper(topics)
+scraper1 = TwitterScraper.Scraper(topics)
 
 scraper1.scrape()
 collecting inf number of Tweets on the topics: ['Trump', 'Clinton']
@@ -39,7 +51,7 @@ collecting inf number of Tweets on the topics: ['Trump', 'Clinton']
 
 -If an upper limit is given with the argument **no_tweets**, it will stop once this amount of Tweets has been collected:
 ```python
-scraper = Scraper(topics, 100000)
+scraper = TwitterScraper.Scraper(topics, 100000)
 scraper.scrape()
 ```
 
@@ -48,7 +60,7 @@ scraper.scrape()
 -If an **outputfile** is defined, the result will be written to file, otherwise to screen:
 ```python
 filename = 'output.csv'
-scraper = Scraper(topics, 10000, filename = filename)
+scraper = TwitterScraper.Scraper(topics, 10000, filename = filename)
 scraper.scrape()
 ```
 
@@ -57,7 +69,7 @@ scraper.scrape()
 -The **language** in which the to be collected Tweets have to be written can be specified. For a full list of the 34 supported languages go to [Twitters website](https://dev.twitter.com/web/overview/languages).
 ```python
 filename = 'output.csv'
-scraper = Scraper(topics, 10000, lang='en', filename = filename)
+scraper = TwitterScraper.Scraper(topics, 10000, lang='en', filename = filename)
 scraper.scrape()
 ```
 
@@ -66,7 +78,7 @@ scraper.scrape()
 -A **begin date** and/or **end date** can be specified to limit the date-range in which you want to search.
 ```python
 filename = 'output.csv'
-scraper = Scraper(topics, 10000, filename = filename, begin_date = '2016-01-01', end_date = '2016-06-16')
+scraper = TwitterScraper.Scraper(topics, 10000, filename = filename, begin_date = '2016-01-01', end_date = '2016-06-16')
 scraper.scrape()
 ```
 
@@ -79,10 +91,10 @@ author = 'realDonaldTrump'
 authors = ['realDonaldTrump', 'marcorubio']
 recipient = 'HillaryClinton'
 recipients = ['HillaryClinton', 'billclinton']
-scraper = Scraper(topics, 10000, authors=author, filename = filename)
-scraper2 = Scraper(topics, 10000, authors=authors, filename = filename)
-scraper3 = Scraper(topics, 10000, recipients=recipient, filename = filename)
-scraper4 = Scraper(topics, 10000, recipients=recipients, filename = filename)
+scraper = TwitterScraper.Scraper(topics, 10000, authors=author, filename = filename)
+scraper2 = TwitterScraper.Scraper(topics, 10000, authors=authors, filename = filename)
+scraper3 = TwitterScraper.Scraper(topics, 10000, recipients=recipient, filename = filename)
+scraper4 = TwitterScraper.Scraper(topics, 10000, recipients=recipients, filename = filename)
 scraper.scrape()
 ```
 
@@ -91,8 +103,8 @@ scraper.scrape()
 -The **location** of the Tweets can be specified. This can also be done with **longitude and latitude coordinates**. 
 ```python
 filename = 'output.csv'
-scraper = Scraper(topics, near='Florida', within='20mi', filename = filename)
-scraper2 = Scraper(topics, near=[51.5073510,-0.1277580], within='20km', filename = filename)
+scraper = TwitterScraper.Scraper(topics, near='Florida', within='20mi', filename = filename)
+scraper2 = TwitterScraper.Scraper(topics, near=[51.5073510,-0.1277580], within='20km', filename = filename)
 scraper.scrape()
 ```
 

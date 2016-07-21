@@ -7,7 +7,7 @@ logging.basicConfig(filename='err.log',level=logging.ERROR)
 
 class Scraper:
 	def __init__(self, topics, no_tweets = float('inf'), lang = '', begin_date = '', end_date = '', authors = '', recipients = '', near = '', within = 1, filename = ''):
-		self.topic = self.parse_topics(topics)
+		self.topics = self.parse_topics(topics)
 		self.no_tweets = no_tweets
 		self.lang = lang
 		self.begin_date = begin_date
@@ -69,9 +69,9 @@ class Scraper:
 		url_1 = "https://twitter.com/search?f=tweets&vertical=default&q="
 		url_2 = "https://twitter.com/i/search/timeline?f=tweets&vertical=default&include_available_features=1&include_entities=1&reset_error_state=false&src=typd"
 		if self.is_first_iteration():
-			url = url_1 + self.topic
+			url = url_1 + self.topics
 		else:
-			url = url_2 + "&max_position=%s&q=%s" % (self.min_position, self.topic)
+			url = url_2 + "&max_position=%s&q=%s" % (self.min_position, self.topics)
 		if self.lang: url += "%20lang%3A" + self.lang
 		if self.begin_date: url += "%20since%3A" + self.begin_date
 		if self.end_date: url+= "%20until%3A" + self.end_date
@@ -133,7 +133,7 @@ class Scraper:
 		
 	def scrape(self):
 		tweets = []
-		print "collecting %s number of Tweets on the topics: %s" % (self.no_tweets, topics)
+		print "collecting %s number of Tweets on the topics: %s" % (self.no_tweets, self.topics)
 		while self.continue_scraping(tweets):
 			tweets = self.scrape_tweets()
 			for tweet in tweets:
@@ -144,12 +144,12 @@ class Scraper:
 
 			
 
-topics = ['Trump', 'Clinton']
-filename = 'output2.csv'
+#topics = ['Trump', 'Clinton']
+#filename = 'output2.csv'
 
 #Examples
-scraper = Scraper(topics, 10000, filename = filename)
-scraper.scrape()
+#scraper = Scraper(topics, 10000, filename = filename)
+#scraper.scrape()
 #scraper = Scraper(topics, lang='en', filename=filename)
 #scraper = Scraper(topics, authors = 'ataspinar2', filename = filename)
 #scraper = Scraper(topics, authors = ['ataspinar2', 'Ronald_vanLoon'], filename = filename)

@@ -1,6 +1,6 @@
 # Synopsis
 
-A simple script to scrape for Tweets using the Python package Beautifullsoup (bs4). To use it, first [install bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/). 
+A simple script to scrape for Tweets using the Python package urllib2 to retrieve the content and Beautifullsoup4 to parse the retrieved content. 
 
 
 # Motivation

@@ -1,8 +1,8 @@
 from bs4 import BeautifulSoup
 import json
 import csv
-import urllib2
 import logging
+import requests
 import sys
 logging.basicConfig(filename='err.log',level=logging.ERROR)
 
@@ -60,8 +60,7 @@ class Scraper:
 		return True if self.min_position == -1 else False
 
 	def continue_scraping(self, tweets):
-		if (self.collected_tweets < self.no_tweets) \
-		and (self.is_first_iteration() or len(tweets)>0):
+		if (self.collected_tweets < self.no_tweets) and len(tweets)>0:
 			return True
 		else:
 			return False
@@ -74,8 +73,8 @@ class Scraper:
 		else:
 			url = url_2 + "&max_position=%s&q=%s" % (self.min_position, self.topics)
 		if self.lang: url += "%20lang%3A" + self.lang
-		if self.begin_date: url += "%20since%3A" + self.begin_date
-		if self.end_date: url+= "%20until%3A" + self.end_date
+		if self.begin_date: url += "%20since:" + self.begin_date
+		if self.end_date: url+= "%20until:" + self.end_date
 		if self.authors: url+= "%20from%3A" + self.authors
 		if self.recipients: url+= "%20to%3A" + self.recipients
 		if self.location: url+= '%20' + self.location
@@ -83,13 +82,14 @@ class Scraper:
 
 	def scrape_tweets(self):
 		url = self.parse_url()
+		headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 		tweets = []
 		try:
-			response = urllib2.urlopen(url).read()
+			response = requests.get(url, headers=headers)
 			if self.is_first_iteration():
-				html = response
-			else:
-				response_json = json.loads(response)
+				html = response.text
+			else:	
+				response_json = response.json()
 				html = response_json['items_html']
 			soup = BeautifulSoup(html, "lxml")
 			tweets = soup.find_all('li','js-stream-item')
@@ -102,12 +102,12 @@ class Scraper:
 					minp_splitted = response_json['min_position'].split('-')
 					minp_splitted[1] = self.last_tweet_id
 					self.min_position = "-".join(minp_splitted)
-		except urllib2.HTTPError, e:
+		except requests.exceptions.TooManyRedirects:
+			logging.error('requests.exceptions.TooManyRedirects : bad URL')
+			sys.exit('requests.exceptions.TooManyRedirects : bad URL')
+		except requests.exceptions.RequestException as e:
 			logging.error('HTTPError = ' + str(e.code))
 			sys.exit('HTTPError = ' + str(e.code))
-		except urllib2.URLError, e:
-			logging.error('URLError = ' + str(e.reason))
-			sys.exit('URLError = ' + str(e.reason))
 		except Exception:
 			import traceback
 			logging.error('generic exception: ' + traceback.format_exc())
@@ -135,7 +135,7 @@ class Scraper:
 			print post
 		
 	def scrape(self):
-		tweets = []
+		tweets = [-1]
 		print "collecting %s number of Tweets on the topics: %s" % (self.no_tweets, self.topics)
 		while self.continue_scraping(tweets):
 			tweets = self.scrape_tweets()

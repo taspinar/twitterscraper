@@ -1,6 +1,6 @@
 # Synopsis
 
-A simple script to scrape for Tweets using the Python package urllib2 to retrieve the content and Beautifullsoup4 to parse the retrieved content. 
+A simple script to scrape for Tweets using the Python package requests to retrieve the content and Beautifullsoup4 to parse the retrieved content. 
 
 
 # Motivation

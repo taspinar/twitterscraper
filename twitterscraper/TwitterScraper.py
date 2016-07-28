@@ -2,9 +2,13 @@ from bs4 import BeautifulSoup
 import json
 import csv
 import logging
-import requests
+import urllib2, urllib
 import sys
+import random
+from fake_useragent import UserAgent
 logging.basicConfig(filename='err.log',level=logging.ERROR)
+ua = UserAgent()
+headers_list = [ua.ie, ua.msi, ua['Internet Explorer'], ua.chrome, ua.google, ua['google chrome'], ua.firefox, ua.ff]
 
 class Scraper:
 	def __init__(self, topics, no_tweets = float('inf'), lang = '', begin_date = '', end_date = '', authors = '', recipients = '', near = '', within = 1, filename = ''):
@@ -64,32 +68,43 @@ class Scraper:
 			return True
 		else:
 			return False
-		
+
+	def parse_q(self):
+		q = self.topics
+		if self.lang: q += "%20lang%3A" + self.lang
+		if self.begin_date: q += "%20since:" + self.begin_date
+		if self.end_date: q += "%20until:" + self.end_date
+		if self.authors: q += "%20from%3A" + self.authors
+		if self.recipients: q += "%20to%3A" + self.recipients
+		if self.location: q += '%20' + self.location
+		return q
+			
 	def parse_url(self):
-		url_1 = "https://twitter.com/search?f=tweets&vertical=default&q="
-		url_2 = "https://twitter.com/i/search/timeline?f=tweets&vertical=default&include_available_features=1&include_entities=1&reset_error_state=false&src=typd"
+		q = self.parse_q()
+		headers = {'User-Agent': random.choice(headers_list)}
+		payload = { 'f' : 'tweets', 'vertical': 'default', 'q' : q}
 		if self.is_first_iteration():
-			url = url_1 + self.topics
+			url = "https://twitter.com/search"
 		else:
-			url = url_2 + "&max_position=%s&q=%s" % (self.min_position, self.topics)
-		if self.lang: url += "%20lang%3A" + self.lang
-		if self.begin_date: url += "%20since:" + self.begin_date
-		if self.end_date: url+= "%20until:" + self.end_date
-		if self.authors: url+= "%20from%3A" + self.authors
-		if self.recipients: url+= "%20to%3A" + self.recipients
-		if self.location: url+= '%20' + self.location
-		return url
+			url = "https://twitter.com/i/search/timeline"
+			payload['max_position'] = self.min_position
+			payload['include_available_features'] = '1'
+			payload['include_entities'] = '1'
+			payload['reset_error_state'] = 'false'
+			payload['src'] = 'typd'
+		return [url, payload, headers]
 
 	def scrape_tweets(self):
-		url = self.parse_url()
-		headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+		[url, payload, headers] = self.parse_url()
 		tweets = []
+		params = urllib.urlencode(payload)
 		try:
-			response = requests.get(url, headers=headers)
+			req1 = urllib2.Request(url+'?'+params, headers = headers)
+			response1 = urllib2.urlopen(req1).read()
 			if self.is_first_iteration():
-				html = response.text
-			else:	
-				response_json = response.json()
+				html = response1
+			else:
+				response_json = json.loads(response1)
 				html = response_json['items_html']
 			soup = BeautifulSoup(html, "lxml")
 			tweets = soup.find_all('li','js-stream-item')
@@ -102,12 +117,12 @@ class Scraper:
 					minp_splitted = response_json['min_position'].split('-')
 					minp_splitted[1] = self.last_tweet_id
 					self.min_position = "-".join(minp_splitted)
-		except requests.exceptions.TooManyRedirects:
-			logging.error('requests.exceptions.TooManyRedirects : bad URL')
-			sys.exit('requests.exceptions.TooManyRedirects : bad URL')
-		except requests.exceptions.RequestException as e:
+		except urllib2.HTTPError, e:
 			logging.error('HTTPError = ' + str(e.code))
 			sys.exit('HTTPError = ' + str(e.code))
+		except urllib2.URLError, e:
+			logging.error('URLError = ' + str(e.reason))
+			sys.exit('URLError = ' + str(e.reason))
 		except Exception:
 			import traceback
 			logging.error('generic exception: ' + traceback.format_exc())

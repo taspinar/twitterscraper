@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
 		name='twitterscraper',
-		version='0.1.3.1',
+		version='0.1.4',
 		description='Tool for scraping Tweets',
 		url='https://github.com/taspinar/twitterscraper',
 		author='Ahmet Taspinar',
@@ -11,7 +11,8 @@ setup(
 		packages=['twitterscraper'],
 		install_requires=[
           'bs4', 
-		  'lxml'
+		  'lxml',
+		  'fake_useragent'
       ],
 		zip_safe=False
 		)

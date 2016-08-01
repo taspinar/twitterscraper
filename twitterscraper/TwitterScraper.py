@@ -3,12 +3,11 @@ import json
 import csv
 import logging
 import urllib2, urllib
-import sys
-import random
+import random, time
 from fake_useragent import UserAgent
 logging.basicConfig(filename='err.log',level=logging.ERROR)
 ua = UserAgent()
-headers_list = [ua.ie, ua.msi, ua['Internet Explorer'], ua.chrome, ua.google, ua['google chrome'], ua.firefox, ua.ff]
+headers_list = [ua.chrome, ua.google, ua['google chrome'], ua.firefox, ua.ff]
 
 class Scraper:
 	def __init__(self, topics, no_tweets = float('inf'), lang = '', begin_date = '', end_date = '', authors = '', recipients = '', near = '', within = 1, filename = ''):
@@ -69,42 +68,32 @@ class Scraper:
 		else:
 			return False
 
-	def parse_q(self):
-		q = self.topics
-		if self.lang: q += "%20lang%3A" + self.lang
-		if self.begin_date: q += "%20since:" + self.begin_date
-		if self.end_date: q += "%20until:" + self.end_date
-		if self.authors: q += "%20from%3A" + self.authors
-		if self.recipients: q += "%20to%3A" + self.recipients
-		if self.location: q += '%20' + self.location
-		return q
-			
 	def parse_url(self):
-		q = self.parse_q()
-		headers = {'User-Agent': random.choice(headers_list)}
-		payload = { 'f' : 'tweets', 'vertical': 'default', 'q' : q}
+		url_1 = "https://twitter.com/search?f=tweets&vertical=default&q="
+		url_2 = "https://twitter.com/i/search/timeline?f=tweets&vertical=default&include_available_features=1&include_entities=1&reset_error_state=false&src=typd"
 		if self.is_first_iteration():
-			url = "https://twitter.com/search"
+			url = url_1 + self.topics
 		else:
-			url = "https://twitter.com/i/search/timeline"
-			payload['max_position'] = self.min_position
-			payload['include_available_features'] = '1'
-			payload['include_entities'] = '1'
-			payload['reset_error_state'] = 'false'
-			payload['src'] = 'typd'
-		return [url, payload, headers]
-
+			url = url_2 + "&max_position=%s&q=%s" % (self.min_position, self.topics)
+		if self.lang: url += "%20lang%3A" + self.lang
+		if self.begin_date: url += "%20since%3A" + self.begin_date
+		if self.end_date: url+= "%20until%3A" + self.end_date
+		if self.authors: url+= "%20from%3A" + self.authors
+		if self.recipients: url+= "%20to%3A" + self.recipients
+		if self.location: url+= '%20' + self.location
+		return url
+		
 	def scrape_tweets(self):
-		[url, payload, headers] = self.parse_url()
+		url = self.parse_url()
+		headers = {'User-Agent': random.choice(headers_list)}
+		req = urllib2.Request(url, headers = headers)
 		tweets = []
-		params = urllib.urlencode(payload)
 		try:
-			req1 = urllib2.Request(url+'?'+params, headers = headers)
-			response1 = urllib2.urlopen(req1).read()
+			response = urllib2.urlopen(req).read()
 			if self.is_first_iteration():
-				html = response1
+				html = response
 			else:
-				response_json = json.loads(response1)
+				response_json = json.loads(response)
 				html = response_json['items_html']
 			soup = BeautifulSoup(html, "lxml")
 			tweets = soup.find_all('li','js-stream-item')
@@ -119,16 +108,15 @@ class Scraper:
 					self.min_position = "-".join(minp_splitted)
 		except urllib2.HTTPError, e:
 			logging.error('HTTPError = ' + str(e.code))
-			sys.exit('HTTPError = ' + str(e.code))
+			time.sleep(1)
 		except urllib2.URLError, e:
 			logging.error('URLError = ' + str(e.reason))
-			sys.exit('URLError = ' + str(e.reason))
+			time.sleep(1)
 		except Exception:
 			import traceback
 			logging.error('generic exception: ' + traceback.format_exc())
-			sys.exit('generic exception: ' + traceback.format_exc())
-		return tweets 
-
+			time.sleep(1)
+		return tweets
 
 	def extract_data_from_tweet(self, tweet):
 		tweet_user = tweet.find('span','username').text

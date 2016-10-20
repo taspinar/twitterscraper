@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import json
 import csv
 import logging
-import urllib2
+import urllib
 import urllib
 import random
 import time
@@ -108,10 +108,10 @@ class Scraper:
     def scrape_tweets(self):
         url = self.parse_url()
         headers = {'User-Agent': random.choice(headers_list)}
-        req = urllib2.Request(url, headers=headers)
+        req = urllib.request.Request(url, headers=headers)
         tweets = []
         try:
-            response = urllib2.urlopen(req).read()
+            response = urllib.urlopen(req).read()
             if self.is_first_iteration():
                 html = response
             else:
@@ -129,10 +129,10 @@ class Scraper:
                     minp_splitted = response_json['min_position'].split('-')
                     minp_splitted[1] = self.last_tweet_id
                     self.min_position = "-".join(minp_splitted)
-        except urllib2.HTTPError, e:
+        except urllib.request.HTTPError as e:
             logging.error('HTTPError = ' + str(e.code))
             time.sleep(1)
-        except urllib2.URLError, e:
+        except urllib.error.URLError as e:
             logging.error('URLError = ' + str(e.reason))
             time.sleep(1)
         except Exception:

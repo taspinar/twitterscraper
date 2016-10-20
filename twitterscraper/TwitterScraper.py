@@ -159,12 +159,12 @@ class Scraper:
         if self.filename:
             self.writer.writerow(post)
         else:
-            print post
+            print(post)
 
     def scrape(self):
         tweets = [-1]
-        print "collecting %s number of Tweets on the topics: %s" % (
-            self.no_tweets, self.topics)
+        print("collecting %s number of Tweets on the topics: %s" % (
+            self.no_tweets, self.topics))
         while self.continue_scraping(tweets):
             tweets = self.scrape_tweets()
             for tweet in tweets:

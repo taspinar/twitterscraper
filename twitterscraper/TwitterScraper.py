@@ -128,7 +128,8 @@ class Scraper:
                     minp_splitted[1] = self.last_tweet_id
                     self.min_position = "-".join(minp_splitted)
         except urllib.request.HTTPError as e:
-            logging.error('HTTPError = ' + str(e.code))
+            logging.error('HTTPError {} while requesting "{}"'.format(
+                e.code, url))
             time.sleep(1)
         except urllib.error.URLError as e:
             logging.error('URLError = ' + str(e.reason))

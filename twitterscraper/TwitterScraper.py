@@ -32,7 +32,7 @@ class Scraper:
 			topics_string = topics[1]
 		elif type(topics[1]) is list:
 			topics_string = ' '.join(topics[1])
-		topics_string = topics_string.replace(' ', '%20').replace('#', '%23')
+		topics_string = topics_string.replace(' ', '%20')
 		return topics_string
 	
 	def parse_authors(*authors):
@@ -135,11 +135,11 @@ class Scraper:
 		if self.filename:
 			self.writer.writerow(post)
 		else:
-			print(post)
+			print post
 		
 	def scrape(self):
 		tweets = [-1]
-		print("collecting %s number of Tweets on the topics: %s" % (self.no_tweets, self.topics))
+		print "collecting %s number of Tweets on the topics: %s" % (self.no_tweets, self.topics)
 		while self.continue_scraping(tweets):
 			tweets = self.scrape_tweets()
 			for tweet in tweets:

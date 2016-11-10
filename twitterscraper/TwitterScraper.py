@@ -3,7 +3,6 @@ import json
 import csv
 import logging
 import urllib
-import urllib
 import random
 import time
 from fake_useragent import UserAgent

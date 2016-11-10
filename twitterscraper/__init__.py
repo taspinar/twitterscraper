@@ -1,7 +1,6 @@
 # TwitterScraper
 # Copyright 2016-2017 Ahmet Taspinar
 # See LICENSE for details.
-
 """
 Twitter Scraper tool
 """

@@ -146,13 +146,9 @@ class Scraper:
         tweet_text = tweet.find('p', 'tweet-text')
         if tweet_text:
             tweet_text = tweet_text.text.encode('utf8')
-        tweet_html = tweet.find('p', 'js-tweet-text')
         tweet_id = tweet['data-item-id']
-        permalink_path = tweet.find('div',
-                                    'js-original-tweet')['data-permalink-path']
         timestamp = tweet.find('a', 'tweet-timestamp')['title']
-        post = [tweet_user, tweet_id, timestamp, tweet_fullname, tweet_text]
-        return post
+        return [tweet_user, tweet_id, timestamp, tweet_fullname, tweet_text]
 
     def write(self, post):
         if self.filename:

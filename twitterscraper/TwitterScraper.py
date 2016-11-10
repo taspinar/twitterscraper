@@ -109,7 +109,7 @@ class Scraper:
         req = urllib.request.Request(url, headers=headers)
         tweets = []
         try:
-            response = urllib.urlopen(req).read()
+            response = urllib.request.urlopen(req).read().decode()
             if self.is_first_iteration():
                 html = response
             else:

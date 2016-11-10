@@ -6,7 +6,6 @@ import urllib
 import random
 import time
 from fake_useragent import UserAgent
-logging.basicConfig(filename='err.log', level=logging.ERROR)
 ua = UserAgent()
 headers_list = [ua.chrome, ua.google, ua['google chrome'], ua.firefox, ua.ff]
 

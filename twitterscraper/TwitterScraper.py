@@ -127,6 +127,7 @@ class Scraper:
                     minp_splitted = response_json['min_position'].split('-')
                     minp_splitted[1] = self.last_tweet_id
                     self.min_position = "-".join(minp_splitted)
+                print(self.min_position)
         except urllib.request.HTTPError as e:
             logging.error('HTTPError {} while requesting "{}"'.format(
                 e.code, url))
@@ -154,7 +155,7 @@ class Scraper:
         if self.filename:
             self.writer.writerow(post)
         else:
-            print(post)
+            pass#print(post)
 
     def scrape(self):
         tweets = [-1]

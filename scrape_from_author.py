@@ -5,35 +5,14 @@ import json
 import logging
 import random
 import urllib
-from collections import namedtuple
 
 from fake_useragent import UserAgent
-from bs4 import BeautifulSoup
+
+from twitterscraper.tweet import Tweet
 
 
 ua = UserAgent()
 HEADERS_LIST = [ua.chrome, ua.google, ua['google chrome'], ua.firefox, ua.ff]
-
-
-class Tweet(namedtuple("Tweet", "user id timestamp fullname text")):
-    @classmethod
-    def from_soup(cls, tweet):
-        return cls(
-            user=tweet.find('span', 'username').text,
-            id=tweet['data-item-id'],
-            timestamp=tweet.find('a', 'tweet-timestamp')['title'],
-            fullname=tweet.find('strong', 'fullname').text,
-            text=tweet.find('p', 'tweet-text').text
-            if tweet.find('p', 'tweet-text') else ""
-        )
-
-    @classmethod
-    def from_html(cls, html):
-        soup = BeautifulSoup(html, "lxml")
-        tweets = soup.find_all('li', 'js-stream-item')
-        if tweets:
-            for tweet in tweets:
-                yield cls.from_soup(tweet)
 
 
 def from_url(url, html_response=True):

@@ -40,6 +40,16 @@ or you can clone the repository and in the folder containing setup.py
 python setup.py install
 ```
 
+# The CLI
+
+You can use the command line application to get your tweets stored to JSON
+right away:
+
+`TwitterScraper "Trump OR Clinton" --limit 100 --output=tweets.json`
+
+Omit the limit to retrieve all tweets. You can at any time abort the scraping
+by pressing Ctrl+C, the scraped tweets will be stored safely in your JSON file.
+
 # Code Example
 
 You can easily use TwitterScraper from within python:
@@ -71,11 +81,6 @@ Tweet(user='@Isethoriginal', id='797020310641983489', timestamp='02:17 - 11. Nov
 Tweet(user='@italianfood_age', id='797020310134525952', timestamp='02:17 - 11. Nov. 2016', fullname='Italian Food agent', text='Portland Police Say Anti-Trump Protest Is &#039;Riot&#039; #donald https://dragplus.com/post/id/38524480\xa0…')
 Tweet(user='@laurac2605', id='797020310113570817', timestamp='02:17 - 11. Nov. 2016', fullname='Laura Ceccato', text='Why Clinton’s identity politics backfired http://www.spiked-online.com/newsite/article/why-clintons-identity-politics-backfired-trump-election/18960#.WCWah68m09A.twitter\xa0…  very interesting article')
 ```
-
-You can also use the command line application to get your tweets stored to JSON
-right away:
-
-`TwitterScraper "Trump OR Clinton" --limit 100 --output=tweets.json`
 
 # TO DO
 

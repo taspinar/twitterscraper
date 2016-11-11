@@ -17,12 +17,13 @@ RELOAD_URL = "https://twitter.com/i/search/timeline?f=tweets&vertical=" \
              "reset_error_state=false&src=typd&max_position={pos}&q={q}"
 
 
-def query_single_page(url, html_response=True):
+def query_single_page(url, html_response=True, retry=3):
     """
     Returns tweets from the given URL.
 
     :param url: The URL to get the tweets from
     :param html_response: False, if the HTML is embedded in a JSON
+    :param retry: Number of retries if something goes wrong.
     :return: The list of tweets, the pos argument for getting the next page.
     """
     headers = {'User-Agent': random.choice(HEADERS_LIST)}
@@ -50,6 +51,11 @@ def query_single_page(url, html_response=True):
         logging.exception('URLError {} while requesting "{}"'.format(
             e.reason, url))
 
+    if retry > 0:
+        logging.info("Retrying...")
+        return query_single_page(url, html_response, retry-1)
+
+    logging.error("Giving up.")
     return [], None
 
 
@@ -89,4 +95,8 @@ def query_tweets(query, limit=None):
     except KeyboardInterrupt:
         logging.info("Program interrupted by user. Returning tweets gathered "
                      "so far...")
-        return tweets
+    except BaseException:
+        logging.exception("An unknown error occurred! Returning tweets "
+                          "gathered so far.")
+
+    return tweets

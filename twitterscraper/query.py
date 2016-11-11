@@ -57,6 +57,9 @@ def query_tweets(query, limit=None):
     """
     Queries twitter for all the tweets you want!
 
+    Note that this function catches the KeyboardInterrupt so it can return
+    tweets on incomplete queries if the user decides to abort.
+
     :param query: Any advanced query you want to do! Compile it at
                   https://twitter.com/search-advanced and just copy the query!
     :param limit: Scraping will be stopped when at least ``limit`` number of
@@ -67,18 +70,23 @@ def query_tweets(query, limit=None):
     query = query.replace(' ', '%20').replace("#", "%23")
     pos = None
     tweets = []
-    while True:
-        new_tweets, pos = query_single_page(
-            INIT_URL.format(q=query) if pos is None
-            else RELOAD_URL.format(q=query, pos=pos),
-            pos is None
-        )
-        if len(new_tweets) == 0:
-            return tweets
+    try:
+        while True:
+            new_tweets, pos = query_single_page(
+                INIT_URL.format(q=query) if pos is None
+                else RELOAD_URL.format(q=query, pos=pos),
+                pos is None
+            )
+            if len(new_tweets) == 0:
+                return tweets
 
-        tweets += new_tweets
-        logging.info("Got {} tweets ({} new).".format(len(tweets),
-                                                      len(new_tweets)))
+            tweets += new_tweets
+            logging.info("Got {} tweets ({} new).".format(len(tweets),
+                                                          len(new_tweets)))
 
-        if limit is not None and len(tweets) >= limit:
-            return tweets
+            if limit is not None and len(tweets) >= limit:
+                return tweets
+    except KeyboardInterrupt:
+        logging.info("Program interrupted by user. Returning tweets gathered "
+                     "so far...")
+        return tweets

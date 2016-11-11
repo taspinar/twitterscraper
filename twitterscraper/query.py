@@ -25,7 +25,6 @@ def query_single_page(url, html_response=True):
     :param html_response: False, if the HTML is embedded in a JSON
     :return: The list of tweets, the pos argument for getting the next page.
     """
-    logging.info("Gathering tweets from {}".format(url))
     headers = {'User-Agent': random.choice(HEADERS_LIST)}
     req = urllib.request.Request(url, headers=headers)
     try:
@@ -78,6 +77,8 @@ def query_tweets(query, limit=None):
             return tweets
 
         tweets += new_tweets
+        logging.info("Got {} tweets ({} new).".format(len(tweets),
+                                                      len(new_tweets)))
 
         if limit is not None and len(tweets) >= limit:
             return tweets

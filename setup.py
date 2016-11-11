@@ -11,4 +11,9 @@ setup(
     packages=find_packages(exclude=["build.*", "tests", "tests.*"]),
     install_requires=[
         'bs4', 'lxml', 'fake_useragent'
-    ])
+    ],
+    entry_points={
+        "console_scripts": [
+            "TwitterScraper = twitterscraper.main:main"
+        ]
+    })

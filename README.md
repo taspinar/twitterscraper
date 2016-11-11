@@ -72,8 +72,14 @@ Tweet(user='@italianfood_age', id='797020310134525952', timestamp='02:17 - 11. N
 Tweet(user='@laurac2605', id='797020310113570817', timestamp='02:17 - 11. Nov. 2016', fullname='Laura Ceccato', text='Why Clinton’s identity politics backfired http://www.spiked-online.com/newsite/article/why-clintons-identity-politics-backfired-trump-election/18960#.WCWah68m09A.twitter\xa0…  very interesting article')
 ```
 
+You can also use the command line application to get your tweets stored to JSON
+right away:
+
+`TwitterScraper "Trump OR Clinton" --limit 100 --output=tweets.json`
+
 # TO DO
 
+- Add caching potentially? Would be nice to be able to resume scraping if
+  something goes wrong and have half of the data of a request cached or so.
 - Add an example of using a thread pool/asynchio for gathering more tweets in
   parallel.
-- Add CLI

@@ -7,7 +7,7 @@ class Tweet(namedtuple("Tweet", "user id timestamp fullname text")):
     @classmethod
     def from_soup(cls, tweet):
         return cls(
-            user=tweet.find('span', 'username').text,
+            user=tweet.find('span', 'username').text[1:],
             id=tweet['data-item-id'],
             timestamp=tweet.find('a', 'tweet-timestamp')['title'],
             fullname=tweet.find('strong', 'fullname').text,

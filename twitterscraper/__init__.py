@@ -4,8 +4,11 @@
 """
 Twitter Scraper tool
 """
+
 __version__ = '0.1'
 __author__ = 'Ahmet Taspinar'
 __license__ = 'MIT'
 
-from twitterscraper import *
+
+from twitterscraper.query import query_tweets
+from twitterscraper.tweet import Tweet

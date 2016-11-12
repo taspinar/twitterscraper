@@ -5,7 +5,7 @@ setup(
     version='0.2.0',
     description='Tool for scraping Tweets',
     url='https://github.com/taspinar/twitterscraper',
-    author='Ahmet Taspinar',
+    author='Ahmet Taspinar', 'Lasse Schuirmann'
     author_email='taspinar@gmail.com',
     license='MIT',
     packages=find_packages(exclude=["build.*", "tests", "tests.*"]),

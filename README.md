@@ -1,112 +1,90 @@
 # Synopsis
 
-A simple script to scrape for Tweets using the Python package requests to retrieve the content and Beautifullsoup4 to parse the retrieved content. 
+A simple script to scrape for Tweets using the Python package requests to
+retrieve the content and Beautifullsoup4 to parse the retrieved content.
 
 
 # Motivation
-Twitter has provided [REST API's](https://dev.twitter.com/rest/public) which can be used by developers to access and read Twitter data. They have also provided a [Streaming API](https://dev.twitter.com/streaming/overview) which can be used to access Twitter Data in real-time. 
-Most of the software written to access Twitter data provide a library which functions as a wrapper around Twitters Search and Streaming API's and therefore are limited by the limitations of the API's. 
+Twitter has provided [REST API's](https://dev.twitter.com/rest/public) which can
+be used by developers to access and read Twitter data. They have also provided
+a [Streaming API](https://dev.twitter.com/streaming/overview) which can be used
+to access Twitter Data in real-time.
+
+Most of the software written to access Twitter data provide a library which
+functions as a wrapper around Twitters Search and Streaming API's and therefore
+are limited by the limitations of the API's.
+
+With Twitter's Search API you can only sent 180 Requests every 15 minutes. With
+a maximum number of 100 tweets per Request this means you can mine for
+4 x 180 x 100 = 72.000 tweets per hour. By using TwitterScraper you are not
+limited by this number but by your internet speed/bandwith and the number of
+instances of TwitterScraper you are willing to start.
 
 
-With Twitter's Search API you can only sent 180 Requests every 15 minutes. With a maximum number of 100 tweets per Request this means you can mine for 4 x 180 x 100 = 72.000 tweets per hour. By using TwitterScraper you are not limited by this number but by your internet speed/bandwith and the number of instances of TwitterScraper you are willing to start.
-
-
-One of the bigger disadvantages of the Search API is that you can only access Tweets written in the **past 7 days**. This is a major bottleneck for anyone looking for older past data to make a model from. With TwitterScraper there is no such limitation.
-    
+One of the bigger disadvantages of the Search API is that you can only access
+Tweets written in the **past 7 days**. This is a major bottleneck for anyone
+looking for older past data to make a model from. With TwitterScraper there is
+no such limitation.
 
 # Installation
+
 To install **twitterscraper**:
+
 ```python
 (sudo) pip install twitterscraper
 ```
 
 or you can clone the repository and in the folder containing setup.py
+
 ```python
 python setup.py install
 ```
 
+# The CLI
+
+You can use the command line application to get your tweets stored to JSON
+right away:
+
+`TwitterScraper "Trump OR Clinton" --limit 100 --output=tweets.json`
+
+Omit the limit to retrieve all tweets. You can at any time abort the scraping
+by pressing Ctrl+C, the scraped tweets will be stored safely in your JSON file.
 
 # Code Example
-TwitterScraper is very versatile and can be initialized with various parameters:
 
--**one or more keywords**.
+You can easily use TwitterScraper from within python:
+
 ```python
-from twitterscraper import TwitterScraper
-topic = 'Trump'
-topics = ['Trump', 'Clinton'] #if there are more than one keywords, use an array. 
-scraper1 = TwitterScraper.Scraper(topics)
+from twitterscraper import query_tweets
 
-scraper1.scrape()
-collecting inf number of Tweets on the topics: ['Trump', 'Clinton']
-[u'@TheLegalTerms', '753638968785186816', '10:15 - 14 jul. 2016', 'Law News Blog', 'Trump\xe2\x80\x99s policies would be unconstitutional and will be challenged if adopted, ACLU says http://dlvr.it/Lp5DLn\xc2\xa0pic.twitter.com/ZsWF5Oh1II']
-[u'@CovertAnonymous', '753638968466542596', '10:15 - 14 jul. 2016', 'Anonymous', 'GuardianUS: Who is potential Trump VP pick Mike Pence? http://trib.al/uibbBVk\xc2\xa0pic.twitter.com/AeFXrcyROE']
-[u'@SocMediaNation', '753638968248250368', '10:15 - 14 jul. 2016', 'Social Media Nation', "Company sends Trump 6,000 bags of green tea to make him 'smarter' http://on.mash.to/29KGyVq\xc2\xa0"]
-[u'@AllForLaw', '753638968009166849', '10:15 - 14 jul. 2016', 'All for Law News', 'Trump\xe2\x80\x99s policies would be unconstitutional and will be challenged if adopted, ACLU says http://dlvr.it/Lp5DLl\xc2\xa0pic.twitter.com/t55AoPQqtL']
-[u'@LaMananaDigital', '753638967904382978', '10:15 - 14 jul. 2016', 'Diario La Ma\xc3\xb1ana', '#Mundo Trump anunciar\xc3\xa1 el viernes su f\xc3\xb3rmula para la vicepresidencia http://www.lamanana.com.ve/9455/trump-anunciara-el-viernes-su-formula-para-la-vicepresidencia\xc2\xa0\xe2\x80\xa6pic.twitter.com/S036zD3YkK']
-...
-...
+
+# All tweets matching either Trump or Clinton will be returned. You will get at
+# least 10 results within the minimal possible time/number of requests
+for tweet in query_tweets("Trump OR Clinton", 10)[:10]:
+    print(tweet.username)
 ```
 
+You can use any advanced query twitter supports. Simply compile your query at
+<https://twitter.com/search-advanced>.
 
+You should get an output like this:
 
--If an upper limit is given with the argument **no_tweets**, it will stop once this amount of Tweets has been collected:
-```python
-scraper = TwitterScraper.Scraper(topics, 100000)
-scraper.scrape()
+```text
+Tweet(user='@WiseFreeman', id='797020313569689601', timestamp='02:17 - 11. Nov. 2016', fullname='Solomon Freeman', text="Chinese Internet Companies Are In Danger After Trump's Victory http://fb.me/5NfxcdTn9\xa0")
+Tweet(user='@TheRoseBushes', id='797020313099927552', timestamp='02:17 - 11. Nov. 2016', fullname='The Rose Bushes', text='Democrats Wonder If Bernie Sanders Could Have Beaten Trump http://ift.tt/2fHyWDL\xa0')
+Tweet(user='@TvPrefeito', id='797020312869240833', timestamp='02:17 - 11. Nov. 2016', fullname='TvPrefeito', text='Na Casa Branca, Trump diz que vai pedir conselhos a Obama http://tinyurl.com/z97ll3c\xa0pic.twitter.com/aJeAjrldnM')
+Tweet(user='@portlandor_agen', id='797020312655241217', timestamp='02:17 - 11. Nov. 2016', fullname='Portland Agent', text='Portland Police Say Anti-Trump Protest Is &#039;Riot&#039; #donald https://dragplus.com/post/id/38524480\xa0…')
+Tweet(user='@rpsmybb', id='797020312084905984', timestamp='02:17 - 11. Nov. 2016', fullname='Павел Афонин', text='Electoral College Electors: Electoral College Make Hillary Clinton President on December 19 - Подпишите петицию! http://fb.me/Rlv2qfWH\xa0')
+Tweet(user='@Shane_Conneely', id='797020312038703104', timestamp='02:17 - 11. Nov. 2016', fullname='Shane Conneely', text="#Trump's public works scheme has odd historical symmetries, ironically tea-party fear of big gov spending may be the only restraint on him")
+Tweet(user='@LavakyMohammed', id='797020311220785152', timestamp='02:17 - 11. Nov. 2016', fullname='Lavaky Mohammed', text='Usa-Un extrémiste Sioniste , milicien de Soros et anti Trump ! pic.twitter.com/PTDag2eQbO')
+Tweet(user='@Isethoriginal', id='797020310641983489', timestamp='02:17 - 11. Nov. 2016', fullname='Iseth Goldstein', text='Just curious: If SJW are convinced Trump is a dictator, will they still be eager to repeal the 2nd amendment? Or will they buy mass ammo?')
+Tweet(user='@italianfood_age', id='797020310134525952', timestamp='02:17 - 11. Nov. 2016', fullname='Italian Food agent', text='Portland Police Say Anti-Trump Protest Is &#039;Riot&#039; #donald https://dragplus.com/post/id/38524480\xa0…')
+Tweet(user='@laurac2605', id='797020310113570817', timestamp='02:17 - 11. Nov. 2016', fullname='Laura Ceccato', text='Why Clinton’s identity politics backfired http://www.spiked-online.com/newsite/article/why-clintons-identity-politics-backfired-trump-election/18960#.WCWah68m09A.twitter\xa0…  very interesting article')
 ```
 
+# TO DO
 
-
--If an **outputfile** is defined, the result will be written to file, otherwise to screen:
-```python
-filename = 'output.csv'
-scraper = TwitterScraper.Scraper(topics, 10000, filename = filename)
-scraper.scrape()
-```
-
-
-
--The **language** in which the to be collected Tweets have to be written can be specified. For a full list of the 34 supported languages go to [Twitters website](https://dev.twitter.com/web/overview/languages).
-```python
-filename = 'output.csv'
-scraper = TwitterScraper.Scraper(topics, 10000, lang='en', filename = filename)
-scraper.scrape()
-```
-
-
-
--A **begin date** and/or **end date** can be specified to limit the date-range in which you want to search.
-```python
-filename = 'output.csv'
-scraper = TwitterScraper.Scraper(topics, 10000, filename = filename, begin_date = '2016-01-01', end_date = '2016-06-16')
-scraper.scrape()
-```
-
-
-
--The **author(s)** of the Tweets as well as the **recipient(s)** can be specified. 
-```python
-filename = 'output.csv'
-author = 'realDonaldTrump'
-authors = ['realDonaldTrump', 'marcorubio']
-recipient = 'HillaryClinton'
-recipients = ['HillaryClinton', 'billclinton']
-scraper = TwitterScraper.Scraper(topics, 10000, authors=author, filename = filename)
-scraper2 = TwitterScraper.Scraper(topics, 10000, authors=authors, filename = filename)
-scraper3 = TwitterScraper.Scraper(topics, 10000, recipients=recipient, filename = filename)
-scraper4 = TwitterScraper.Scraper(topics, 10000, recipients=recipients, filename = filename)
-scraper.scrape()
-```
-
-
-
--The **location** of the Tweets can be specified. This can also be done with **longitude and latitude coordinates**. 
-```python
-filename = 'output.csv'
-scraper = TwitterScraper.Scraper(topics, near='Florida', within='20mi', filename = filename)
-scraper2 = TwitterScraper.Scraper(topics, near=[51.5073510,-0.1277580], within='20km', filename = filename)
-scraper.scrape()
-```
-
-#TO DO
-I am thinking of making TwitterScraper multithreaded. It will collect the Tweets much much faster by starting a different thread for each keyword, for each seperate date, for each different author etc.
+- Add caching potentially? Would be nice to be able to resume scraping if
+  something goes wrong and have half of the data of a request cached or so.
+- Add an example of using a thread pool/asynchio for gathering more tweets in
+  parallel.

@@ -33,7 +33,7 @@ def query_single_page(url, html_response=True, retry=3):
     headers = {'User-Agent': random.choice(HEADERS_LIST)}
     req = Request(url, headers=headers)
     try:
-        response = urlopen(req).read().decode()
+        response = urlopen(req).read().decode('utf-8')
         if html_response:
             html = response
         else:

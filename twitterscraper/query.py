@@ -1,7 +1,11 @@
 import json
 import logging
 import random
-import urllib
+import sys
+if sys.version_info[0] == 2:
+    from urllib2 import urlopen, Request, HTTPError, URLError
+else:
+    from urllib.request import urlopen, Request, HTTPError, URLError
 
 from fake_useragent import UserAgent
 
@@ -27,9 +31,9 @@ def query_single_page(url, html_response=True, retry=3):
     :return: The list of tweets, the pos argument for getting the next page.
     """
     headers = {'User-Agent': random.choice(HEADERS_LIST)}
-    req = urllib.request.Request(url, headers=headers)
+    req = Request(url, headers=headers)
     try:
-        response = urllib.request.urlopen(req).read().decode()
+        response = urlopen(req).read().decode()
         if html_response:
             html = response
         else:
@@ -44,10 +48,10 @@ def query_single_page(url, html_response=True, retry=3):
             return tweets, json_resp['min_position']
 
         return tweets, "TWEET-{}-{}".format(tweets[-1].id, tweets[0].id)
-    except urllib.request.HTTPError as e:
+    except HTTPError as e:
         logging.exception('HTTPError {} while requesting "{}"'.format(
             e.code, url))
-    except urllib.request.URLError as e:
+    except URLError as e:
         logging.exception('URLError {} while requesting "{}"'.format(
             e.reason, url))
 

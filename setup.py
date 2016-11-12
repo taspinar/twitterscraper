@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='twitterscraper',
-    version='0.2.0',
+    version='0.2.1',
     description='Tool for scraping Tweets',
     url='https://github.com/taspinar/twitterscraper',
     author=['Ahmet Taspinar', 'Lasse Schuirmann'],

@@ -61,7 +61,7 @@ from twitterscraper import query_tweets
 # All tweets matching either Trump or Clinton will be returned. You will get at
 # least 10 results within the minimal possible time/number of requests
 for tweet in query_tweets("Trump OR Clinton", 10)[:10]:
-    print(tweet.user)
+    print(tweet.user.encode('utf-8'))
 ```
 
 You can use any advanced query twitter supports. Simply compile your query at
@@ -88,5 +88,3 @@ Tweet(user='@laurac2605', id='797020310113570817', timestamp='02:17 - 11. Nov. 2
   something goes wrong and have half of the data of a request cached or so.
 - Add an example of using a thread pool/asynchio for gathering more tweets in
   parallel.
-- Add the begin and enddates, authors and recipients to the argument parser and adapt the query method. 
-- Make it both Python 2 and 3 compatible. 

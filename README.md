@@ -88,3 +88,5 @@ Tweet(user='@laurac2605', id='797020310113570817', timestamp='02:17 - 11. Nov. 2
   something goes wrong and have half of the data of a request cached or so.
 - Add an example of using a thread pool/asynchio for gathering more tweets in
   parallel.
+- Add the begin and enddates, authors and recipients to the argument parser and adapt the query method. 
+- Make it both Python 2 and 3 compatible. 

@@ -1,10 +1,16 @@
-from collections import namedtuple
 from datetime import datetime
 
 from bs4 import BeautifulSoup
 
 
-class Tweet(namedtuple("Tweet", "user id timestamp fullname text")):
+class Tweet:
+    def __init__(self, user, id, timestamp, fullname, text):
+        self.user = user
+        self.id = id
+        self.timestamp = timestamp
+        self.fullname = fullname
+        self.text = text
+
     @classmethod
     def from_soup(cls, tweet):
         return cls(

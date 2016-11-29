@@ -26,7 +26,8 @@ class JSONEncoder(json.JSONEncoder):
         elif hasattr(obj, '__dict__'):
             return {member: getattr(obj, member)
                     for member in dir(obj)
-                    if not member.startswith('_')}
+                    if not member.startswith('_') and
+                    not hasattr(getattr(obj, member), '__call__')}
 
         return json.JSONEncoder.default(self, obj)
 

@@ -2,6 +2,8 @@ import json
 import logging
 import random
 import sys
+from datetime import timedelta
+
 if sys.version_info[0] == 2:
     from urllib2 import urlopen, Request, HTTPError, URLError
 else:
@@ -63,9 +65,11 @@ def query_single_page(url, html_response=True, retry=3):
     return [], None
 
 
-def query_tweets(query, limit=None):
+def query_tweets_once(query, limit=None, num_tweets=0):
     """
-    Queries twitter for all the tweets you want!
+    Queries twitter for all the tweets you want! It will load all pages it gets
+    from twitter. However, twitter might out of a sudden stop serving new pages,
+    in that case, use the `query_tweets` method.
 
     Note that this function catches the KeyboardInterrupt so it can return
     tweets on incomplete queries if the user decides to abort.
@@ -74,6 +78,7 @@ def query_tweets(query, limit=None):
                   https://twitter.com/search-advanced and just copy the query!
     :param limit: Scraping will be stopped when at least ``limit`` number of
                   items are fetched.
+    :param num_tweets: Number of tweets fetched outside this function.
     :return:      A list of twitterscraper.Tweet objects. You will get at least
                   ``limit`` number of items.
     """
@@ -91,10 +96,10 @@ def query_tweets(query, limit=None):
                 return tweets
 
             tweets += new_tweets
-            logging.info("Got {} tweets ({} new).".format(len(tweets),
-                                                          len(new_tweets)))
+            logging.info("Got {} tweets ({} new).".format(
+                len(tweets) + num_tweets, len(new_tweets)))
 
-            if limit is not None and len(tweets) >= limit:
+            if limit is not None and len(tweets) + num_tweets >= limit:
                 return tweets
     except KeyboardInterrupt:
         logging.info("Program interrupted by user. Returning tweets gathered "
@@ -104,3 +109,52 @@ def query_tweets(query, limit=None):
                           "gathered so far.")
 
     return tweets
+
+
+def eliminate_duplicates(iterable):
+    """
+    Yields all unique elements of an iterable sorted. Elements are considered
+    non unique if the equality comparison to another element is true. (In those
+    cases, the set conversion isn't sufficient as it uses identity comparison.)
+    """
+    class NoElement: pass
+
+    prev_elem = NoElement
+    for elem in sorted(iterable):
+        if prev_elem is NoElement:
+            prev_elem = elem
+            yield elem
+            continue
+
+        if prev_elem != elem:
+            prev_elem = elem
+            yield elem
+
+
+def query_tweets(query, limit=None):
+    tweets = []
+    iteration = 1
+
+    while limit is None or len(tweets) < limit:
+        logging.info("Running iteration no {}, query is {}".format(
+            iteration, repr(query)))
+        new_tweets = query_tweets_once(query, limit, len(tweets))
+        tweets.extend(new_tweets)
+
+        if not new_tweets:
+            break
+
+        mindate = min(map(lambda tweet: tweet.timestamp, new_tweets))
+        maxdate = max(map(lambda tweet: tweet.timestamp, new_tweets))
+        logging.info("Got tweets ranging from {} to {}".format(
+            mindate.isoformat(), maxdate.isoformat()))
+
+        # Add a day, twitter only searches until excluding that day and we dont
+        # have complete results for that one yet.
+        mindate += timedelta(days=1)
+        # Twitter will always choose the more restrictive until:
+        query += ' until:' + mindate.date().isoformat()
+        iteration += 1
+
+    # Eliminate duplicates
+    return list(eliminate_duplicates(tweets))

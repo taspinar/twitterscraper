@@ -150,8 +150,15 @@ def query_tweets(query, limit=None):
             mindate.isoformat(), maxdate.isoformat()))
 
         # Add a day, twitter only searches until excluding that day and we dont
-        # have complete results for that one yet.
-        mindate += timedelta(days=1)
+        # have complete results for that one yet. However, we cannot limit the
+        # search to less than one day: if all results are from the same day, we
+        # want to continue searching further into the past.
+        if mindate != maxdate:
+            mindate += timedelta(days=1)
+        else:
+            logging.warning("Could not get all tweets for {}. "
+                            "Continuing...".format(mindate.isoformat()))
+
         # Twitter will always choose the more restrictive until:
         query += ' until:' + mindate.date().isoformat()
         iteration += 1

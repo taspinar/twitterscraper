@@ -1,15 +1,23 @@
-from collections import namedtuple
+from datetime import datetime
 
 from bs4 import BeautifulSoup
 
 
-class Tweet(namedtuple("Tweet", "user id timestamp fullname text")):
+class Tweet:
+    def __init__(self, user, id, timestamp, fullname, text):
+        self.user = user
+        self.id = id
+        self.timestamp = timestamp
+        self.fullname = fullname
+        self.text = text
+
     @classmethod
     def from_soup(cls, tweet):
         return cls(
             user=tweet.find('span', 'username').text[1:],
             id=tweet['data-item-id'],
-            timestamp=tweet.find('a', 'tweet-timestamp')['title'],
+            timestamp=datetime.utcfromtimestamp(
+                int(tweet.find('span', '_timestamp')['data-time'])),
             fullname=tweet.find('strong', 'fullname').text,
             text=tweet.find('p', 'tweet-text').text
             if tweet.find('p', 'tweet-text') else ""

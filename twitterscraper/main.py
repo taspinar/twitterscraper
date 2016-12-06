@@ -10,6 +10,7 @@ from json import dump
 import logging
 
 from twitterscraper import query_tweets
+from twitterscraper.query import query_all_tweets
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -45,13 +46,24 @@ def main():
                                  "tweets to.")
         parser.add_argument("-l", "--limit", type=int, default=None,
                             help="Number of minimum tweets to gather.")
+        parser.add_argument("-a", "--all", action='store_true',
+                            help="Set this flag if you want to get all tweets "
+                                 "in the history of twitter. This may take a "
+                                 "while but also activates parallel tweet "
+                                 "gathering. The number of tweets however, "
+                                 "will be capped at around 100000 per 10 "
+                                 "days.")
         args = parser.parse_args()
 
         if isfile(args.output):
             logging.error("Output file already exists! Aborting.")
             exit(-1)
 
-        tweets = query_tweets(args.query, args.limit)
+        if args.all:
+            tweets = query_all_tweets(args.query)
+        else:
+            tweets = query_tweets(args.query, args.limit)
+
         with open(args.output, "w") as output:
             dump(tweets, output, cls=JSONEncoder)
     except KeyboardInterrupt:

@@ -3,6 +3,9 @@
 from setuptools import setup, find_packages
 
 
+with open('requirements.txt') as requirements:
+    required = requirements.read().splitlines()
+
 setup(
     name='twitterscraper',
     version='0.2.1',
@@ -12,9 +15,7 @@ setup(
     author_email='taspinar@gmail.com',
     license='MIT',
     packages=find_packages(exclude=["build.*", "tests", "tests.*"]),
-    install_requires=[
-        'bs4', 'lxml', 'fake_useragent'
-    ],
+    install_requires=required,
     entry_points={
         "console_scripts": [
             "TwitterScraper = twitterscraper.main:main"

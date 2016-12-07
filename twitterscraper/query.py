@@ -96,6 +96,8 @@ def query_tweets_once(query, limit=None, num_tweets=0):
                 pos is None
             )
             if len(new_tweets) == 0:
+                logging.info("Got {} tweets for {}.".format(
+                    len(tweets), query))
                 return tweets
 
             logging.info("Got {} tweets ({} new).".format(
@@ -108,6 +110,8 @@ def query_tweets_once(query, limit=None, num_tweets=0):
     except KeyboardInterrupt:
         logging.info("Program interrupted by user. Returning tweets gathered "
                      "so far...")
+        if not tweets:
+            raise
     except BaseException:
         logging.exception("An unknown error occurred! Returning tweets "
                           "gathered so far.")

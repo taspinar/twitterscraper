@@ -85,7 +85,7 @@ def query_tweets_once(query, limit=None, num_tweets=0):
                   ``limit`` number of items.
     """
     logging.info("Querying {}".format(query))
-    query = query.replace(' ', '%20').replace("#", "%23")
+    query = query.replace(' ', '%20').replace("#", "%23").replace(":", "%3A")
     pos = None
     tweets = []
     try:

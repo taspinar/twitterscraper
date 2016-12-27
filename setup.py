@@ -8,7 +8,7 @@ with open('requirements.txt') as requirements:
 
 setup(
     name='twitterscraper',
-    version='0.2.4',
+    version='0.2.5',
     description='Tool for scraping Tweets',
     url='https://github.com/taspinar/twitterscraper',
     author=['Ahmet Taspinar', 'Lasse Schuirmann'],
@@ -18,6 +18,6 @@ setup(
     install_requires=required,
     entry_points={
         "console_scripts": [
-            "TwitterScraper = twitterscraper.main:main"
+            "twitterscraper = twitterscraper.main:main"
         ]
     })

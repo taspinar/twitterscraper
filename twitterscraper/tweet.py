@@ -31,4 +31,7 @@ class Tweet:
         tweets = soup.find_all('li', 'js-stream-item')
         if tweets:
             for tweet in tweets:
-                yield cls.from_soup(tweet)
+                try:
+                    yield cls.from_soup(tweet)
+                except AttributeError:
+                    pass  # Incomplete info? Discard!

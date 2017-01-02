@@ -152,8 +152,8 @@ def query_tweets(query, limit=None):
         if not new_tweets:
             break
 
-        mindate = min(map(lambda tweet: tweet.timestamp, new_tweets))
-        maxdate = max(map(lambda tweet: tweet.timestamp, new_tweets))
+        mindate = min(map(lambda tweet: tweet.timestamp, new_tweets)).date()
+        maxdate = max(map(lambda tweet: tweet.timestamp, new_tweets)).date()
         logging.info("Got tweets ranging from {} to {}".format(
             mindate.isoformat(), maxdate.isoformat()))
 
@@ -167,7 +167,7 @@ def query_tweets(query, limit=None):
             mindate += timedelta(days=1)
 
         # Twitter will always choose the more restrictive until:
-        query += ' until:' + mindate.date().isoformat()
+        query += ' until:' + mindate.isoformat()
         iteration += 1
 
     # Eliminate duplicates

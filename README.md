@@ -45,7 +45,7 @@ python setup.py install
 You can use the command line application to get your tweets stored to JSON
 right away:
 
-`TwitterScraper "Trump OR Clinton" --limit 100 --output=tweets.json`
+`twitterscraper "Trump OR Clinton" --limit 100 --output=tweets.json`
 
 Omit the limit to retrieve all tweets. You can at any time abort the scraping
 by pressing Ctrl+C, the scraped tweets will be stored safely in your JSON file.

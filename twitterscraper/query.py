@@ -5,13 +5,8 @@ import sys
 from datetime import timedelta, date
 from multiprocessing.pool import Pool
 
-if sys.version_info[0] == 2:
-    from urllib2 import urlopen, Request, HTTPError, URLError
-else:
-    from urllib.request import urlopen, Request, HTTPError, URLError
-
+import requests
 from fake_useragent import UserAgent
-
 from twitterscraper.tweet import Tweet
 
 
@@ -34,13 +29,13 @@ def query_single_page(url, html_response=True, retry=3):
     :return: The list of tweets, the pos argument for getting the next page.
     """
     headers = {'User-Agent': random.choice(HEADERS_LIST)}
-    req = Request(url, headers=headers)
+    
     try:
-        response = urlopen(req).read().decode('utf-8')
+        response = requests.get(url, headers=headers)
         if html_response:
-            html = response
+            html = response.text
         else:
-            json_resp = json.loads(response)
+            json_resp = response.json()
             html = json_resp['items_html']
 
         tweets = list(Tweet.from_html(html))
@@ -52,13 +47,15 @@ def query_single_page(url, html_response=True, retry=3):
             return tweets, json_resp['min_position']
 
         return tweets, "TWEET-{}-{}".format(tweets[-1].id, tweets[0].id)
-    except HTTPError as e:
+    except requests.exceptions.HTTPError as e:
         logging.exception('HTTPError {} while requesting "{}"'.format(
-            e.code, url))
-    except URLError as e:
-        logging.exception('URLError {} while requesting "{}"'.format(
-            e.reason, url))
-
+            e, url))
+    except requests.exception.ConnectionError as e:
+        logging.exception('ConnectionError {} while requesting "{}"'.format(
+            e, url))
+    except requests.exceptions.Timeout as e:
+        logging.exception('TimeOut {} while requesting "{}"'.format(
+            e, url))
     if retry > 0:
         logging.info("Retrying...")
         return query_single_page(url, html_response, retry-1)

@@ -29,7 +29,7 @@ def query_single_page(url, html_response=True, retry=3):
     :return: The list of tweets, the pos argument for getting the next page.
     """
     headers = {'User-Agent': random.choice(HEADERS_LIST)}
-    
+
     try:
         response = requests.get(url, headers=headers)
         if html_response:

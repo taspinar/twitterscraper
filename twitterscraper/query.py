@@ -50,7 +50,7 @@ def query_single_page(url, html_response=True, retry=3):
     except requests.exceptions.HTTPError as e:
         logging.exception('HTTPError {} while requesting "{}"'.format(
             e, url))
-    except requests.exception.ConnectionError as e:
+    except requests.exceptions.ConnectionError as e:
         logging.exception('ConnectionError {} while requesting "{}"'.format(
             e, url))
     except requests.exceptions.Timeout as e:

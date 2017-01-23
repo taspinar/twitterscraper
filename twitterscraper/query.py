@@ -29,7 +29,7 @@ def query_single_page(url, html_response=True, retry=3):
     :return: The list of tweets, the pos argument for getting the next page.
     """
     headers = {'User-Agent': random.choice(HEADERS_LIST)}
-    
+
     try:
         response = requests.get(url, headers=headers)
         if html_response:
@@ -50,7 +50,7 @@ def query_single_page(url, html_response=True, retry=3):
     except requests.exceptions.HTTPError as e:
         logging.exception('HTTPError {} while requesting "{}"'.format(
             e, url))
-    except requests.exception.ConnectionError as e:
+    except requests.exceptions.ConnectionError as e:
         logging.exception('ConnectionError {} while requesting "{}"'.format(
             e, url))
     except requests.exceptions.Timeout as e:
@@ -107,8 +107,6 @@ def query_tweets_once(query, limit=None, num_tweets=0):
     except KeyboardInterrupt:
         logging.info("Program interrupted by user. Returning tweets gathered "
                      "so far...")
-        if not tweets:
-            raise
     except BaseException:
         logging.exception("An unknown error occurred! Returning tweets "
                           "gathered so far.")

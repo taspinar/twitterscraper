@@ -46,7 +46,9 @@ You can use the command line application to get your tweets stored to JSON
 right away:
 
 `twitterscraper Trump --limit 100 --output=tweets.json`
+
 `twitterscraper Trump -l 100 -o tweets.json`
+
 `twitterscraper trump%20since%3A2017-01-03%20until%3A2017-01-04 -o tweets.json`
 
 Omit the limit to retrieve all tweets. You can at any time abort the scraping

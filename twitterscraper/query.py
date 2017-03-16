@@ -142,9 +142,11 @@ def query_tweets(query, limit=None):
         logging.info("Running iteration no {}, query is {}".format(
             iteration, repr(query)))
         new_tweets = query_tweets_once(query, limit, len(tweets))
+        old_tweet_num = len(tweets)
         tweets.extend(new_tweets)
+        tweets = list(eliminate_duplicates(tweets))
 
-        if not new_tweets:
+        if not new_tweets or len(tweets) == old_tweet_num:
             break
 
         mindate = min(map(lambda tweet: tweet.timestamp, new_tweets)).date()
@@ -166,7 +168,7 @@ def query_tweets(query, limit=None):
         iteration += 1
 
     # Eliminate duplicates
-    return list(eliminate_duplicates(tweets))
+    return tweets
 
 
 def query_all_tweets(query):

@@ -58,9 +58,11 @@ You can use any advanced query twitter supports. Simply compile your query at
 between q= and the first subsequent &. 
 
 For example, from the URL
-"https://twitter.com/search?l=&q=**Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05**&src=typd&lang=en"
+https://twitter.com/search?l=&q=**Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05**&src=typd&lang=en
+
 you need to copy the following part:
 `Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05`
+
 
 
 You can use the CLI with the advanced query, the same way as a simple query:

@@ -49,10 +49,34 @@ right away:
 
 `twitterscraper Trump -l 100 -o tweets.json`
 
-`twitterscraper trump%20since%3A2017-01-03%20until%3A2017-01-04 -o tweets.json`
-
 Omit the limit to retrieve all tweets. You can at any time abort the scraping
 by pressing Ctrl+C, the scraped tweets will be stored safely in your JSON file.
+
+# Advanced Search
+You can use any advanced query twitter supports. Simply compile your query at
+<https://twitter.com/search-advanced>. After you compose your advanced search, copy the part of the URL 
+between q= and the first subsequent &. 
+
+For example, from the URL
+`https://twitter.com/search?l=&q=Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05&src=typd&lang=en`
+you need to copy
+`Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05`
+
+You can use the CLI with the advanced query, the same way as a simple query:
+
++ based on a daterange: 
+
+`twitterscraper Trump%20since%3A2017-01-03%20until%3A2017-01-04 -o tweets.json`
+
++ based on a daterange and location: 
+
+`twitterscraper Trump%20near%3A"Seattle%2C%20WA"%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05 -o tweets.json`
+
++ based on a specific author: 
+
+`twitterscraper Trump%20from%3AAlWest13 -o tweets.json`
+
+
 
 # Code Example
 
@@ -67,9 +91,6 @@ from twitterscraper import query_tweets
 for tweet in query_tweets("Trump OR Clinton", 10)[:10]:
     print(tweet.user.encode('utf-8'))
 ```
-
-You can use any advanced query twitter supports. Simply compile your query at
-<https://twitter.com/search-advanced>.
 
 You should get an output like this:
 

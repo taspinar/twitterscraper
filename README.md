@@ -64,13 +64,13 @@ you need to copy
 
 You can use the CLI with the advanced query, the same way as a simple query:
 
-**based on a daterange: ** 
+** based on a daterange: **
 `twitterscraper Trump%20since%3A2017-01-03%20until%3A2017-01-04 -o tweets.json`
 
-**based on a daterange and location: **
+** based on a daterange and location: **
 `twitterscraper Trump%20near%3A"Seattle%2C%20WA"%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05 -o tweets.json`
 
-based on a specific author: **
+** based on a specific author: **
 `twitterscraper Trump%20from%3AAlWest13 -o tweets.json`
 
 

@@ -4,6 +4,9 @@
 
 TBD
 
+## 0.3.0 ( 2017-08-01 )
+### Added
+- Tweet class now also includes 'replies', 'retweets' and 'likes'
 
 ## 0.2.7 ( 2017-01-10 )
 -----------

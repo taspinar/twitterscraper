@@ -26,6 +26,16 @@ Tweets written in the **past 7 days**. This is a major bottleneck for anyone
 looking for older past data to make a model from. With TwitterScraper there is
 no such limitation.
 
+Per Tweet it scrapes the following information:
++ Username and Full Name
++ Tweet-id
++ Tweet text
++ Tweet timestamp
++ No. of likes
++ No. of replies
++ No. of retweets
+ 
+
 # Installation
 
 To install **twitterscraper**:
@@ -52,13 +62,22 @@ right away:
 Omit the limit to retrieve all tweets. You can at any time abort the scraping
 by pressing Ctrl+C, the scraped tweets will be stored safely in your JSON file.
 
+
+# The output file
+All of the retrieved Tweets are stored in the indicated output file. The contents of the output file will look like:
+```
+[{"fullname": "Rupert Meehl", "id": "892397793071050752", "likes": "1", "replies": "0", "retweets": "0", "text": "Latest: Trump now at lowest Approval and highest Disapproval ratings yet. Oh, we're winning bigly here ...\n\nhttps://projects.fivethirtyeight.com/trump-approval-ratings/?ex_cid=rrpromo\u00a0\u2026", "timestamp": "2017-08-01T14:53:08", "user": "Rupert_Meehl"}, {"fullname": "Barry Shapiro", "id": "892397794375327744", "likes": "0", "replies": "0", "retweets": "0", "text": "A former GOP Rep quoted this line, which pretty much sums up Donald Trump. https://twitter.com/davidfrum/status/863017301595107329\u00a0\u2026", "timestamp": "2017-08-01T14:53:08", "user": "barryshap"}, (...)
+]
+```
+
+
 # Advanced Search
 You can use any advanced query twitter supports. Simply compile your query at
 <https://twitter.com/search-advanced>. After you compose your advanced search, copy the part of the URL 
 between q= and the first subsequent &. 
 
 For example, from the URL
-https://twitter.com/search?l=&q=**Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05**&src=typd&lang=en
+`https://twitter.com/search?l=&q=Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05&src=typd&lang=en`
 
 you need to copy the following part:
 `Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05`
@@ -67,14 +86,14 @@ you need to copy the following part:
 
 You can use the CLI with the advanced query, the same way as a simple query:
 
-based on a daterange: 
-`twitterscraper Trump%20since%3A2017-01-03%20until%3A2017-01-04 -o tweets.json`
++ based on a daterange: 
+```twitterscraper Trump%20since%3A2017-01-03%20until%3A2017-01-04 -o tweets.json```
 
-based on a daterange and location: 
-`twitterscraper Trump%20near%3A"Seattle%2C%20WA"%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05 -o tweets.json`
++ based on a daterange and location: 
+```twitterscraper Trump%20near%3A"Seattle%2C%20WA"%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05 -o tweets.json```
 
- based on a specific author: 
-`twitterscraper Trump%20from%3AAlWest13 -o tweets.json`
++ based on a specific author: 
+```twitterscraper Trump%20from%3AAlWest13 -o tweets.json```
 
 
 

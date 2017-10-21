@@ -108,7 +108,7 @@ with codecs.open(filename, 'r', 'utf-8') as f:
     tweets = json.load(f, encoding='utf-8')
 ```
 
-
+![Example of output with chinese characters](https://user-images.githubusercontent.com/4409108/30702318-f05bc196-9eec-11e7-8234-a07aabec294f.PNG)
 
 # TO DO
 

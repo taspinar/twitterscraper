@@ -68,6 +68,16 @@ You can easily use TwitterScraper from within python:
 from twitterscraper import query_tweets
 list_of_tweets = query_tweets("Trump OR Clinton", 10)
 
+#print the retrieved tweets to the screen:
+for tweet in query_tweets("Trump OR Clinton", 10):
+    print(tweet)
+    
+#Or save the retrieved tweets to file:
+file = open(“output.txt”,”w”) 
+for tweet in query_tweets("Trump OR Clinton", 10):
+    file.write(tweet.encode('utf-8')) 
+file.close()
+
 ```
 
 ## 2.4 Composing advanced queries

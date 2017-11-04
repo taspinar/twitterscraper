@@ -62,8 +62,15 @@ right away:
 Omit the limit to retrieve all tweets. You can at any time abort the scraping
 by pressing Ctrl+C, the scraped tweets will be stored safely in your JSON file.
 
+## 2.3 From within Python
+You can easily use TwitterScraper from within python:
+```
+from twitterscraper import query_tweets
+list_of_tweets = query_tweets("Trump OR Clinton", 10)
 
-## 2.3 Composing advanced queries
+```
+
+## 2.4 Composing advanced queries
 You can use any advanced query twitter supports. Simply compile your query at
 <https://twitter.com/search-advanced>. After you compose your advanced search, copy the part of the URL 
 between q= and the first subsequent &. 

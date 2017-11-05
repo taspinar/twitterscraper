@@ -25,9 +25,15 @@ class Tweet:
                 int(tweet.find('span', '_timestamp')['data-time'])),
             fullname=tweet.find('strong', 'fullname').text,
             text=tweet.find('p', 'tweet-text').text or "",
-            replies = tweet.find('div', 'ProfileTweet-action--reply').find('span', 'ProfileTweet-actionCountForPresentation').text or '0',
-            retweets = tweet.find('div', 'ProfileTweet-action--retweet').find('span', 'ProfileTweet-actionCountForPresentation').text or '0',
-            likes = tweet.find('div', 'ProfileTweet-action--favorite').find('span', 'ProfileTweet-actionCountForPresentation').text or '0'
+            replies = tweet.find(
+                'span', 'ProfileTweet-action--reply u-hiddenVisually').find(
+                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0',
+            retweets = tweet.find(
+                'span', 'ProfileTweet-action--retweet u-hiddenVisually').find(
+                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0',
+            likes = tweet.find(
+                'span', 'ProfileTweet-action--favorite u-hiddenVisually').find(
+                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0',
         )
 
     @classmethod

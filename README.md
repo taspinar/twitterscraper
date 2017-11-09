@@ -59,6 +59,9 @@ right away:
 
 `twitterscraper Trump -l 100 -o tweets.json`
 
+TwitterScraper stops scraping when *at least* the number of tweets indicated with `--limit` is scraped. 
+Since tweets are retrieved in batches of 20, this will always be a multiple of 20. 
+
 Omit the limit to retrieve all tweets. You can at any time abort the scraping
 by pressing Ctrl+C, the scraped tweets will be stored safely in your JSON file.
 
@@ -118,12 +121,6 @@ All of the retrieved Tweets are stored in the indicated output file. The content
 In order to correctly handle all possible characters in the tweets (think of chinese or arabic characters), the output is saved as utf-8 encoded bytes. That is why you could see text like ""\u30b1\u30f3\u3055\u307e\u30fe ..." in the output file. 
 
 What you should do is open the file with the proper encoding:
-```
-import codecs, json
-filename = 'output.json'
-with codecs.open(filename, 'r', 'utf-8') as f:
-    tweets = json.load(f, encoding='utf-8')
-```
 
 ![Example of output with chinese characters](https://user-images.githubusercontent.com/4409108/30702318-f05bc196-9eec-11e7-8234-a07aabec294f.PNG)
 

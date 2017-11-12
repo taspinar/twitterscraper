@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 from datetime import datetime
 from os.path import isfile
 from json import dump
+from json import dumps
 import logging
 
 from twitterscraper import query_tweets
@@ -53,18 +54,25 @@ def main():
                                  "gathering. The number of tweets however, "
                                  "will be capped at around 100000 per 10 "
                                  "days.")
+        parser.add_argument("-d", "--dump", action='store_true',
+                            help="Set this flag if you want to dump the tweets "
+                                 "to the console rather than outputting to a file")
         args = parser.parse_args()
 
-        if isfile(args.output):
-            logging.error("Output file already exists! Aborting.")
-            exit(-1)
 
         if args.all:
             tweets = query_all_tweets(args.query)
         else:
             tweets = query_tweets(args.query, args.limit)
 
-        with open(args.output, "w") as output:
-            dump(tweets, output, cls=JSONEncoder)
+        if args.dump:
+            print(json.dumps(tweets, cls=JSONEncoder))
+
+        else: #if not using --dump
+            if isfile(args.output):
+                logging.error("Output file already exists! Aborting.")
+                exit(-1)
+            with open(args.output, "w") as output:
+                dump(tweets, output, cls=JSONEncoder)
     except KeyboardInterrupt:
         logging.info("Program interrupted by user. Quitting...")

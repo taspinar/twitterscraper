@@ -4,6 +4,13 @@
 
 TBD
 
+## 0.3.2 ( 2017-11-12 )
+-----------
+### Improved
+-PR #55: Adding --dump functionality which dumps the scraped tweets to screen, instead of an outputfile.
+
+
+
 ## 0.3.1 ( 2017-11-05 )
 -----------
 ### Improved

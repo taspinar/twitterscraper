@@ -73,6 +73,10 @@ def main():
                             help="Set this flag if you want to dump the tweets \nto the console rather than outputting to a file")
         args = parser.parse_args()
 
+        if isfile(args.output) and not args.dump:
+            logging.error("Output file already exists! Aborting.")
+            exit(-1)
+        
         if args.lang:
             args.query = "{}&l={}".format(args.query, args.lang)
         
@@ -83,11 +87,7 @@ def main():
 
         if args.dump:
             print(json.dumps(tweets, cls=JSONEncoder))
-
         else: #if not using --dump
-            if isfile(args.output):
-                logging.error("Output file already exists! Aborting.")
-                exit(-1)
             with open(args.output, "w") as output:
                 dump(tweets, output, cls=JSONEncoder)
     except KeyboardInterrupt:

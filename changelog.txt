@@ -5,8 +5,9 @@
 TBD
 ## 0.3.3 ( 2017-12-06 )
 -----------
-### Improved
+### Added
 -PR #61: Adding --lang functionality which can retrieve tweets written in a specific language. 
+-PR #62: Tweet class now also contains the tweet url. This closes https://github.com/taspinar/twitterscraper/issues/59
 
 
 ## 0.3.2 ( 2017-11-12 )

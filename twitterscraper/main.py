@@ -56,18 +56,18 @@ def main():
                                  "days.")
         parser.add_argument("--lang", type=str, default=None,
                             help="Set this flag if you want to query tweets in \na specific language. You can choose from:\n"
-                                 " en (English)\n ar (Arabic)\n bn (Bengali)\n"
-                                 " cs (Czech)\n da (Danish)\n de (German)\n el (Greek)\n es (Spanish)\n"
-                                 " fa (Persian)\n fi (Finnish)\n fil (Filipino)\n fr (French)\n"
-                                 " he (Hebrew)\n hi (Hindi)\n hu (Hungarian)\n"
-                                 " id (Indonesian)\n it (Italian)\n ja (Japanese)\n"
-                                 " ko (Korean)\n msa (Malay)\n nl (Dutch)\n"
-                                 " no (Norwegian)\n pl (Polish)\n pt (Portuguese)\n"
-                                 " ro (Romanian)\n ru (Russian)\n sv (Swedish)\n"
-                                 " th (Thai)\n tr (Turkish)\n uk (Ukranian)\n"
-                                 " ur (Urdu)\n vi (Vietnamese)\n"
-                                 " zh-cn (Chinese Simplified)\n"
-                                 " zh-tw (Chinese Traditional)"
+                                 "en (English)\nar (Arabic)\nbn (Bengali)\n"
+                                 "cs (Czech)\nda (Danish)\nde (German)\nel (Greek)\nes (Spanish)\n"
+                                 "fa (Persian)\nfi (Finnish)\nfil (Filipino)\nfr (French)\n"
+                                 "he (Hebrew)\nhi (Hindi)\nhu (Hungarian)\n"
+                                 "id (Indonesian)\nit (Italian)\nja (Japanese)\n"
+                                 "ko (Korean)\nmsa (Malay)\nnl (Dutch)\n"
+                                 "no (Norwegian)\npl (Polish)\npt (Portuguese)\n"
+                                 "ro (Romanian)\nru (Russian)\nsv (Swedish)\n"
+                                 "th (Thai)\ntr (Turkish)\nuk (Ukranian)\n"
+                                 "ur (Urdu)\nvi (Vietnamese)\n"
+                                 "zh-cn (Chinese Simplified)\n"
+                                 "zh-tw (Chinese Traditional)"
                                  )
         parser.add_argument("-d", "--dump", action="store_true", 
                             help="Set this flag if you want to dump the tweets \nto the console rather than outputting to a file")

@@ -3,7 +3,7 @@ This is a command line application that allows you to scrape twitter!
 """
 import collections
 import json
-from argparse import ArgumentParser
+import argparse
 from datetime import datetime
 from os.path import isfile
 from json import dump
@@ -37,7 +37,7 @@ class JSONEncoder(json.JSONEncoder):
 def main():
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
     try:
-        parser = ArgumentParser(
+        parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
             description=__doc__
         )
 
@@ -54,12 +54,28 @@ def main():
                                  "gathering. The number of tweets however, "
                                  "will be capped at around 100000 per 10 "
                                  "days.")
-        parser.add_argument("-d", "--dump", action='store_true',
-                            help="Set this flag if you want to dump the tweets "
-                                 "to the console rather than outputting to a file")
+        parser.add_argument("--lang", type=str, default=None,
+                            help="Set this flag if you want to query tweets in \na specific language. You can choose from:\n"
+                                 " en (English)\n ar (Arabic)\n bn (Bengali)\n"
+                                 " cs (Czech)\n da (Danish)\n de (German)\n el (Greek)\n es (Spanish)\n"
+                                 " fa (Persian)\n fi (Finnish)\n fil (Filipino)\n fr (French)\n"
+                                 " he (Hebrew)\n hi (Hindi)\n hu (Hungarian)\n"
+                                 " id (Indonesian)\n it (Italian)\n ja (Japanese)\n"
+                                 " ko (Korean)\n msa (Malay)\n nl (Dutch)\n"
+                                 " no (Norwegian)\n pl (Polish)\n pt (Portuguese)\n"
+                                 " ro (Romanian)\n ru (Russian)\n sv (Swedish)\n"
+                                 " th (Thai)\n tr (Turkish)\n uk (Ukranian)\n"
+                                 " ur (Urdu)\n vi (Vietnamese)\n"
+                                 " zh-cn (Chinese Simplified)\n"
+                                 " zh-tw (Chinese Traditional)"
+                                 )
+        parser.add_argument("-d", "--dump", action="store_true", 
+                            help="Set this flag if you want to dump the tweets \nto the console rather than outputting to a file")
         args = parser.parse_args()
 
-
+        if args.lang:
+            args.query = "{}&l={}".format(args.query, args.lang)
+        
         if args.all:
             tweets = query_all_tweets(args.query)
         else:

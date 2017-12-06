@@ -55,22 +55,30 @@ or you can clone the repository and in the folder containing setup.py
 You can use the command line application to get your tweets stored to
 JSON right away. Twitterscraper takes several arguments:
 
+-  ``-h`` or ``--help`` Print out the help message and exits.
+
 -  ``-l`` or ``--limit`` TwitterScraper stops scraping when *at least*
    the number of tweets indicated with ``--limit`` is scraped. Since
    tweets are retrieved in batches of 20, this will always be a multiple
    of 20.
 
-Omit the limit to retrieve all tweets. You can at any time abort the
-scraping by pressing Ctrl+C, the scraped tweets will be stored safely in
-your JSON file.
+   Omit the limit to retrieve all tweets. You can at any time abort the
+   scraping by pressing Ctrl+C, the scraped tweets will be stored safely
+   in your JSON file.
+
+-  ``--lang`` Retrieves tweets written in a specific language. Currently
+   30+ languages are supported. For a full list of the languages print
+   out the help message.
 
 -  ``-o`` or ``--output`` Gives the name of the output file. If no
-   outputfilename is given, the default filename 'tweets.json' will be
+   output filename is given, the default filename 'tweets.json' will be
    used.
 
 -  ``-d`` or ``--dump``: With this argument, the scraped tweets will be
    printed to the screen instead of an outputfile. If you are using this
    argument, the ``--output`` argument doe not need to be used.
+
+Below is an example of how twitterscraper can be used:
 
 ``twitterscraper Trump --limit 100 --output=tweets.json``
 

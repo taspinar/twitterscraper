@@ -3,12 +3,16 @@
 ## 0.x.x
 
 TBD
+## 0.3.3 ( 2017-12-06 )
+-----------
+### Improved
+-PR #61: Adding --lang functionality which can retrieve tweets written in a specific language. 
+
 
 ## 0.3.2 ( 2017-11-12 )
 -----------
 ### Improved
 -PR #55: Adding --dump functionality which dumps the scraped tweets to screen, instead of an outputfile.
-
 
 
 ## 0.3.1 ( 2017-11-05 )

@@ -6,11 +6,12 @@ from coala_utils.decorators import generate_ordering
 
 @generate_ordering('timestamp', 'id', 'text', 'user', 'replies', 'retweets', 'likes')
 class Tweet:
-    def __init__(self, user, id, timestamp, fullname, text, replies, retweets, likes):
+    def __init__(self, user, fullname, id, url, timestamp, text, replies, retweets, likes):
         self.user = user
-        self.id = id
-        self.timestamp = timestamp
         self.fullname = fullname
+        self.id = id
+        self.url = url
+        self.timestamp = timestamp
         self.text = text
         self.replies = replies
         self.retweets = retweets
@@ -20,10 +21,11 @@ class Tweet:
     def from_soup(cls, tweet):
         return cls(
             user=tweet.find('span', 'username').text[1:],
+            fullname=tweet.find('strong', 'fullname').text,
             id=tweet['data-item-id'],
+            url = tweet.find('div', 'tweet')['data-permalink-path'],
             timestamp=datetime.utcfromtimestamp(
                 int(tweet.find('span', '_timestamp')['data-time'])),
-            fullname=tweet.find('strong', 'fullname').text,
             text=tweet.find('p', 'tweet-text').text or "",
             replies = tweet.find(
                 'span', 'ProfileTweet-action--reply u-hiddenVisually').find(

@@ -31,8 +31,8 @@ for anyone looking for older past data to make a model from. With
 TwitterScraper there is no such limitation.
 
 Per Tweet it scrapes the following information: + Username and Full Name
-+ Tweet-id + Tweet text + Tweet timestamp + No. of likes + No. of
-replies + No. of retweets
++ Tweet-id + Tweet-url + Tweet text + Tweet timestamp + No. of likes +
+No. of replies + No. of retweets
 
 2. Installation and Usage
 =========================

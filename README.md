@@ -29,6 +29,7 @@ no such limitation.
 Per Tweet it scrapes the following information:
 + Username and Full Name
 + Tweet-id
++ Tweet-url
 + Tweet text
 + Tweet timestamp
 + No. of likes

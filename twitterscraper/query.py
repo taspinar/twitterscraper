@@ -1,11 +1,10 @@
-import json
 import logging
 import random
-import sys
-from datetime import timedelta, date
+import requests
+import datetime as dt
+from functools import partial
 from multiprocessing.pool import Pool
 
-import requests
 from fake_useragent import UserAgent
 from twitterscraper.tweet import Tweet
 
@@ -19,7 +18,7 @@ RELOAD_URL = "https://twitter.com/i/search/timeline?f=tweets&vertical=" \
              "reset_error_state=false&src=typd&max_position={pos}&q={q}"
 
 
-def query_single_page(url, html_response=True, retry=3):
+def query_single_page(url, html_response=True, retry=10):
     """
     Returns tweets from the given URL.
 
@@ -64,7 +63,7 @@ def query_single_page(url, html_response=True, retry=3):
     return [], None
 
 
-def query_tweets_once(query, limit=None, num_tweets=0):
+def query_tweets_once(query, limit=None):
     """
     Queries twitter for all the tweets you want! It will load all pages it gets
     from twitter. However, twitter might out of a sudden stop serving new pages,
@@ -97,12 +96,11 @@ def query_tweets_once(query, limit=None, num_tweets=0):
                     len(tweets), query))
                 return tweets
 
-            logging.info("Got {} tweets ({} new).".format(
-                len(tweets) + num_tweets, len(new_tweets)))
-
             tweets += new_tweets
 
-            if limit is not None and len(tweets) + num_tweets >= limit:
+            if limit and len(tweets) >= limit:
+                logging.info("Got {} tweets for {}.".format(
+                    len(tweets), query))
                 return tweets
     except KeyboardInterrupt:
         logging.info("Program interrupted by user. Returning tweets gathered "
@@ -110,7 +108,8 @@ def query_tweets_once(query, limit=None, num_tweets=0):
     except BaseException:
         logging.exception("An unknown error occurred! Returning tweets "
                           "gathered so far.")
-
+    logging.info("Got {} tweets for {}.".format(
+        len(tweets), query))
     return tweets
 
 
@@ -133,84 +132,33 @@ def eliminate_duplicates(iterable):
             prev_elem = elem
             yield elem
 
+def roundup(numerator, denominator):
+    return numerator // denominator + (numerator % denominator > 0)
 
-def query_tweets(query, limit=None):
-    tweets = []
-    iteration = 1
+def query_tweets(query, limit = None, begindate = dt.date(2017,1,1), enddate = dt.date.today(), poolsize = 20):
+    no_days = (enddate - begindate).days
+    stepsize = roundup(no_days,  poolsize)
+    dateranges = [begindate + dt.timedelta(days=elem) for elem in range(0,no_days,stepsize)]
+    dateranges.append(enddate)
 
-    while limit is None or len(tweets) < limit:
-        logging.info("Running iteration no {}, query is {}".format(
-            iteration, repr(query)))
-        new_tweets = query_tweets_once(query, limit, len(tweets))
-        tweets.extend(new_tweets)
-
-        if not new_tweets:
-            break
-
-        mindate = min(map(lambda tweet: tweet.timestamp, new_tweets)).date()
-        maxdate = max(map(lambda tweet: tweet.timestamp, new_tweets)).date()
-        logging.info("Got tweets ranging from {} to {}".format(
-            mindate.isoformat(), maxdate.isoformat()))
-
-        # Add a day, twitter only searches until excluding that day and we dont
-        # have complete results for that one yet. However, we cannot limit the
-        # search to less than one day: if all results are from the same day, we
-        # want to continue searching further into the past: either there are no
-        # further results or twitter stopped serving them and there's nothing
-        # we can do.
-        if mindate != maxdate:
-            mindate += timedelta(days=1)
-
-        # Twitter will always choose the more restrictive until:
-        query += ' until:' + mindate.isoformat()
-        iteration += 1
-
-    # Eliminate duplicates
-    return list(eliminate_duplicates(tweets))
-
-
-def query_all_tweets(query):
-    """
-    Queries *all* tweets in the history of twitter for the given query. This
-    will run in parallel for each ~10 days.
-
-    :param query: A twitter advanced search query.
-    :return: A list of tweets.
-    """
-    year = 2006
-    month = 3
-
-    limits = []
-    while date(year=year, month=month, day=1) < date.today():
-        nextmonth = month + 1 if month < 12 else 1
-        nextyear = year + 1 if nextmonth == 1 else year
-
-        limits.append(
-            (date(year=year, month=month, day=1),
-             date(year=year, month=month, day=10))
-        )
-        limits.append(
-            (date(year=year, month=month, day=10),
-             date(year=year, month=month, day=20))
-        )
-        limits.append(
-            (date(year=year, month=month, day=20),
-             date(year=nextyear, month=nextmonth, day=1))
-        )
-        year, month = nextyear, nextmonth
+    if limit:
+        limit_per_pool = roundup(limit, poolsize)
+    else:
+        limit_per_pool = None
 
     queries = ['{} since:{} until:{}'.format(query, since, until)
-               for since, until in reversed(limits)]
+               for since, until in zip(dateranges[:-1], dateranges[1:])]
 
-    pool = Pool(20)
+    pool = Pool(poolsize)
+
     all_tweets = []
+
     try:
-        for new_tweets in pool.imap_unordered(query_tweets_once, queries):
+        for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool), queries):
             all_tweets.extend(new_tweets)
             logging.info("Got {} tweets ({} new).".format(
                 len(all_tweets), len(new_tweets)))
     except KeyboardInterrupt:
         logging.info("Program interrupted by user. Returning all tweets "
                      "gathered so far.")
-
-    return sorted(all_tweets)
+    return all_tweets

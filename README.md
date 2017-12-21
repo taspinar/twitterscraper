@@ -98,6 +98,8 @@ Below is an example of how twitterscraper can be used:
 
 `twitterscraper Trump -l 100 -o tweets.json`
 
+`twitterscraper Trump -l 100 -bd 2017-01-01 -ed 2017-06-01 -o tweets.json`
+
 
 ## 2.3 From within Python
 You can easily use TwitterScraper from within python:
@@ -123,11 +125,11 @@ so that twitterscraper can recognize it as one single query.
 
 Here are some examples:
 
-+ search for the occurence of 'Bitcoin' or 'BTC': ```twitterscraper "Bitcoin OR BTC " -o bitcoin_tweets.json```
-+ search for the occurence of 'Bitcoin' and 'BTC': ```twitterscraper "Bitcoin AND BTC " -o bitcoin_tweets.json```
-+ search for tweets from a specific user: ```twitterscraper "Blockchain from:VitalikButerin" -o blockchain_tweets.json```
-+ search for tweets to a specific user: ```twitterscraper "Blockchain to:VitalikButerin" -o blockchain_tweets.json```
-+ search for tweets written from a location: ```twitterscraper "Blockchain near:Seattle within:15mi" -o blockchain_tweets.json```
++ search for the occurence of 'Bitcoin' or 'BTC': ```twitterscraper "Bitcoin OR BTC " -o bitcoin_tweets.json -l 1000```
++ search for the occurence of 'Bitcoin' and 'BTC': ```twitterscraper "Bitcoin AND BTC " -o bitcoin_tweets.json -l 1000```
++ search for tweets from a specific user: ```twitterscraper "Blockchain from:VitalikButerin" -o blockchain_tweets.json -l 1000```
++ search for tweets to a specific user: ```twitterscraper "Blockchain to:VitalikButerin" -o blockchain_tweets.json -l 1000```
++ search for tweets written from a location: ```twitterscraper "Blockchain near:Seattle within:15mi" -o blockchain_tweets.json -l 1000```
 
 
 

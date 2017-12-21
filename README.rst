@@ -96,6 +96,9 @@ JSON right away. Twitterscraper takes several arguments:
    printed to the screen instead of an outputfile. If you are using this
    argument, the ``--output`` argument doe not need to be used.
 
+2.2.1 Examples of simple queries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Below is an example of how twitterscraper can be used:
 
 ``twitterscraper Trump --limit 100 --output=tweets.json``
@@ -103,6 +106,26 @@ Below is an example of how twitterscraper can be used:
 ``twitterscraper Trump -l 100 -o tweets.json``
 
 ``twitterscraper Trump -l 100 -bd 2017-01-01 -ed 2017-06-01 -o tweets.json``
+
+2.2.2 Examples of advanced queries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can use any advanced query Twitter supports. An advanced query
+should be placed within quotes, so that twitterscraper can recognize it
+as one single query.
+
+Here are some examples:
+
+-  search for the occurence of 'Bitcoin' or 'BTC':
+   ``twitterscraper "Bitcoin OR BTC " -o bitcoin_tweets.json -l 1000``
+-  search for the occurence of 'Bitcoin' and 'BTC':
+   ``twitterscraper "Bitcoin AND BTC " -o bitcoin_tweets.json -l 1000``
+-  search for tweets from a specific user:
+   ``twitterscraper "Blockchain from:VitalikButerin" -o blockchain_tweets.json -l 1000``
+-  search for tweets to a specific user:
+   ``twitterscraper "Blockchain to:VitalikButerin" -o blockchain_tweets.json -l 1000``
+-  search for tweets written from a location:
+   ``twitterscraper "Blockchain near:Seattle within:15mi" -o blockchain_tweets.json -l 1000``
 
 2.3 From within Python
 ----------------------
@@ -123,26 +146,6 @@ You can easily use TwitterScraper from within python:
     for tweet in query_tweets("Trump OR Clinton", 10):
         file.write(tweet.encode('utf-8')) 
     file.close()
-
-2.4 Composing advanced queries
-------------------------------
-
-You can use any advanced query Twitter supports. An advanced query
-should be placed within quotes, so that twitterscraper can recognize it
-as one single query.
-
-Here are some examples:
-
--  search for the occurence of 'Bitcoin' or 'BTC':
-   ``twitterscraper "Bitcoin OR BTC " -o bitcoin_tweets.json -l 1000``
--  search for the occurence of 'Bitcoin' and 'BTC':
-   ``twitterscraper "Bitcoin AND BTC " -o bitcoin_tweets.json -l 1000``
--  search for tweets from a specific user:
-   ``twitterscraper "Blockchain from:VitalikButerin" -o blockchain_tweets.json -l 1000``
--  search for tweets to a specific user:
-   ``twitterscraper "Blockchain to:VitalikButerin" -o blockchain_tweets.json -l 1000``
--  search for tweets written from a location:
-   ``twitterscraper "Blockchain near:Seattle within:15mi" -o blockchain_tweets.json -l 1000``
 
 3. Output
 =========

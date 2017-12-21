@@ -125,28 +125,22 @@ You can easily use TwitterScraper from within python:
 2.4 Composing advanced queries
 ------------------------------
 
-You can use any advanced query twitter supports. Simply compile your
-query at https://twitter.com/search-advanced. After you compose your
-advanced search, copy the part of the URL between q= and the first
-subsequent &.
+You can use any advanced query Twitter supports. An advanced query
+should be placed within quotes, so that twitterscraper can recognize it
+as one single query.
 
-For example, from the URL
-``https://twitter.com/search?l=&q=Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi&src=typd&lang=en``
+Here are some examples:
 
-you need to copy the following part:
-``Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi``
-
-You can use the CLI with the advanced query, the same way as a simple
-query:
-
--  based on a daterange:
-   ``twitterscraper Trump -bd 2017-01-01 -ed A2017-06-01 -o tweets.json``
-
--  based on a daterange and location:
-   ``twitterscraper "Trump near:Seattle within:15mi" -bd 2017-01-01 -ed 2017-06-01 -o tweets.json``
-
--  based on a specific author:
-   ``twitterscraper "Trump from:AlWest13" -o tweets.json``
+-  search for the occurence of 'Bitcoin' or 'BTC':
+   ``twitterscraper "Bitcoin OR BTC " -o bitcoin_tweets.json``
+-  search for the occurence of 'Bitcoin' and 'BTC':
+   ``twitterscraper "Bitcoin AND BTC " -o bitcoin_tweets.json``
+-  search for tweets from a specific user:
+   ``twitterscraper "Blockchain from:VitalikButerin" -o blockchain_tweets.json``
+-  search for tweets to a specific user:
+   ``twitterscraper "Blockchain to:VitalikButerin" -o blockchain_tweets.json``
+-  search for tweets written from a location:
+   ``twitterscraper "Blockchain near:Seattle within:15mi" -o blockchain_tweets.json``
 
 3. Output
 =========

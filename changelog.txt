@@ -3,6 +3,28 @@
 ## 0.x.x
 
 TBD
+## 0.4 ( 2017-12-19 )
+-----------
+### Added
+- Added "-bd / --begindate" command line arguments to set the begin date of the query
+- Added "-ed / --enddate" command line arguments to set the end date of the query.
+- Added "-p / --poolsize" command line arguments which can change the number of parallel processes.
+  Default number of parallel processes is set to 20.
+
+### Improved
+- Outputfile is only created if tweets are actually retrieved.
+
+### Removed
+- The ´query_all_tweets' method in the Query module is removed. Since twitterscraper is starting parallel processes by default,
+  this method is no longer necessary.
+
+### Changed
+- The 'query_tweets' method now takes as arguments query, limit, begindate, enddate, poolsize.
+- The 'query_tweets_once' no longer has the argument 'num_tweets'
+- The default value of the 'retry' argument of the 'query_single_page' method has been increased from 3 to 10.
+- The ´query_tweets_once' method does not log to screen at every single scrape, but at the end of a batch.
+
+
 ## 0.3.3 ( 2017-12-06 )
 -----------
 ### Added

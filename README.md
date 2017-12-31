@@ -70,6 +70,20 @@ by pressing Ctrl+C, the scraped tweets will be stored safely in your JSON file.
 - `--lang`
 Retrieves tweets written in a specific language. Currently 30+ languages are supported. For a full list of the languages print out the help message.
 
+- `-bd` or `--begindate`
+Set the date from which TwitterScraper should start scraping for your query. Format is YYYY-MM-DD. The default value is set to 2017-01-01.
+
+- `-ed` or `--enddate`
+Set the enddate which TwitterScraper should use to stop scraping for your query. Format is YYYY-MM-DD. The default value is set to today.
+
+- `-p` or `--poolsize`
+Set the number of parallel processes TwitterScraper should initiate while scraping for your query. Default value is set to 20.
+Depending on the computational power you have, you can increase this number.
+It is advised to keep this number below half of the number of days you are scraping.
+For example, if you are scraping from 2017-01-10 to 2017-01-20, you can set this number to a maximum of 5.
+If you are scraping from 2016-01-01 to 2016-12-31, you can increase this number to a maximum of 150, if you have the computational resources.
+
+
 - `-o` or `--output`
 Gives the name of the output file. If no output filename is given, the default filename 'tweets.json' will be used. 
 
@@ -78,11 +92,30 @@ With this argument, the scraped tweets will be printed to the screen instead of 
 If you are using this argument, the `--output` argument doe not need to be used. 
 
 
+### 2.2.1 Examples of simple queries
+
 Below is an example of how twitterscraper can be used:
 
 `twitterscraper Trump --limit 100 --output=tweets.json`
 
 `twitterscraper Trump -l 100 -o tweets.json`
+
+`twitterscraper Trump -l 100 -bd 2017-01-01 -ed 2017-06-01 -o tweets.json`
+
+
+
+### 2.2.2 Examples of advanced queries
+You can use any advanced query Twitter supports. An advanced query should be placed within quotes,
+so that twitterscraper can recognize it as one single query.
+
+Here are some examples:
+
++ search for the occurence of 'Bitcoin' or 'BTC': ```twitterscraper "Bitcoin OR BTC " -o bitcoin_tweets.json -l 1000```
++ search for the occurence of 'Bitcoin' and 'BTC': ```twitterscraper "Bitcoin AND BTC " -o bitcoin_tweets.json -l 1000```
++ search for tweets from a specific user: ```twitterscraper "Blockchain from:VitalikButerin" -o blockchain_tweets.json -l 1000```
++ search for tweets to a specific user: ```twitterscraper "Blockchain to:VitalikButerin" -o blockchain_tweets.json -l 1000```
++ search for tweets written from a location: ```twitterscraper "Blockchain near:Seattle within:15mi" -o blockchain_tweets.json -l 1000```
+
 
 
 ## 2.3 From within Python
@@ -102,32 +135,6 @@ for tweet in query_tweets("Trump OR Clinton", 10):
 file.close()
 
 ```
-
-## 2.4 Composing advanced queries
-You can use any advanced query twitter supports. Simply compile your query at
-<https://twitter.com/search-advanced>. After you compose your advanced search, copy the part of the URL 
-between q= and the first subsequent &. 
-
-For example, from the URL
-`https://twitter.com/search?l=&q=Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05&src=typd&lang=en`
-
-you need to copy the following part:
-`Trump%20near%3A%22Seattle%2C%20WA%22%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05`
-
-
-
-You can use the CLI with the advanced query, the same way as a simple query:
-
-+ based on a daterange: 
-```twitterscraper Trump%20since%3A2017-01-03%20until%3A2017-01-04 -o tweets.json```
-
-+ based on a daterange and location: 
-```twitterscraper Trump%20near%3A"Seattle%2C%20WA"%20within%3A15mi%20since%3A2017-05-02%20until%3A2017-05-05 -o tweets.json```
-
-+ based on a specific author: 
-```twitterscraper Trump%20from%3AAlWest13 -o tweets.json```
-
-
 
 # 3. Output
 

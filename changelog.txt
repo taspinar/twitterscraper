@@ -3,6 +3,10 @@
 ## 0.x.x
 
 TBD
+## 0.4.1 ( 2018-01-07 )
+### Fixed
+- Fixed --lang functionality by passing the lang parameter from its CL argument form to the generater url. 
+
 ## 0.4 ( 2017-12-19 )
 -----------
 ### Added

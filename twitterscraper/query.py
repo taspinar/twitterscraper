@@ -12,10 +12,10 @@ from twitterscraper.tweet import Tweet
 ua = UserAgent()
 HEADERS_LIST = [ua.chrome, ua.google, ua['google chrome'], ua.firefox, ua.ff]
 
-INIT_URL = "https://twitter.com/search?f=tweets&vertical=default&q={q}"
+INIT_URL = "https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}"
 RELOAD_URL = "https://twitter.com/i/search/timeline?f=tweets&vertical=" \
              "default&include_available_features=1&include_entities=1&" \
-             "reset_error_state=false&src=typd&max_position={pos}&q={q}"
+             "reset_error_state=false&src=typd&max_position={pos}&q={q}&l={lang}"
 
 
 def query_single_page(url, html_response=True, retry=10):
@@ -63,7 +63,7 @@ def query_single_page(url, html_response=True, retry=10):
     return [], None
 
 
-def query_tweets_once(query, limit=None):
+def query_tweets_once(query, limit=None, lang=''):
     """
     Queries twitter for all the tweets you want! It will load all pages it gets
     from twitter. However, twitter might out of a sudden stop serving new pages,
@@ -87,8 +87,8 @@ def query_tweets_once(query, limit=None):
     try:
         while True:
             new_tweets, pos = query_single_page(
-                INIT_URL.format(q=query) if pos is None
-                else RELOAD_URL.format(q=query, pos=pos),
+                INIT_URL.format(q=query, lang=lang) if pos is None
+                else RELOAD_URL.format(q=query, pos=pos, lang=lang),
                 pos is None
             )
             if len(new_tweets) == 0:
@@ -135,7 +135,7 @@ def eliminate_duplicates(iterable):
 def roundup(numerator, denominator):
     return numerator // denominator + (numerator % denominator > 0)
 
-def query_tweets(query, limit = None, begindate = dt.date(2017,1,1), enddate = dt.date.today(), poolsize = 20):
+def query_tweets(query, limit = None, lang = '', begindate = dt.date(2017,1,1), enddate = dt.date.today(), poolsize = 20):
     no_days = (enddate - begindate).days
     stepsize = roundup(no_days,  poolsize)
     dateranges = [begindate + dt.timedelta(days=elem) for elem in range(0,no_days,stepsize)]
@@ -154,7 +154,7 @@ def query_tweets(query, limit = None, begindate = dt.date(2017,1,1), enddate = d
     all_tweets = []
 
     try:
-        for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool), queries):
+        for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool, lang=lang), queries):
             all_tweets.extend(new_tweets)
             logging.info("Got {} tweets ({} new).".format(
                 len(all_tweets), len(new_tweets)))

@@ -3,7 +3,7 @@
 ## 0.x.x
 
 TBD
-## 0.4.2 ( 2018-01-9 )
+## 0.4.2 ( 2018-01-09 )
 ### Fixed
 - Fixed backward compatability of the new --lang parameter by placing it at the end of all arguments.
 

@@ -6,7 +6,7 @@ from coala_utils.decorators import generate_ordering
 
 @generate_ordering('timestamp', 'id', 'text', 'user', 'replies', 'retweets', 'likes')
 class Tweet:
-    def __init__(self, user, fullname, id, url, timestamp, text, replies, retweets, likes):
+    def __init__(self, user, fullname, id, url, timestamp, text, replies, retweets, likes, html):
         self.user = user
         self.fullname = fullname
         self.id = id
@@ -16,6 +16,7 @@ class Tweet:
         self.replies = replies
         self.retweets = retweets
         self.likes = likes
+        self.html = html
 
     @classmethod
     def from_soup(cls, tweet):
@@ -36,6 +37,7 @@ class Tweet:
             likes = tweet.find(
                 'span', 'ProfileTweet-action--favorite u-hiddenVisually').find(
                     'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0',
+            html=tweet.find('p', 'tweet-text') or "",
         )
 
     @classmethod

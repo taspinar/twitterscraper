@@ -82,13 +82,12 @@ def main():
             logging.error("Output file already exists! Aborting.")
             exit(-1)
         
-        if args.lang:
-            args.query = "{}&l={}".format(args.query, args.lang)
-        
         if args.all:
             args.begindate = dt.date(2006,3,1)
 
-        tweets = query_tweets(args.query, args.limit, args.begindate, args.enddate, args.poolsize)
+        tweets = query_tweets(query = args.query, limit = args.limit, 
+                              begindate = args.begindate, enddate = args.enddate, 
+                              poolsize = args.poolsize, lang = args.lang)
 
         if args.dump:
             print(json.dumps(tweets, cls=JSONEncoder))

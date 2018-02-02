@@ -2,6 +2,7 @@ import logging
 import random
 import requests
 import datetime as dt
+import json
 from functools import partial
 from multiprocessing.pool import Pool
 
@@ -55,8 +56,12 @@ def query_single_page(url, html_response=True, retry=10):
     except requests.exceptions.Timeout as e:
         logging.exception('TimeOut {} while requesting "{}"'.format(
             e, url))
+    except json.decoder.JSONDecodeError as e:
+        logging.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
+            e, url))
+        
     if retry > 0:
-        logging.info("Retrying...")
+        logging.info("Retrying... (Attempts left: {})".format(retry))
         return query_single_page(url, html_response, retry-1)
 
     logging.error("Giving up.")

@@ -31,6 +31,7 @@ Per Tweet it scrapes the following information:
 + Tweet-id
 + Tweet-url
 + Tweet text
++ Tweet html
 + Tweet timestamp
 + No. of likes
 + No. of replies

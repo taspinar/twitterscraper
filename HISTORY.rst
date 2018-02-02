@@ -3,6 +3,10 @@
 ## 0.x.x
 
 TBD
+## 0.5.0 ( 2018-01-11 )
+### Added
+- Added the html code of a tweet message to the Tweet class as one of its attributes
+
 ## 0.4.2 ( 2018-01-09 )
 ### Fixed
 - Fixed backward compatability of the new --lang parameter by placing it at the end of all arguments.

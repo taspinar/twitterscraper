@@ -154,16 +154,21 @@ def query_tweets(query, limit=None, begindate=dt.date(2017,1,1), enddate=dt.date
     queries = ['{} since:{} until:{}'.format(query, since, until)
                for since, until in zip(dateranges[:-1], dateranges[1:])]
 
-    pool = Pool(poolsize)
-
     all_tweets = []
-
     try:
-        for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool, lang=lang), queries):
-            all_tweets.extend(new_tweets)
-            logging.info("Got {} tweets ({} new).".format(
-                len(all_tweets), len(new_tweets)))
-    except KeyboardInterrupt:
-        logging.info("Program interrupted by user. Returning all tweets "
-                     "gathered so far.")
+        pool = Pool(poolsize)
+
+        try:
+            for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool, lang=lang), queries):
+                all_tweets.extend(new_tweets)
+                logging.info("Got {} tweets ({} new).".format(
+                    len(all_tweets), len(new_tweets)))
+        except KeyboardInterrupt:
+            logging.info("Program interrupted by user. Returning all tweets "
+                         "gathered so far.")
+    finally:
+        pool.close()
+        pool.join()
+
     return all_tweets
+

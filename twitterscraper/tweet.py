@@ -37,7 +37,7 @@ class Tweet:
             likes = tweet.find(
                 'span', 'ProfileTweet-action--favorite u-hiddenVisually').find(
                     'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0',
-            html=tweet.find('p', 'tweet-text') or "",
+            html=str(tweet.find('p', 'tweet-text')) or "",
         )
 
     @classmethod

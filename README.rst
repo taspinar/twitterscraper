@@ -5,6 +5,11 @@ A simple script to scrape for Tweets using the Python package requests
 to retrieve the content and Beautifullsoup4 to parse the retrieved
 content.
 
+0. WebApp Version
+=============
+Although it is still in a very alpha version, the twitterscraper software can also be accessed via this `Web Application <http://twitterscraper.nl>`__
+
+
 1. Motivation
 =============
 

@@ -3,6 +3,13 @@
 ## 0.x.x
 
 TBD
+## 0.6.0 ( 2018-02-17 )
+### Fixed
+
+## 0.5.1 ( 2018-02-17 )
+### Fixed
+- Fixed MaxRecursionError crashes which was introduced with version 0.5.0
+
 ## 0.5.0 ( 2018-01-11 )
 ### Added
 - Added the html code of a tweet message to the Tweet class as one of its attributes

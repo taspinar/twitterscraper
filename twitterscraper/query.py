@@ -32,7 +32,7 @@ def query_single_page(url, html_response=True, retry=10):
 
     try:
         response = requests.get(url, headers=headers)
-        if resonse.status_code == 200:
+        if response.status_code == 200:
             if html_response:
                 html = response.text
                 tweets = list(Tweet.from_html(html))

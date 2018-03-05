@@ -145,11 +145,11 @@ def query_tweets(query, limit=None, begindate=dt.date(2017,1,1), enddate=dt.date
     stepsize = roundup(no_days,  poolsize)
     dateranges = [begindate + dt.timedelta(days=elem) for elem in range(0,no_days,stepsize)]
     dateranges.append(enddate)
-
-    if limit:
-        limit_per_pool = roundup(limit, poolsize)
-    else:
-        limit_per_pool = None
+    limit_per_pool = limit
+    # if limit:
+    #     limit_per_pool = roundup(limit, poolsize)
+    # else:
+    #     limit_per_pool = None
 
     queries = ['{} since:{} until:{}'.format(query, since, until)
                for since, until in zip(dateranges[:-1], dateranges[1:])]

@@ -2,13 +2,12 @@ import logging
 import random
 import requests
 import datetime as dt
-import json
+import ujson
 from functools import partial
 from multiprocessing.pool import Pool
 
 from fake_useragent import UserAgent
 from twitterscraper.tweet import Tweet
-
 
 ua = UserAgent()
 HEADERS_LIST = [ua.chrome, ua.google, ua['google chrome'], ua.firefox, ua.ff]
@@ -31,11 +30,12 @@ def query_single_page(url, html_response=True, retry=10):
     headers = {'User-Agent': random.choice(HEADERS_LIST)}
 
     try:
-        response = requests.get(url, headers=headers)
+        sess = requests.Session()
+        response = sess.get(url, headers=headers)
         if html_response:
             html = response.text
         else:
-            json_resp = response.json()
+            json_resp = ujson.loads(response.text)
             html = json_resp['items_html']
 
         tweets = list(Tweet.from_html(html))
@@ -56,7 +56,7 @@ def query_single_page(url, html_response=True, retry=10):
     except requests.exceptions.Timeout as e:
         logging.exception('TimeOut {} while requesting "{}"'.format(
             e, url))
-    except json.decoder.JSONDecodeError as e:
+    except Exception as e:
         logging.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
             e, url))
         
@@ -171,4 +171,3 @@ def query_tweets(query, limit=None, begindate=dt.date(2017,1,1), enddate=dt.date
         pool.join()
 
     return all_tweets
-

@@ -17,7 +17,7 @@ class Tweet:
         self.retweets = retweets
         self.likes = likes
         self.html = html
-        self.reply_to_id = reply_to_id
+        self.reply_to_id = reply_to_id if reply_to_id != id else '0'
 
     @classmethod
     def from_soup(cls, tweet):
@@ -39,7 +39,8 @@ class Tweet:
                 'span', 'ProfileTweet-action--favorite u-hiddenVisually').find(
                     'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0',
             html=str(tweet.find('p', 'tweet-text')) or "",
-            reply_to_id = tweet.findChildren()[0]['data-conversation-id'] or '0',
+            reply_to_id = tweet.find('div', 'tweet')['data-conversation-id'] or '0',
+            reply_to_user = tweet.find('div', 'tweet')['data-mentions'] or "",
             )
 
     @classmethod

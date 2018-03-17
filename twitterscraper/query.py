@@ -43,8 +43,6 @@ def query_single_page(url, html_response=True, retry=10):
                 tweets = list(Tweet.from_html(html))
                 return tweets, json_resp['min_position']
         else:
-            logging.exception('requests returned status code {} while requesting "{}"'.format(
-              response.status_code, url))
             return [], None
 
 

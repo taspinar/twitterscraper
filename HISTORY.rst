@@ -3,8 +3,14 @@
 ## 0.x.x
 
 TBD
+## 0.6.1 ( 2018-02-25 )
+### Fixed
+- Fixed a bug consisting of a call to requests internal JSON decoder when the response is None. 
+  https://github.com/taspinar/twitterscraper/issues/93
+
 ## 0.6.0 ( 2018-02-17 )
 ### Fixed
+- PR #89: closed pools to prevent zombie processes.
 
 ## 0.5.1 ( 2018-02-17 )
 ### Fixed

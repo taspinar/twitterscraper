@@ -32,21 +32,20 @@ def query_single_page(url, html_response=True, retry=10):
 
     try:
         response = requests.get(url, headers=headers)
-        if html_response:
-            html = response.text
+        if response.status_code == 200:
+            if html_response:
+                html = response.text
+                tweets = list(Tweet.from_html(html))
+                return tweets, "TWEET-{}-{}".format(tweets[-1].id, tweets[0].id)
+            else:
+                json_resp = response.json()
+                html = json_resp['items_html']
+                tweets = list(Tweet.from_html(html))
+                return tweets, json_resp['min_position']
         else:
-            json_resp = response.json()
-            html = json_resp['items_html']
-
-        tweets = list(Tweet.from_html(html))
-
-        if not tweets:
             return [], None
 
-        if not html_response:
-            return tweets, json_resp['min_position']
 
-        return tweets, "TWEET-{}-{}".format(tweets[-1].id, tweets[0].id)
     except requests.exceptions.HTTPError as e:
         logging.exception('HTTPError {} while requesting "{}"'.format(
             e, url))

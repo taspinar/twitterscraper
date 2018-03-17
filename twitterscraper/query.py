@@ -137,17 +137,15 @@ def eliminate_duplicates(iterable):
             prev_elem = elem
             yield elem
 
-def roundup(numerator, denominator):
-    return numerator // denominator + (numerator % denominator > 0)
-
 def query_tweets(query, limit=None, begindate=dt.date(2017,1,1), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
-    stepsize = roundup(no_days,  poolsize)
-    dateranges = [begindate + dt.timedelta(days=elem) for elem in range(0,no_days,stepsize)]
-    dateranges.append(enddate)
+    if poolsize > no_days:
+        poolsize = no_days
+    dateranges = [begindate + dt.timedelta(days=elem) for elem in range(0, no_days, no_days // poolsize)]
+    dateranges[-1] = enddate
 
     if limit:
-        limit_per_pool = roundup(limit, poolsize)
+        limit_per_pool = (limit // poolsize)+1
     else:
         limit_per_pool = None
 

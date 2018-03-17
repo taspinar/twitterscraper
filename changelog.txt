@@ -3,6 +3,12 @@
 ## 0.x.x
 
 TBD
+## 0.6.1 ( 2018-03-17 )
+### Improved
+- The way the number of days are divided over the number of parallel processes is improved.
+- The maximum number of parallel processes is limited to the max no of days.
+- Fixes https://github.com/taspinar/twitterscraper/issues/101
+
 ## 0.6.0 ( 2018-02-17 )
 ### Fixed
 - PR #89: closed pools to prevent zombie processes.

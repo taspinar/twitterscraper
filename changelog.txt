@@ -3,6 +3,15 @@
 ## 0.x.x
 
 TBD
+## 0.6.2 ( 2018-03-21 )
+### Fixed
+- Errors occuring during the serialization of a non-html response (everything after 1st request), 
+  No longer crashes the program but is catched with a try / except. 
+- Fixes https://github.com/taspinar/twitterscraper/issues/93
+
+- The '@' character in an username is now removed by the ".strip('\@')" method instead of "[1:]". 
+- This fixes issue https://github.com/taspinar/twitterscraper/issues/105  
+
 ## 0.6.1 ( 2018-03-17 )
 ### Improved
 - The way the number of days are divided over the number of parallel processes is improved.

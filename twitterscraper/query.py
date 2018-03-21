@@ -33,10 +33,14 @@ def query_single_page(url, html_response=True, retry=10):
     try:
         response = requests.get(url, headers=headers)
         if html_response:
-            html = response.text
+            html = response.text or ''
         else:
-            json_resp = response.json()
-            html = json_resp['items_html']
+            html = ''
+            try:
+                json_resp = json.loads(response.text)
+                html = json_resp['items_html'] or ''
+            except ValueError as e:
+                logging.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))  
 
         tweets = list(Tweet.from_html(html))
 

@@ -188,8 +188,4 @@ TO DO
 -  Add caching potentially? Would be nice to be able to resume scraping
    if something goes wrong and have half of the data of a request cached
    or so.
--  Add an example of using a thread pool/asynchio for gathering more
-   tweets in parallel.
--  Use RegExp for retrieving the information from the scraped page
-   (instead of Beautifullsoup4). This might solve the problem of the
-   HTML parser not working properly on some linux distributions.
+

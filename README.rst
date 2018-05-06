@@ -169,7 +169,7 @@ contents of the output file will look like:
 ---------------------------
 
 In order to correctly handle all possible characters in the tweets
-(think of chinese or arabic characters), the output is saved as utf-8
+(think of Japanese/Chinese or Arabic characters), the output is saved as utf-8
 encoded bytes. That is why you could see text like
 "":raw-latex:`\u3`0b1:raw-latex:`\u3`0f3:raw-latex:`\u3`055:raw-latex:`\u3`07e:raw-latex:`\u3`0fe
 ..." in the output file.
@@ -177,13 +177,14 @@ encoded bytes. That is why you could see text like
 What you should do is open the file with the proper encoding:
 
 .. figure:: https://user-images.githubusercontent.com/4409108/30702318-f05bc196-9eec-11e7-8234-a07aabec294f.PNG
-   :alt: Example of output with chinese characters
+   :alt: Example of output with Japanese characters
 
-   Example of output with chinese characters
+   Example of output with Japanese characters
 
 TO DO
 =====
 
+-  Twitterscraper can not retrieve retweets.
 -  Add caching potentially? Would be nice to be able to resume scraping
    if something goes wrong and have half of the data of a request cached
    or so.

@@ -1,6 +1,7 @@
 """
 This is a command line application that allows you to scrape twitter!
 """
+import csv
 import json
 import logging
 import argparse
@@ -52,6 +53,8 @@ def main():
                                  "in the history of twitter. Begindate is set to 2006-03-01."
                                  "This may take a while. You can increase the number of parallel"
                                  "processes depending on the computational power you have.")
+        parser.add_argument("-c", "--csv", action='store_true',
+                                help="Set this flag if you want to save the results to a CSV format.")
         parser.add_argument("--lang", type=str, default=None,
                             help="Set this flag if you want to query tweets in \na specific language. You can choose from:\n"
                                  "en (English)\nar (Arabic)\nbn (Bengali)\n"
@@ -69,8 +72,8 @@ def main():
                                  )
         parser.add_argument("-d", "--dump", action="store_true", 
                             help="Set this flag if you want to dump the tweets \nto the console rather than outputting to a file")
-        parser.add_argument("-bd", "--begindate", type=valid_date, default="2017-01-01",
-                            help="Scrape for tweets starting from this date. Format YYYY-MM-DD. \nDefault value is 2017-01-01", metavar='\b')
+        parser.add_argument("-bd", "--begindate", type=valid_date, default="2006-03-21",
+                            help="Scrape for tweets starting from this date. Format YYYY-MM-DD. \nDefault value is 2006-03-21", metavar='\b')
         parser.add_argument("-ed", "--enddate", type=valid_date, default=dt.date.today(),
                             help="Scrape for tweets until this date. Format YYYY-MM-DD. \nDefault value is the date of today.", metavar='\b')
         parser.add_argument("-p", "--poolsize", type=int, default=20, help="Specify the number of parallel process you want to run. \n"
@@ -94,6 +97,14 @@ def main():
         else:
             if tweets:
                 with open(args.output, "w") as output:
-                    json.dump(tweets, output, cls=JSONEncoder)
+                    if args.csv:
+                        f = csv.writer(output)
+                        f.writerow(["user", "fullname", "tweet-id", "timestamp", "url", "likes", "replies", "retweets", "text", "html"])
+                        for x in tweets:
+                            f.writerow([x.user, x.fullname, x.id, x.timestamp, x.url, 
+                                        x.likes, x.replies, x.retweets, 
+                                        x.text, x.html])
+                    else:
+                        json.dump(tweets, output, cls=JSONEncoder)
     except KeyboardInterrupt:
         logging.info("Program interrupted by user. Quitting...")

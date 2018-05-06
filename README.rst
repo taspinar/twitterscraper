@@ -171,8 +171,7 @@ contents of the output file will look like:
 In order to correctly handle all possible characters in the tweets
 (think of Japanese/Chinese or Arabic characters), the output is saved as utf-8
 encoded bytes. That is why you could see text like
-"":raw-latex:`\u3`0b1:raw-latex:`\u3`0f3:raw-latex:`\u3`055:raw-latex:`\u3`07e:raw-latex:`\u3`0fe
-..." in the output file.
+"\u30b1 \u30f3 \u3055 \u307e \u30fe ..." in the output file.
 
 What you should do is open the file with the proper encoding:
 

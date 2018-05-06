@@ -169,14 +169,13 @@ contents of the output file will look like:
 ---------------------------
 
 In order to correctly handle all possible characters in the tweets
-(think of Japanese/Chinese or Arabic characters), the output is saved as utf-8
+(think of Japanese or Arabic characters), the output is saved as utf-8
 encoded bytes. That is why you could see text like
 "\u30b1 \u30f3 \u3055 \u307e \u30fe ..." in the output file.
 
 What you should do is open the file with the proper encoding:
 
 .. figure:: https://user-images.githubusercontent.com/4409108/30702318-f05bc196-9eec-11e7-8234-a07aabec294f.PNG
-   :alt: Example of output with Japanese characters
 
    Example of output with Japanese characters
 

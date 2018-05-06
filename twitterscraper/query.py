@@ -1,3 +1,4 @@
+from __future__ import division
 import logging
 import random
 import requests
@@ -17,6 +18,14 @@ INIT_URL = "https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}"
 RELOAD_URL = "https://twitter.com/i/search/timeline?f=tweets&vertical=" \
              "default&include_available_features=1&include_entities=1&" \
              "reset_error_state=false&src=typd&max_position={pos}&q={q}&l={lang}"
+
+def linspace(start, stop, n):
+    if n == 1:
+        yield stop
+        return
+    h = (stop - start) / (n - 1)
+    for i in range(n):
+        yield start + h * i
 
 
 def query_single_page(url, html_response=True, retry=10):
@@ -141,12 +150,13 @@ def eliminate_duplicates(iterable):
             prev_elem = elem
             yield elem
 
-def query_tweets(query, limit=None, begindate=dt.date(2017,1,1), enddate=dt.date.today(), poolsize=20, lang=''):
+def query_tweets(query, limit=None, begindate=dt.date(2006,3,21), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
     if poolsize > no_days:
+        # Since we are assigning each pool a range of dates to query, 
+		# the number of pools should not exceed the number of dates.
         poolsize = no_days
-    dateranges = [begindate + dt.timedelta(days=elem) for elem in range(0, no_days, no_days // poolsize)]
-    dateranges[-1] = enddate
+    dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
 
     if limit:
         limit_per_pool = (limit // poolsize)+1

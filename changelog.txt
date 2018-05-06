@@ -3,6 +3,20 @@
 ## 0.x.x
 
 TBD
+## 0.7.0 ( 2018-05-06 )
+### Fixed
+- By using linspace() instead of range() to divide the number of days into 
+  the number of parallel processes, edge cases ( p = 1 ) now also work fine. 
+  This fixes https://github.com/taspinar/twitterscraper/issues/108.
+
+### Improved
+- The default value of begindate is set to 2006-03-21. The previous value (2017-01-01) 
+  was chosen arbitrarily and leaded to questions why not all tweets were retrieved.
+  This fixes https://github.com/taspinar/twitterscraper/issues/88.
+
+### Added
+- Users can now save the tweets in a csv-format, with the arguments "-c" or "--csv"
+
 ## 0.6.2 ( 2018-03-21 )
 ### Fixed
 - Errors occuring during the serialization of a non-html response (everything after 1st request), 

@@ -77,7 +77,7 @@ JSON right away. Twitterscraper takes several arguments:
 
 -  ``-bd`` or ``--begindate`` Set the date from which TwitterScraper
    should start scraping for your query. Format is YYYY-MM-DD. The
-   default value is set to 2017-01-01.
+   default value is set to 2006-03-21.
 
 -  ``-ed`` or ``--enddate`` Set the enddate which TwitterScraper should
    use to stop scraping for your query. Format is YYYY-MM-DD. The
@@ -87,16 +87,18 @@ JSON right away. Twitterscraper takes several arguments:
    TwitterScraper should initiate while scraping for your query. Default
    value is set to 20. Depending on the computational power you have,
    you can increase this number. It is advised to keep this number below
-   half of the number of days you are scraping. For example, if you are
+   the number of days you are scraping. For example, if you are
    scraping from 2017-01-10 to 2017-01-20, you can set this number to a
-   maximum of 5. If you are scraping from 2016-01-01 to 2016-12-31, you
+   maximum of 10. If you are scraping from 2016-01-01 to 2016-12-31, you
    can increase this number to a maximum of 150, if you have the
    computational resources.
 
 -  ``-o`` or ``--output`` Gives the name of the output file. If no
-   output filename is given, the default filename 'tweets.json' will be
-   used.
+   output filename is given, the default filename 'tweets.json' or 'tweets.csv' 
+   will be used.
 
+-  ``-c`` or ``--csv`` Write the result to a CSV file instead of a JSON file.
+   
 -  ``-d`` or ``--dump``: With this argument, the scraped tweets will be
    printed to the screen instead of an outputfile. If you are using this
    argument, the ``--output`` argument doe not need to be used.

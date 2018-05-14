@@ -1,14 +1,15 @@
+Visit the website
+=============
+Don't know that much about programming? Or you don't have enough time? Then visit the `Web Version <http://twitterscraper.nl>`__
+You can just input your keywords, and dont worry about the programming. 
+Besides the information which can be retrieved via the free twitterscraper tool, the website also retrieves user information. 
+
 Synopsis
 ========
 
 A simple script to scrape for Tweets using the Python package requests
 to retrieve the content and Beautifullsoup4 to parse the retrieved
 content.
-
-0. WebApp Version
-=============
-Although it is still in a very alpha version, the twitterscraper software can also be accessed via this `Web Application <http://twitterscraper.nl>`__
-
 
 1. Motivation
 =============

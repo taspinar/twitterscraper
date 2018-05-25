@@ -44,13 +44,9 @@ def query_single_page(url, html_response=True, retry=10):
         if html_response:
             html = response.text or ''
         else:
-            html = ''
-            try:
-                json_resp = json.loads(response.text)
-                html = json_resp['items_html'] or ''
-            except ValueError as e:
-                logging.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))  
-
+            json_resp = json.loads(response.text)
+            html = json_resp['items_html'] or ''
+            
         tweets = list(Tweet.from_html(html))
 
         if not tweets:
@@ -72,6 +68,8 @@ def query_single_page(url, html_response=True, retry=10):
     except json.decoder.JSONDecodeError as e:
         logging.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
             e, url))
+    except ValueError as e:
+        logging.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))
         
     if retry > 0:
         logging.info("Retrying... (Attempts left: {})".format(retry))

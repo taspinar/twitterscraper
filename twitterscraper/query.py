@@ -66,9 +66,8 @@ def query_single_page(url, html_response=True, retry=10):
         logging.exception('TimeOut {} while requesting "{}"'.format(
             e, url))
     except json.decoder.JSONDecodeError as e:
-        logging.error('response.text: {}'.format(response.text))
-        logging.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
-            e, url))
+        logging.exception('Failed to parse JSON "{}" while requesting "{}". response.text: {}'.format(
+            e, url, response.text))
     except ValueError as e:
         logging.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))
 

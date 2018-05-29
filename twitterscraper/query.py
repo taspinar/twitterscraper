@@ -46,7 +46,7 @@ def query_single_page(url, html_response=True, retry=10):
         else:
             json_resp = json.loads(response.text)
             html = json_resp['items_html'] or ''
-            
+
         tweets = list(Tweet.from_html(html))
 
         if not tweets:
@@ -66,11 +66,12 @@ def query_single_page(url, html_response=True, retry=10):
         logging.exception('TimeOut {} while requesting "{}"'.format(
             e, url))
     except json.decoder.JSONDecodeError as e:
+        logging.error('response.text: {}'.format(response.text))
         logging.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
             e, url))
     except ValueError as e:
         logging.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))
-        
+
     if retry > 0:
         logging.info("Retrying... (Attempts left: {})".format(retry))
         return query_single_page(url, html_response, retry-1)
@@ -151,7 +152,7 @@ def eliminate_duplicates(iterable):
 def query_tweets(query, limit=None, begindate=dt.date(2006,3,21), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
     if poolsize > no_days:
-        # Since we are assigning each pool a range of dates to query, 
+        # Since we are assigning each pool a range of dates to query,
 		# the number of pools should not exceed the number of dates.
         poolsize = no_days
     dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
@@ -181,4 +182,3 @@ def query_tweets(query, limit=None, begindate=dt.date(2006,3,21), enddate=dt.dat
         pool.join()
 
     return all_tweets
-

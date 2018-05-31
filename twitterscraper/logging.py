@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger('twitterscraper')
 
 formatter = logging.Formatter('%(levelname)s: %(message)s')
-handler = logging.Handler()
+handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 

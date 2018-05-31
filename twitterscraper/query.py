@@ -45,6 +45,7 @@ def query_single_page(url, html_response=True, retry=10):
             html = response.text or ''
         else:
             json_resp = json.loads(response.text)
+            logging.error(response.text)
             html = json_resp['items_html'] or ''
 
         tweets = list(Tweet.from_html(html))

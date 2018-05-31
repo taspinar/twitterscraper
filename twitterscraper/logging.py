@@ -2,4 +2,5 @@ import logging
 
 
 logger = logging.getLogger('twitterscraper')
-logger.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+handler = logging.Handler(format='%(levelname)s: %(message)s', level=logging.INFO)
+logger.addHandler(handler)

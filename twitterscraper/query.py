@@ -14,7 +14,6 @@ from twitterscraper.logging import logger
 ua = UserAgent()
 HEADERS_LIST = [ua.chrome, ua.google, ua['google chrome'], ua.firefox, ua.ff]
 
-
 INIT_URL = "https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}"
 RELOAD_URL = "https://twitter.com/i/search/timeline?f=tweets&vertical=" \
              "default&include_available_features=1&include_entities=1&" \

@@ -3,12 +3,13 @@ This is a command line application that allows you to scrape twitter!
 """
 import csv
 import json
-import logging
 import argparse
 import collections
 import datetime as dt
 from os.path import isfile
 from twitterscraper.query import query_tweets
+from twitterscraper.logging import logger
+
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -36,7 +37,6 @@ def valid_date(s):
         raise argparse.ArgumentTypeError(msg)
 
 def main():
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
     try:
         parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
             description=__doc__
@@ -70,7 +70,7 @@ def main():
                                  "zh-cn (Chinese Simplified)\n"
                                  "zh-tw (Chinese Traditional)"
                                  )
-        parser.add_argument("-d", "--dump", action="store_true", 
+        parser.add_argument("-d", "--dump", action="store_true",
                             help="Set this flag if you want to dump the tweets \nto the console rather than outputting to a file")
         parser.add_argument("-bd", "--begindate", type=valid_date, default="2006-03-21",
                             help="Scrape for tweets starting from this date. Format YYYY-MM-DD. \nDefault value is 2006-03-21", metavar='\b')
@@ -82,14 +82,14 @@ def main():
         args = parser.parse_args()
 
         if isfile(args.output) and not args.dump:
-            logging.error("Output file already exists! Aborting.")
+            logger.error("Output file already exists! Aborting.")
             exit(-1)
-        
+
         if args.all:
             args.begindate = dt.date(2006,3,1)
 
-        tweets = query_tweets(query = args.query, limit = args.limit, 
-                              begindate = args.begindate, enddate = args.enddate, 
+        tweets = query_tweets(query = args.query, limit = args.limit,
+                              begindate = args.begindate, enddate = args.enddate,
                               poolsize = args.poolsize, lang = args.lang)
 
         if args.dump:
@@ -101,10 +101,10 @@ def main():
                         f = csv.writer(output)
                         f.writerow(["user", "fullname", "tweet-id", "timestamp", "url", "likes", "replies", "retweets", "text", "html"])
                         for x in tweets:
-                            f.writerow([x.user, x.fullname, x.id, x.timestamp, x.url, 
-                                        x.likes, x.replies, x.retweets, 
+                            f.writerow([x.user, x.fullname, x.id, x.timestamp, x.url,
+                                        x.likes, x.replies, x.retweets,
                                         x.text, x.html])
                     else:
                         json.dump(tweets, output, cls=JSONEncoder)
     except KeyboardInterrupt:
-        logging.info("Program interrupted by user. Quitting...")
+        logger.info("Program interrupted by user. Quitting...")

@@ -1,5 +1,4 @@
 from __future__ import division
-import logging
 import random
 import requests
 import datetime as dt
@@ -9,6 +8,7 @@ from multiprocessing.pool import Pool
 
 from fake_useragent import UserAgent
 from twitterscraper.tweet import Tweet
+from twitterscraper.logging import logger
 
 
 ua = UserAgent()
@@ -44,9 +44,12 @@ def query_single_page(url, html_response=True, retry=10):
         if html_response:
             html = response.text or ''
         else:
-            json_resp = json.loads(response.text)
-            logging.error(response.text)
-            html = json_resp['items_html'] or ''
+            html = ''
+            try:
+                json_resp = json.loads(response.text)
+                html = json_resp['items_html'] or ''
+            except ValueError as e:
+                logger.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))
 
         tweets = list(Tweet.from_html(html))
 
@@ -58,25 +61,23 @@ def query_single_page(url, html_response=True, retry=10):
 
         return tweets, "TWEET-{}-{}".format(tweets[-1].id, tweets[0].id)
     except requests.exceptions.HTTPError as e:
-        logging.exception('HTTPError {} while requesting "{}"'.format(
+        logger.exception('HTTPError {} while requesting "{}"'.format(
             e, url))
     except requests.exceptions.ConnectionError as e:
-        logging.exception('ConnectionError {} while requesting "{}"'.format(
+        logger.exception('ConnectionError {} while requesting "{}"'.format(
             e, url))
     except requests.exceptions.Timeout as e:
-        logging.exception('TimeOut {} while requesting "{}"'.format(
+        logger.exception('TimeOut {} while requesting "{}"'.format(
             e, url))
     except json.decoder.JSONDecodeError as e:
-        logging.exception('Failed to parse JSON "{}" while requesting "{}"'.format(
-            e, url, response.text))
-    except ValueError as e:
-        logging.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))
+        logger.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
+            e, url))
 
     if retry > 0:
-        logging.info("Retrying... (Attempts left: {})".format(retry))
+        logger.info("Retrying... (Attempts left: {})".format(retry))
         return query_single_page(url, html_response, retry-1)
 
-    logging.error("Giving up.")
+    logger.error("Giving up.")
     return [], None
 
 
@@ -97,7 +98,7 @@ def query_tweets_once(query, limit=None, lang=''):
     :return:      A list of twitterscraper.Tweet objects. You will get at least
                   ``limit`` number of items.
     """
-    logging.info("Querying {}".format(query))
+    logger.info("Querying {}".format(query))
     query = query.replace(' ', '%20').replace("#", "%23").replace(":", "%3A")
     pos = None
     tweets = []
@@ -109,23 +110,23 @@ def query_tweets_once(query, limit=None, lang=''):
                 pos is None
             )
             if len(new_tweets) == 0:
-                logging.info("Got {} tweets for {}.".format(
+                logger.info("Got {} tweets for {}.".format(
                     len(tweets), query))
                 return tweets
 
             tweets += new_tweets
 
             if limit and len(tweets) >= limit:
-                logging.info("Got {} tweets for {}.".format(
+                logger.info("Got {} tweets for {}.".format(
                     len(tweets), query))
                 return tweets
     except KeyboardInterrupt:
-        logging.info("Program interrupted by user. Returning tweets gathered "
+        logger.info("Program interrupted by user. Returning tweets gathered "
                      "so far...")
     except BaseException:
-        logging.exception("An unknown error occurred! Returning tweets "
+        logger.exception("An unknown error occurred! Returning tweets "
                           "gathered so far.")
-    logging.info("Got {} tweets for {}.".format(
+    logger.info("Got {} tweets for {}.".format(
         len(tweets), query))
     return tweets
 
@@ -172,10 +173,10 @@ def query_tweets(query, limit=None, begindate=dt.date(2006,3,21), enddate=dt.dat
         try:
             for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool, lang=lang), queries):
                 all_tweets.extend(new_tweets)
-                logging.info("Got {} tweets ({} new).".format(
+                logger.info("Got {} tweets ({} new).".format(
                     len(all_tweets), len(new_tweets)))
         except KeyboardInterrupt:
-            logging.info("Program interrupted by user. Returning all tweets "
+            logger.info("Program interrupted by user. Returning all tweets "
                          "gathered so far.")
     finally:
         pool.close()

@@ -76,7 +76,7 @@ def query_single_page(url, html_response=True, retry=10):
     except json.decoder.JSONDecodeError as e:
         logger.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
             e, url))
-
+        
     if retry > 0:
         logger.info("Retrying... (Attempts left: {})".format(retry))
         return query_single_page(url, html_response, retry-1)

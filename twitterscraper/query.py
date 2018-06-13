@@ -101,7 +101,7 @@ def query_tweets_once(query, limit=None, lang=''):
     logger.info("Querying {}".format(query))
     query = query.replace(' ', '%20').replace("#", "%23").replace(":", "%3A")
     pos = None
-    tweets = []
+    num_tweets = 0
     try:
         while True:
             new_tweets, pos = query_single_page(
@@ -111,24 +111,27 @@ def query_tweets_once(query, limit=None, lang=''):
             )
             if len(new_tweets) == 0:
                 logger.info("Got {} tweets for {}.".format(
-                    len(tweets), query))
-                return tweets
+                    num_tweets, query))
+                return
 
-            tweets += new_tweets
+            for t in new_tweets:
+                yield t
 
-            if limit and len(tweets) >= limit:
+            num_tweets += len(new_tweets)
+
+            if limit and num_tweets >= limit:
                 logger.info("Got {} tweets for {}.".format(
-                    len(tweets), query))
-                return tweets
+                    num_tweets, query))
+                return
+
     except KeyboardInterrupt:
         logger.info("Program interrupted by user. Returning tweets gathered "
-                     "so far...")
+                    "so far...")
     except BaseException:
         logger.exception("An unknown error occurred! Returning tweets "
-                          "gathered so far.")
+                         "gathered so far.")
     logger.info("Got {} tweets for {}.".format(
-        len(tweets), query))
-    return tweets
+        num_tweets, query))
 
 
 def eliminate_duplicates(iterable):

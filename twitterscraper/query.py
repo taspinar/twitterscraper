@@ -81,7 +81,7 @@ def query_single_page(url, html_response=True, retry=10):
     return [], None
 
 
-def query_tweets_once(query, limit=None, lang=''):
+def query_tweets_once(query, limit=None, lang='', include_pos=False):
     """
     Queries twitter for all the tweets you want! It will load all pages it gets
     from twitter. However, twitter might out of a sudden stop serving new pages,
@@ -115,7 +115,7 @@ def query_tweets_once(query, limit=None, lang=''):
                 return
 
             for t in new_tweets:
-                yield t
+                yield t, pos
 
             num_tweets += len(new_tweets)
 

@@ -1,14 +1,18 @@
+# -*- coding: utf-8 -*-
 """
-This is a command line application that allows you to scrape twitter!
+Created on Thu May 24 11:53:26 2018
+
+@author: Nilesh Jorwar
 """
-import csv
+
+import sys
 import json
 import logging
-import argparse
 import collections
 import datetime as dt
 from os.path import isfile
 from twitterscraper.query import query_tweets
+import csv
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -33,78 +37,59 @@ def valid_date(s):
         return dt.datetime.strptime(s, "%Y-%m-%d").date()
     except ValueError:
         msg = "Not a valid date: '{0}'.".format(s)
-        raise argparse.ArgumentTypeError(msg)
+        print(msg)
 
 def main():
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
     try:
-        parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
-            description=__doc__
-        )
+# =============================================================================
+#         #query1=company[1]
+#         query1='amazon'
+#         limit1=1000
+#         begindateString = '2006-03-21'
+#         begindate1=valid_date(begindateString)
+#         enddate1=dt.date.today()
+#         poolsize1=20
+#         lang1=None
+#         output=query1+'.json'
+#         tweets = query_tweets(query = query1, limit = limit1,begindate = begindate1, enddate = enddate1,poolsize = poolsize1, lang = lang1)
+#
+#         if tweets:
+#             with open(output, "w") as output:
+#                 json.dump(tweets, output, cls=JSONEncoder)
+#
+# =============================================================================
+         with open('coname_twitter_account_users.csv', 'r',newline='') as myFile:
+             readInput=csv.reader(myFile)
+             for i,company in enumerate(readInput):
+                 if i > 0 and company[1]:
+                     print(company[1])
+                     output=company[1]+'.json'
+                     if isfile(output):
+                         logging.error("Output file already exists! Aborting.")
+                         #continue
+                         sys.exit(-1)
+                     query1=company[1]
+                     #query1='amazon'
+                     limit1=100000
+                     begindateString = '2006-03-21'
+                     begindate1=valid_date(begindateString)
+                     enddate1=dt.date.today()
+                     poolsize1=20
+                     lang1='en'
 
-        parser.add_argument("query", type=str, help="Advanced twitter query")
-        parser.add_argument("-o", "--output", type=str, default="tweets.json",
-                            help="Path to a JSON file to store the gathered "
-                                 "tweets to.")
-        parser.add_argument("-l", "--limit", type=int, default=None,
-                            help="Number of minimum tweets to gather.")
-        parser.add_argument("-a", "--all", action='store_true',
-                            help="Set this flag if you want to get all tweets "
-                                 "in the history of twitter. Begindate is set to 2006-03-01."
-                                 "This may take a while. You can increase the number of parallel"
-                                 "processes depending on the computational power you have.")
-        parser.add_argument("-c", "--csv", action='store_true',
-                                help="Set this flag if you want to save the results to a CSV format.")
-        parser.add_argument("--lang", type=str, default=None,
-                            help="Set this flag if you want to query tweets in \na specific language. You can choose from:\n"
-                                 "en (English)\nar (Arabic)\nbn (Bengali)\n"
-                                 "cs (Czech)\nda (Danish)\nde (German)\nel (Greek)\nes (Spanish)\n"
-                                 "fa (Persian)\nfi (Finnish)\nfil (Filipino)\nfr (French)\n"
-                                 "he (Hebrew)\nhi (Hindi)\nhu (Hungarian)\n"
-                                 "id (Indonesian)\nit (Italian)\nja (Japanese)\n"
-                                 "ko (Korean)\nmsa (Malay)\nnl (Dutch)\n"
-                                 "no (Norwegian)\npl (Polish)\npt (Portuguese)\n"
-                                 "ro (Romanian)\nru (Russian)\nsv (Swedish)\n"
-                                 "th (Thai)\ntr (Turkish)\nuk (Ukranian)\n"
-                                 "ur (Urdu)\nvi (Vietnamese)\n"
-                                 "zh-cn (Chinese Simplified)\n"
-                                 "zh-tw (Chinese Traditional)"
-                                 )
-        parser.add_argument("-d", "--dump", action="store_true", 
-                            help="Set this flag if you want to dump the tweets \nto the console rather than outputting to a file")
-        parser.add_argument("-bd", "--begindate", type=valid_date, default="2006-03-21",
-                            help="Scrape for tweets starting from this date. Format YYYY-MM-DD. \nDefault value is 2006-03-21", metavar='\b')
-        parser.add_argument("-ed", "--enddate", type=valid_date, default=dt.date.today(),
-                            help="Scrape for tweets until this date. Format YYYY-MM-DD. \nDefault value is the date of today.", metavar='\b')
-        parser.add_argument("-p", "--poolsize", type=int, default=20, help="Specify the number of parallel process you want to run. \n"
-                            "Default value is set to 20. \nYou can change this number if you have more computing power available. \n"
-                            "Set to 1 if you dont want to run any parallel processes.", metavar='\b')
-        args = parser.parse_args()
+                     tweets = query_tweets(query = query1, limit = limit1,
+                                           begindate = begindate1, enddate = enddate1,
+                                           poolsize = poolsize1, lang = lang1)
 
-        if isfile(args.output) and not args.dump:
-            logging.error("Output file already exists! Aborting.")
-            exit(-1)
-        
-        if args.all:
-            args.begindate = dt.date(2006,3,1)
+                     if tweets:
+                         with open(output, "w") as output:
+                             json.dump(tweets, output, cls=JSONEncoder)
 
-        tweets = query_tweets(query = args.query, limit = args.limit, 
-                              begindate = args.begindate, enddate = args.enddate, 
-                              poolsize = args.poolsize, lang = args.lang)
-
-        if args.dump:
-            print(json.dumps(tweets, cls=JSONEncoder))
-        else:
-            if tweets:
-                with open(args.output, "w") as output:
-                    if args.csv:
-                        f = csv.writer(output)
-                        f.writerow(["user", "fullname", "tweet-id", "timestamp", "url", "likes", "replies", "retweets", "text", "html"])
-                        for x in tweets:
-                            f.writerow([x.user, x.fullname, x.id, x.timestamp, x.url, 
-                                        x.likes, x.replies, x.retweets, 
-                                        x.text, x.html])
-                    else:
-                        json.dump(tweets, output, cls=JSONEncoder)
     except KeyboardInterrupt:
         logging.info("Program interrupted by user. Quitting...")
+
+
+if __name__ == "__main__":
+    # calling main function
+    main()

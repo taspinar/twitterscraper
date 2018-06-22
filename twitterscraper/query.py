@@ -1,5 +1,4 @@
 from __future__ import division
-import logging
 import random
 import requests
 import datetime as dt
@@ -7,17 +6,23 @@ import json
 from functools import partial
 from multiprocessing.pool import Pool
 
-from fake_useragent import UserAgent
 from twitterscraper.tweet import Tweet
+from twitterscraper.logging import logger
 
 
-ua = UserAgent()
-HEADERS_LIST = [ua.chrome, ua.google, ua['google chrome'], ua.firefox, ua.ff]
+ua1 = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1"
+ua2 = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
+ua3 = "Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13"
+ua4 = "Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko"
+ua5 = "Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201"
+ua6 = "Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16"
+ua7 = "Mozilla/5.0 (Windows NT 5.2; RW; rv:7.0a1) Gecko/20091211 SeaMonkey/9.23a1pre"
+HEADERS_LIST = [ua1, ua2, ua3, ua4, ua5, ua6, ua7]
 
-INIT_URL = "https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}"
+INIT_URL = "https://twitter.com/search?f=tweets&vertical=default&q=from:{q}&l={lang}"
 RELOAD_URL = "https://twitter.com/i/search/timeline?f=tweets&vertical=" \
              "default&include_available_features=1&include_entities=1&" \
-             "reset_error_state=false&src=typd&max_position={pos}&q={q}&l={lang}"
+             "reset_error_state=false&src=typd&max_position={pos}&q=from:{q}&l={lang}"
 
 def linspace(start, stop, n):
     if n == 1:
@@ -31,7 +36,6 @@ def linspace(start, stop, n):
 def query_single_page(url, html_response=True, retry=10):
     """
     Returns tweets from the given URL.
-
     :param url: The URL to get the tweets from
     :param html_response: False, if the HTML is embedded in a JSON
     :param retry: Number of retries if something goes wrong.
@@ -49,7 +53,7 @@ def query_single_page(url, html_response=True, retry=10):
                 json_resp = json.loads(response.text)
                 html = json_resp['items_html'] or ''
             except ValueError as e:
-                logging.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))  
+                logger.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))
 
         tweets = list(Tweet.from_html(html))
 
@@ -61,23 +65,23 @@ def query_single_page(url, html_response=True, retry=10):
 
         return tweets, "TWEET-{}-{}".format(tweets[-1].id, tweets[0].id)
     except requests.exceptions.HTTPError as e:
-        logging.exception('HTTPError {} while requesting "{}"'.format(
+        logger.exception('HTTPError {} while requesting "{}"'.format(
             e, url))
     except requests.exceptions.ConnectionError as e:
-        logging.exception('ConnectionError {} while requesting "{}"'.format(
+        logger.exception('ConnectionError {} while requesting "{}"'.format(
             e, url))
     except requests.exceptions.Timeout as e:
-        logging.exception('TimeOut {} while requesting "{}"'.format(
+        logger.exception('TimeOut {} while requesting "{}"'.format(
             e, url))
     except json.decoder.JSONDecodeError as e:
-        logging.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
+        logger.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
             e, url))
-        
+
     if retry > 0:
-        logging.info("Retrying... (Attempts left: {})".format(retry))
+        logger.info("Retrying... (Attempts left: {})".format(retry))
         return query_single_page(url, html_response, retry-1)
 
-    logging.error("Giving up.")
+    logger.error("Giving up.")
     return [], None
 
 
@@ -86,10 +90,8 @@ def query_tweets_once(query, limit=None, lang=''):
     Queries twitter for all the tweets you want! It will load all pages it gets
     from twitter. However, twitter might out of a sudden stop serving new pages,
     in that case, use the `query_tweets` method.
-
     Note that this function catches the KeyboardInterrupt so it can return
     tweets on incomplete queries if the user decides to abort.
-
     :param query: Any advanced query you want to do! Compile it at
                   https://twitter.com/search-advanced and just copy the query!
     :param limit: Scraping will be stopped when at least ``limit`` number of
@@ -98,7 +100,7 @@ def query_tweets_once(query, limit=None, lang=''):
     :return:      A list of twitterscraper.Tweet objects. You will get at least
                   ``limit`` number of items.
     """
-    logging.info("Querying {}".format(query))
+    logger.info("Querying {}".format(query))
     query = query.replace(' ', '%20').replace("#", "%23").replace(":", "%3A")
     pos = None
     tweets = []
@@ -110,23 +112,23 @@ def query_tweets_once(query, limit=None, lang=''):
                 pos is None
             )
             if len(new_tweets) == 0:
-                logging.info("Got {} tweets for {}.".format(
+                logger.info("Got {} tweets for {}.".format(
                     len(tweets), query))
                 return tweets
 
             tweets += new_tweets
 
             if limit and len(tweets) >= limit:
-                logging.info("Got {} tweets for {}.".format(
+                logger.info("Got {} tweets for {}.".format(
                     len(tweets), query))
                 return tweets
     except KeyboardInterrupt:
-        logging.info("Program interrupted by user. Returning tweets gathered "
+        logger.info("Program interrupted by user. Returning tweets gathered "
                      "so far...")
     except BaseException:
-        logging.exception("An unknown error occurred! Returning tweets "
+        logger.exception("An unknown error occurred! Returning tweets "
                           "gathered so far.")
-    logging.info("Got {} tweets for {}.".format(
+    logger.info("Got {} tweets for {}.".format(
         len(tweets), query))
     return tweets
 
@@ -153,7 +155,7 @@ def eliminate_duplicates(iterable):
 def query_tweets(query, limit=None, begindate=dt.date(2006,3,21), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
     if poolsize > no_days:
-        # Since we are assigning each pool a range of dates to query, 
+        # Since we are assigning each pool a range of dates to query,
 		# the number of pools should not exceed the number of dates.
         poolsize = no_days
     dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
@@ -171,16 +173,17 @@ def query_tweets(query, limit=None, begindate=dt.date(2006,3,21), enddate=dt.dat
         pool = Pool(poolsize)
 
         try:
+            i=0
             for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool, lang=lang), queries):
                 all_tweets.extend(new_tweets)
-                logging.info("Got {} tweets ({} new).".format(
+                i=i+1
+                logger.info("{}: Got {} tweets ({} new).".format(i,
                     len(all_tweets), len(new_tweets)))
         except KeyboardInterrupt:
-            logging.info("Program interrupted by user. Returning all tweets "
+            logger.info("Program interrupted by user. Returning all tweets "
                          "gathered so far.")
     finally:
         pool.close()
         pool.join()
 
     return all_tweets
-

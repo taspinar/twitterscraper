@@ -8,7 +8,7 @@ import collections
 import datetime as dt
 from os.path import isfile
 from twitterscraper.query import query_tweets
-from twitterscraper.logging import logger
+from twitterscraper.logger import logger
 
 
 class JSONEncoder(json.JSONEncoder):

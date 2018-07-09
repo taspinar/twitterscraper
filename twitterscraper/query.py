@@ -9,6 +9,7 @@ from multiprocessing.pool import Pool
 from twitterscraper.tweet import Tweet
 from twitterscraper.logging import logger
 
+
 HEADERS_LIST = ["Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1",
                 "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36",
                 "Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13",
@@ -76,7 +77,7 @@ def query_single_page(url, html_response=True, retry=10):
     except json.decoder.JSONDecodeError as e:
         logger.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
             e, url))
-        
+
     if retry > 0:
         logger.info("Retrying... (Attempts left: {})".format(retry))
         return query_single_page(url, html_response, retry-1)

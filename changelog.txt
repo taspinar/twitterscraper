@@ -3,6 +3,12 @@
 ## 0.x.x
 
 TBD
+# 0.7.2 ( 2018-07-09 )
+### Fixed
+- twitterscraper.logging is imported as logger instead of logging in order to 
+   avoid a module name clash with Python2's logging module.
+
+
 # 0.7.1 ( 2018-06-12 )
 ### Improved
 - Give access to logger for scripts which import this module. Create the module,

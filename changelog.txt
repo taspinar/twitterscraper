@@ -3,10 +3,20 @@
 ## 0.x.x
 
 TBD
-# 0.7.1 ( 2018-06-12)
+# 0.7.2 ( 2018-07-09 )
+### Fixed
+- twitterscraper.logging is imported as logger instead of logging in order to 
+   avoid a module name clash with Python2's logging module.
+
+
+# 0.7.1 ( 2018-06-12 )
 ### Improved
 - Give access to logger for scripts which import this module. Create the module,
   `logging.py`, which contains the logger used by twitterscraper.
+
+### Removed
+- fake_useragent is removed as a dependency, since it has been giving 
+user-agent headers which keep being blocked by Twitter.
 
 ## 0.7.0 ( 2018-05-06 )
 ### Fixed

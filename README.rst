@@ -87,6 +87,9 @@ JSON right away. Twitterscraper takes several arguments:
    use to stop scraping for your query. Format is YYYY-MM-DD. The
    default value is set to today.
 
+-  ``-u`` or ``--user`` Scrapes the tweets from that users profile page.
+   This also includes all retweets by that user. 
+
 -  ``-p`` or ``--poolsize`` Set the number of parallel processes
    TwitterScraper should initiate while scraping for your query. Default
    value is set to 20. Depending on the computational power you have,

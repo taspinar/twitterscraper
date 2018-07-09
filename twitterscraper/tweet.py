@@ -50,3 +50,5 @@ class Tweet:
                     yield cls.from_soup(tweet)
                 except AttributeError:
                     pass  # Incomplete info? Discard!
+                except TypeError:
+                    pass  # Incomplete info? Discard!

@@ -55,6 +55,8 @@ def main():
                                  "processes depending on the computational power you have.")
         parser.add_argument("-c", "--csv", action='store_true',
                                 help="Set this flag if you want to save the results to a CSV format.")
+        parser.add_argument("-u", "--user", type=str, default=None,
+                            help="Set this flag to someone's username if you want to scrape tweets from a specific user")
         parser.add_argument("--lang", type=str, default=None,
                             help="Set this flag if you want to query tweets in \na specific language. You can choose from:\n"
                                  "en (English)\nar (Arabic)\nbn (Bengali)\n"
@@ -88,7 +90,10 @@ def main():
         if args.all:
             args.begindate = dt.date(2006,3,1)
 
-        tweets = query_tweets(query = args.query, limit = args.limit,
+        if args.user:
+            tweets = query_tweets_from_user(user = args.user, limit = args.limit)
+        else:
+            tweets = query_tweets(query = args.query, limit = args.limit,
                               begindate = args.begindate, enddate = args.enddate,
                               poolsize = args.poolsize, lang = args.lang)
 

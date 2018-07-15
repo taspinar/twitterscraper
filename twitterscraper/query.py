@@ -129,10 +129,6 @@ def query_tweets_once_generator(query, limit=None, lang='', include_pos=False):
                     num_tweets, query))
                 return
 
-            if limit and num_tweets >= limit:
-                logger.info("Got {} tweets for {}.".format(
-                    num_tweets, query))
-                return tweets
     except KeyboardInterrupt:
         logger.info("Program interrupted by user. Returning tweets gathered "
                      "so far...")

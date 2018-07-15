@@ -44,6 +44,7 @@ def query_single_page(url, html_response=True, retry=10):
     """
 
     try:
+        print('HEADER', HEADER)
         response = requests.get(url, headers=HEADER)
         if html_response:
             html = response.text or ''
@@ -144,8 +145,11 @@ def query_tweets_once_generator(query, limit=None, lang='', include_pos=False):
 
 def query_tweets_once(*args, **kwargs):
     res = list(query_tweets_once_generator(*args, **kwargs))
-    tweets, positions = zip(*res)
-    return tweets
+    if res:
+        tweets, positions = zip(*res)
+        return tweets
+    else:
+        return []
 
 
 def eliminate_duplicates(iterable):

@@ -18,6 +18,7 @@ HEADERS_LIST = ["Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Fir
                 "Mozilla/5.0 (Windows NT 5.2; RW; rv:7.0a1) Gecko/20091211 SeaMonkey/9.23a1pre"]
 
 HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
+print('HEADER', HEADER)
 
 INIT_URL = "https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}"
 RELOAD_URL = "https://twitter.com/i/search/timeline?f=tweets&vertical=" \
@@ -44,7 +45,6 @@ def query_single_page(url, html_response=True, retry=10):
     """
 
     try:
-        print('HEADER', HEADER)
         response = requests.get(url, headers=HEADER)
         if html_response:
             html = response.text or ''

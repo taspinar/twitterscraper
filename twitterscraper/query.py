@@ -85,7 +85,7 @@ def query_single_page(url, html_response=True, retry=10):
     return [], None
 
 
-def query_tweets_once(query, limit=None, lang='', include_pos=False):
+def query_tweets_once_generator(query, limit=None, lang='', include_pos=False):
     """
     Queries twitter for all the tweets you want! It will load all pages it gets
     from twitter. However, twitter might out of a sudden stop serving new pages,
@@ -140,6 +140,10 @@ def query_tweets_once(query, limit=None, lang='', include_pos=False):
                           "gathered so far.")
     logger.info("Got {} tweets for {}.".format(
         num_tweets, query))
+
+
+def query_tweets_once(*args, **kwargs):
+    return list(query_tweets_once_generator(*args, **kwargs)
 
 
 def eliminate_duplicates(iterable):

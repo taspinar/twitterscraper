@@ -143,7 +143,7 @@ def query_tweets_once_generator(query, limit=None, lang='', include_pos=False):
 
 
 def query_tweets_once(*args, **kwargs):
-    return list(query_tweets_once_generator(*args, **kwargs)
+    return list(query_tweets_once_generator(*args, **kwargs))
 
 
 def eliminate_duplicates(iterable):

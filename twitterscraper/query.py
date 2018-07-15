@@ -184,7 +184,7 @@ def query_tweets(query, limit=None, begindate=dt.date(2006,3,21), enddate=dt.dat
     all_tweets = []
     try:
         pool = Pool(poolsize)
-
+        print('queries', queries)
         try:
             for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool, lang=lang), queries):
                 all_tweets.extend(new_tweets)

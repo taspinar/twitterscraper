@@ -101,6 +101,7 @@ def main():
                         f = csv.writer(output)
                         f.writerow(["user", "fullname", "tweet-id", "timestamp", "url", "likes", "replies", "retweets", "text", "html"])
                         for x in tweets:
+                            print(x)
                             f.writerow([x.user, x.fullname, x.id, x.timestamp, x.url,
                                         x.likes, x.replies, x.retweets,
                                         x.text, x.html])

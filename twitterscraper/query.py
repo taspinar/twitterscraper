@@ -1,3 +1,19 @@
+import sys
+import pdb
+class ForkedPdb(pdb.Pdb):
+    """A Pdb subclass that may be used
+    from a forked multiprocessing child
+
+    """
+    def interaction(self, *args, **kwargs):
+        _stdin = sys.stdin
+        try:
+            sys.stdin = open('/dev/stdin')
+            pdb.Pdb.interaction(self, *args, **kwargs)
+        finally:
+            sys.stdin = _stdin
+
+
 from __future__ import division
 import random
 import requests
@@ -18,7 +34,6 @@ HEADERS_LIST = [
 ]
 
 HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
-print('HEADER', HEADER)
 
 INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
 RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
@@ -77,6 +92,7 @@ def query_single_page(url, html_response=True, retry=10):
     except json.decoder.JSONDecodeError as e:
         logger.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
             e, url))
+        ForkedPdb().set_trace()
 
     if retry > 0:
         logger.info('Retrying... (Attempts left: {})'.format(retry))

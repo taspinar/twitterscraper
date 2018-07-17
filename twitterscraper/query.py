@@ -7,7 +7,7 @@ from functools import partial
 from multiprocessing.pool import Pool
 
 from twitterscraper.tweet import Tweet
-from twitterscraper.logging import logger
+from twitterscraper.ts_logger import logger
 
 HEADERS_LIST = [
     'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',

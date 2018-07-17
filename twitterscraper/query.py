@@ -148,25 +148,6 @@ def query_tweets_once(*args, **kwargs):
         return []
 
 
-def eliminate_duplicates(iterable):
-    """
-    Yields all unique elements of an iterable sorted. Elements are considered
-    non unique if the equality comparison to another element is true. (In those
-    cases, the set conversion isn't sufficient as it uses identity comparison.)
-    """
-    class NoElement: pass
-
-    prev_elem = NoElement
-    for elem in sorted(iterable):
-        if prev_elem is NoElement:
-            prev_elem = elem
-            yield elem
-            continue
-
-        if prev_elem != elem:
-            prev_elem = elem
-            yield elem
-
 def query_tweets(query, limit=None, begindate=dt.date(2006,3,21), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
     if poolsize > no_days:

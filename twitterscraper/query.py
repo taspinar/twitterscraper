@@ -24,22 +24,6 @@ RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
              'default&include_available_features=1&include_entities=1&' \
              'reset_error_state=false&src=typd&max_position={pos}&q={q}&l={lang}'
 
-import sys
-import pdb
-class ForkedPdb(pdb.Pdb):
-    """A Pdb subclass that may be used
-    from a forked multiprocessing child
-
-    """
-    def interaction(self, *args, **kwargs):
-        _stdin = sys.stdin
-        try:
-            sys.stdin = open('/dev/stdin')
-            pdb.Pdb.interaction(self, *args, **kwargs)
-        finally:
-            sys.stdin = _stdin
-
-
 
 def linspace(start, stop, n):
     if n == 1:
@@ -93,7 +77,6 @@ def query_single_page(url, html_response=True, retry=10):
     except json.decoder.JSONDecodeError as e:
         logger.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
             e, url))
-        ForkedPdb().set_trace()
 
     if retry > 0:
         logger.info('Retrying... (Attempts left: {})'.format(retry))

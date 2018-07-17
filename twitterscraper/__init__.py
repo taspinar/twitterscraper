@@ -5,11 +5,11 @@
 Twitter Scraper tool
 """
 
-__version__ = '0.4'
+__version__ = '0.8.0'
 __author__ = 'Ahmet Taspinar'
 __license__ = 'MIT'
 
 
 from twitterscraper.query import query_tweets
 from twitterscraper.tweet import Tweet
-from twitterscraper.logging import logger
+from twitterscraper.ts_logger import logger as ts_logger

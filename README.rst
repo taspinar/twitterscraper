@@ -185,6 +185,23 @@ What you should do is open the file with the proper encoding:
 
    Example of output with Japanese characters
 
+3.1.2 Opening into a pandas dataframe
+---------------------------
+
+After the file has been opened, it can easily be converted into a pandas DataFrame
+
+:: 
+
+    import codecs, json
+    import pandas as pd
+    
+    with codecs.open('tweets.json', 'r', 'utf-8') as f:
+        tweets = json.load(f, encoding='utf-8')
+    
+    list_tweets = [list(elem.values()) for elem in tweets]
+    list_columns = list(tweets[0].keys())
+    df = pd.DataFrame(list_tweets, columns=list_columns
+
 TO DO
 =====
 

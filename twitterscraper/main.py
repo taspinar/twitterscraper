@@ -96,7 +96,7 @@ def main():
             print(json.dumps(tweets, cls=JSONEncoder))
         else:
             if tweets:
-                with open(args.output, "w") as output:
+                with open(args.output, "w", encoding="utf-8") as output:
                     if args.csv:
                         f = csv.writer(output)
                         f.writerow(["user", "fullname", "tweet-id", "timestamp", "url", "likes", "replies", "retweets", "text", "html"])

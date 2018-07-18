@@ -8,7 +8,7 @@ import collections
 import datetime as dt
 from os.path import isfile
 from twitterscraper.query import query_tweets, query_tweets_from_user
-from twitterscraper.logging import logger
+from twitterscraper.ts_logger import logger
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -102,7 +102,7 @@ def main():
             print(json.dumps(tweets, cls=JSONEncoder))
         else:
             if tweets:
-                with open(args.output, "w") as output:
+                with open(args.output, "w", encoding="utf-8") as output:
                     if args.csv:
                         f = csv.writer(output)
                         f.writerow(["user", "fullname", "tweet-id", "timestamp", "url", "likes", "replies", "retweets", "text", "html"])

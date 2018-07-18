@@ -8,7 +8,7 @@ with open('requirements.txt') as requirements:
 
 setup(
     name='twitterscraper',
-    version='0.8.0',
+    version='0.9.0',
     description='Tool for scraping Tweets',
     url='https://github.com/taspinar/twitterscraper',
     author=['Ahmet Taspinar', 'Lasse Schuirmann'],

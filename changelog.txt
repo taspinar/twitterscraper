@@ -1,7 +1,7 @@
 # twitterscraper changelog
 
 ## 0.8.1 ( 2018-07-18 )
-
+- saving .csv files as an utf-8 encoded file. This fixes https://github.com/taspinar/twitterscraper/issues/138
 
 ## 0.8.0
 ### Fixed

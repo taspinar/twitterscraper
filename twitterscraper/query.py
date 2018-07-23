@@ -50,6 +50,7 @@ def query_single_page(url, html_response=True, retry=10):
         print(f'response.text: {response.text}')
         if html_response:
             html = response.text or ''
+            json_resp = None
         else:
             html = ''
             try:
@@ -67,7 +68,11 @@ def query_single_page(url, html_response=True, retry=10):
                 pos = json.loads(html, strict=False)['min_position']
             except Exception as e:
                 print('POS JSON EXC', type(e), e)
-                return [], None
+
+            if json_resp:
+                pos = json_resp['min_position']
+            else:
+                pos = None
             print('pos', pos)
             return [], pos
 

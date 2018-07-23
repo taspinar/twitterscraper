@@ -55,8 +55,6 @@ def query_single_page(query, lang, pos, retry=10):
 
     try:
         response = requests.get(url, headers=HEADER)
-        print(f'request url: {response.url}')
-        print(f'response.text: {response.text}')
         if pos is None:  # html response
             html = response.text or ''
             json_resp = None
@@ -102,7 +100,7 @@ def query_single_page(query, lang, pos, retry=10):
     return [], None
 
 
-def query_tweets_once_generator(query, limit=None, lang='', retry=10):
+def query_tweets_once_generator(query, limit=None, lang=''):
     """
     Queries twitter for all the tweets you want! It will load all pages it gets
     from twitter. However, twitter might out of a sudden stop serving new pages,
@@ -126,7 +124,6 @@ def query_tweets_once_generator(query, limit=None, lang='', retry=10):
     try:
         while True:
             new_tweets, pos = query_single_page(query, lang, pos)
-            print('new_tweets, pos', new_tweets, pos)
             if len(new_tweets) == 0:
                 logger.info('Got {} tweets for {}.'.format(
                     num_tweets, query))

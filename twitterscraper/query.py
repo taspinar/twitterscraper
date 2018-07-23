@@ -23,6 +23,10 @@ INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
 RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
              'default&include_available_features=1&include_entities=1&' \
              'reset_error_state=false&src=typd&max_position={pos}&q={q}&l={lang}'
+INIT_URL_USER = 'https://twitter.com/{u}'
+RELOAD_URL_USER = 'https://twitter.com/i/profiles/show/{u}/timeline/tweets?' \
+                  'include_available_features=1&include_entities=1&' \
+                  'max_position={pos}&reset_error_state=false'
 
 
 def linspace(start, stop, n):
@@ -34,7 +38,7 @@ def linspace(start, stop, n):
         yield start + h * i
 
 
-def query_single_page(url, html_response=True, retry=10):
+def query_single_page(url, html_response=True, retry=10, from_user=False):
     """
     Returns tweets from the given URL.
 
@@ -64,7 +68,11 @@ def query_single_page(url, html_response=True, retry=10):
         if not html_response:
             return tweets, json_resp['min_position']
 
-        return tweets, 'TWEET-{}-{}'.format(tweets[-1].id, tweets[0].id)
+        if from_user:
+            return tweets, tweets[-1].id
+        else:
+            return tweets, "TWEET-{}-{}".format(tweets[-1].id, tweets[0].id)
+
     except requests.exceptions.HTTPError as e:
         logger.exception('HTTPError {} while requesting "{}"'.format(
             e, url))
@@ -181,3 +189,32 @@ def query_tweets(query, limit=None, begindate=dt.date(2006,3,21), enddate=dt.dat
         pool.join()
 
     return all_tweets
+
+def query_tweets_from_user(user, limit=None):
+    pos = None
+    tweets = []
+    try:
+        while True:
+           new_tweets, pos = query_single_page(INIT_URL_USER.format(u=user) if pos is None
+                                               else RELOAD_URL_USER.format(u=user, pos=pos), pos is None,
+                                               from_user=True)
+           if len(new_tweets) == 0:
+               logger.info("Got {} tweets from username {}".format(len(tweets), user))
+               return tweets
+
+           tweets += new_tweets
+
+           if limit and len(tweets) >= limit:
+               logger.info("Got {} tweets from username {}".format(len(tweets), user))
+               return tweets
+
+    except KeyboardInterrupt:
+        logger.info("Program interrupted by user. Returning tweets gathered "
+                     "so far...")
+    except BaseException:
+        logger.exception("An unknown error occurred! Returning tweets "
+                          "gathered so far.")
+    logger.info("Got {} tweets from username {}.".format(
+        len(tweets), user))
+    return tweets
+

@@ -69,9 +69,7 @@ JSON right away. Twitterscraper takes several arguments:
 -  ``-l`` or ``--limit`` TwitterScraper stops scraping when *at least*
    the number of tweets indicated with ``--limit`` is scraped. Since
    tweets are retrieved in batches of 20, this will always be a multiple
-   of 20.
-
-   Omit the limit to retrieve all tweets. You can at any time abort the
+   of 20. Omit the limit to retrieve all tweets. You can at any time abort the
    scraping by pressing Ctrl+C, the scraped tweets will be stored safely
    in your JSON file.
 
@@ -81,11 +79,14 @@ JSON right away. Twitterscraper takes several arguments:
 
 -  ``-bd`` or ``--begindate`` Set the date from which TwitterScraper
    should start scraping for your query. Format is YYYY-MM-DD. The
-   default value is set to 2006-03-21.
+   default value is set to 2006-03-21. This does not work in combination with ``--user``.
 
 -  ``-ed`` or ``--enddate`` Set the enddate which TwitterScraper should
    use to stop scraping for your query. Format is YYYY-MM-DD. The
-   default value is set to today.
+   default value is set to today. This does not work in combination with ``--user``.
+
+-  ``-u`` or ``--user`` Scrapes the tweets from that users profile page.
+   This also includes all retweets by that user. See examples below.
 
 -  ``-p`` or ``--poolsize`` Set the number of parallel processes
    TwitterScraper should initiate while scraping for your query. Default
@@ -95,7 +96,7 @@ JSON right away. Twitterscraper takes several arguments:
    scraping from 2017-01-10 to 2017-01-20, you can set this number to a
    maximum of 10. If you are scraping from 2016-01-01 to 2016-12-31, you
    can increase this number to a maximum of 150, if you have the
-   computational resources.
+   computational resources. Does not work in combination with ``--user``.
 
 -  ``-o`` or ``--output`` Gives the name of the output file. If no
    output filename is given, the default filename 'tweets.json' or 'tweets.csv' 
@@ -107,6 +108,7 @@ JSON right away. Twitterscraper takes several arguments:
    printed to the screen instead of an outputfile. If you are using this
    argument, the ``--output`` argument doe not need to be used.
 
+
 2.2.1 Examples of simple queries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -117,6 +119,9 @@ Below is an example of how twitterscraper can be used:
 ``twitterscraper Trump -l 100 -o tweets.json``
 
 ``twitterscraper Trump -l 100 -bd 2017-01-01 -ed 2017-06-01 -o tweets.json``
+
+``twitterscraper realDonaldTrump -u -o tweets_username.json``
+
 
 2.2.2 Examples of advanced queries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -137,6 +142,24 @@ Here are some examples:
    ``twitterscraper "Blockchain to:VitalikButerin" -o blockchain_tweets.json -l 1000``
 -  search for tweets written from a location:
    ``twitterscraper "Blockchain near:Seattle within:15mi" -o blockchain_tweets.json -l 1000``
+
+You can construct an advanced query on `Twitter Advanced Search <https://twitter.com/search-advanced?lang=en>`__ or use one of the operators shown on `this page <https://lifehacker.com/search-twitter-more-efficiently-with-these-search-opera-1598165519>`__.
+Also see `Twitter's Standard operators <https://developer.twitter.com/en/docs/tweets/search/guides/standard-operators.html>`__
+
+
+
+2.2.3 Examples of scraping user pages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can also scraped all tweets written by retweetet by a specific user. This can be done by adding the boolean argument ``-u / --user`` argument to the query. 
+If this argument is used, the query should be equal to the username. 
+
+Here is an example of scraping a specific user:
+
+``twitterscraper realDonaldTrump -u -o tweets_username.json``
+
+This does not work in combination with ``-p``, ``-bd``, or ``-ed`` but it is the only way to scrape for retweets. 
+
 
 2.3 From within Python
 ----------------------
@@ -159,6 +182,14 @@ You can easily use TwitterScraper from within python:
         for tweet in query_tweets("Trump OR Clinton", 10):
             file.write(tweet.encode('utf-8')) 
         file.close()
+
+
+2.4 Scraping for retweets
+----------------------
+
+A regular search within Twitter will not show you any retweets. Twitterscraper therefore does not contain any retweets in the output. To give an example: If user1 has written a tweet containing ``#trump2020`` and user2 has retweetet this tweet, a search for ``#trump2020`` will only show the original tweet. The only way you can scrape for retweets is if you scrape for all tweets of a specific user with the ``-u / --user`` argument. 
+
+
 
 3. Output
 =========
@@ -202,11 +233,4 @@ After the file has been opened, it can easily be converted into a pandas DataFra
     list_columns = list(tweets[0].keys())
     df = pd.DataFrame(list_tweets, columns=list_columns
 
-TO DO
-=====
-
--  Twitterscraper can not retrieve retweets.
--  Add caching potentially? Would be nice to be able to resume scraping
-   if something goes wrong and have half of the data of a request cached
-   or so.
 

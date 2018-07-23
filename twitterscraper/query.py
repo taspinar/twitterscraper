@@ -45,8 +45,9 @@ def query_single_page(query, lang, pos, retry=10):
     """
     Returns tweets from the given URL.
 
-    :param url: The URL to get the tweets from
-    :param html_response: False, if the HTML is embedded in a JSON
+    :param query: The query parameter of the query url
+    :param lang: The language parameter of the query url
+    :param pos: The query url parameter that determines where to start looking
     :param retry: Number of retries if something goes wrong.
     :return: The list of tweets, the pos argument for getting the next page.
     """

@@ -144,6 +144,7 @@ Here are some examples:
    ``twitterscraper "Blockchain near:Seattle within:15mi" -o blockchain_tweets.json -l 1000``
 
 You can construct an advanced query on `Twitter Advanced Search <https://twitter.com/search-advanced?lang=en>`__ or use one of the operators shown on `this page <https://lifehacker.com/search-twitter-more-efficiently-with-these-search-opera-1598165519>`__.
+Also see `Twitter's Standard operators <https://developer.twitter.com/en/docs/tweets/search/guides/standard-operators.html>`__
 
 
 
@@ -230,11 +231,4 @@ After the file has been opened, it can easily be converted into a pandas DataFra
     list_columns = list(tweets[0].keys())
     df = pd.DataFrame(list_tweets, columns=list_columns
 
-TO DO
-=====
-
--  Twitterscraper can not retrieve retweets.
--  Add caching potentially? Would be nice to be able to resume scraping
-   if something goes wrong and have half of the data of a request cached
-   or so.
 

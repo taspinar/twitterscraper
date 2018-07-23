@@ -50,7 +50,6 @@ def query_single_page(query, lang, pos, retry=10):
     :param retry: Number of retries if something goes wrong.
     :return: The list of tweets, the pos argument for getting the next page.
     """
-    html_response = pos is None
     url = get_query_url(query, lang, pos)
 
     try:
@@ -94,7 +93,7 @@ def query_single_page(query, lang, pos, retry=10):
 
     if retry > 0:
         logger.info('Retrying... (Attempts left: {})'.format(retry))
-        return query_single_page(url, html_response, retry - 1)
+        return query_single_page(query, lang, pos, retry - 1)
 
     logger.error('Giving up.')
     return [], None

@@ -116,6 +116,7 @@ def query_tweets_once(query, limit=None, lang=''):
                 else RELOAD_URL.format(q=query, pos=pos, lang=lang),
                 pos is None
             )
+            print('new_tweets, pos', new_tweets, pos)
             if len(new_tweets) == 0:
                 logger.info("Got {} tweets for {}.".format(
                     len(tweets), query))

@@ -25,6 +25,13 @@ RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
              'reset_error_state=false&src=typd&max_position={pos}&q={q}&l={lang}'
 
 
+def get_query_url(query, lang, pos):
+    if pos is None:
+        return INIT_URL.format(q=query, lang=lang)
+    else:
+        return RELOAD_URL.format(q=query, pos=pos, lang=lang)
+
+
 def linspace(start, stop, n):
     if n == 1:
         yield stop
@@ -34,7 +41,7 @@ def linspace(start, stop, n):
         yield start + h * i
 
 
-def query_single_page(url, html_response=True, retry=10):
+def query_single_page(query, lang, pos, retry=10):
     """
     Returns tweets from the given URL.
 
@@ -43,12 +50,14 @@ def query_single_page(url, html_response=True, retry=10):
     :param retry: Number of retries if something goes wrong.
     :return: The list of tweets, the pos argument for getting the next page.
     """
+    html_response = pos is None
+    url = get_query_url(query, lang, pos)
 
     try:
         response = requests.get(url, headers=HEADER)
         print(f'request url: {response.url}')
         print(f'response.text: {response.text}')
-        if html_response:
+        if pos is None:  # html response
             html = response.text or ''
             json_resp = None
         else:
@@ -61,22 +70,13 @@ def query_single_page(url, html_response=True, retry=10):
 
         tweets = list(Tweet.from_html(html))
 
-        if not tweets:
-            print('ok', html)
-            print('json_resp', json_resp)
-            try:
-                pos = json.loads(html, strict=False)['min_position']
-            except Exception as e:
-                print('POS JSON EXC', type(e), e)
-
+        if False: #not tweets:
             if json_resp:
                 pos = json_resp['min_position']
-            else:
-                pos = None
-            print('pos', pos)
-            return [], pos
+                query_single_page
+                return [], pos
 
-        if not html_response:
+        if json_resp and tweets:
             return tweets, json_resp['min_position']
 
         return tweets, 'TWEET-{}-{}'.format(tweets[-1].id, tweets[0].id)
@@ -101,7 +101,7 @@ def query_single_page(url, html_response=True, retry=10):
     return [], None
 
 
-def query_tweets_once_generator(query, limit=None, lang=''):
+def query_tweets_once_generator(query, limit=None, lang='', retry=10):
     """
     Queries twitter for all the tweets you want! It will load all pages it gets
     from twitter. However, twitter might out of a sudden stop serving new pages,
@@ -124,11 +124,7 @@ def query_tweets_once_generator(query, limit=None, lang=''):
     num_tweets = 0
     try:
         while True:
-            new_tweets, pos = query_single_page(
-                INIT_URL.format(q=query, lang=lang) if pos is None
-                else RELOAD_URL.format(q=query, pos=pos, lang=lang),
-                pos is None
-            )
+            new_tweets, pos = query_single_page(query, lang, pos)
             print('new_tweets, pos', new_tweets, pos)
             if len(new_tweets) == 0:
                 logger.info('Got {} tweets for {}.'.format(

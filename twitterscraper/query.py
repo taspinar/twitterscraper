@@ -46,6 +46,7 @@ def query_single_page(url, html_response=True, retry=10):
 
     try:
         response = requests.get(url, headers=HEADER)
+        print(f'request url: {response.url}')
         print(f'response.text: {response.text}')
         if html_response:
             html = response.text or ''

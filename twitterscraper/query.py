@@ -70,13 +70,14 @@ def query_single_page(query, lang, pos, retry=10):
 
         tweets = list(Tweet.from_html(html))
 
-        if False: #not tweets:
-            if json_resp:
-                pos = json_resp['min_position']
-                query_single_page
+        if not tweets:
+            pos = json_resp['min_position']
+            if retry > 0:
+                return query_single_page(url, lang, pos, retry - 1)
+            else:
                 return [], pos
 
-        if json_resp and tweets:
+        if json_resp:
             return tweets, json_resp['min_position']
 
         return tweets, 'TWEET-{}-{}'.format(tweets[-1].id, tweets[0].id)
@@ -95,7 +96,7 @@ def query_single_page(query, lang, pos, retry=10):
 
     if retry > 0:
         logger.info('Retrying... (Attempts left: {})'.format(retry))
-        return query_single_page(url, html_response, retry-1)
+        return query_single_page(url, html_response, retry - 1)
 
     logger.error('Giving up.')
     return [], None

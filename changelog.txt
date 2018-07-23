@@ -1,13 +1,26 @@
 # twitterscraper changelog
 
-## 0.x.x
+## 0.8.1 ( 2018-07-18 )
+- saving .csv files as an utf-8 encoded file. This fixes https://github.com/taspinar/twitterscraper/issues/138
 
-TBD
+## 0.8.0
+### Fixed
+- remove two headers which caused bad fetching results https://github.com/taspinar/twitterscraper/issues/126#issuecomment-405132147
+- fix python2 logger bug https://github.com/taspinar/twitterscraper/issues/134 https://github.com/taspinar/twitterscraper/issues/132 https://github.com/taspinar/twitterscraper/issues/127
+
+### Improved
+- Use a generator to get tweets, but convert to list in `query_tweets_once`
+  - this is useful for low memory applications, like massively parallelizing twitter scraping through AWS Lambda (128MB RAM)
+- use single quotes for all strings (it was inconsistent prior)
+- pep8 compliance on L28
+
+### Removed
+- remove `eliminate_duplicates` dead code
+
 # 0.7.2 ( 2018-07-09 )
 ### Fixed
-- twitterscraper.logging is imported as logger instead of logging in order to 
+- twitterscraper.logging is imported as logger instead of logging in order to
    avoid a module name clash with Python2's logging module.
-
 
 # 0.7.1 ( 2018-06-12 )
 ### Improved
@@ -15,7 +28,7 @@ TBD
   `logging.py`, which contains the logger used by twitterscraper.
 
 ### Removed
-- fake_useragent is removed as a dependency, since it has been giving 
+- fake_useragent is removed as a dependency, since it has been giving
 user-agent headers which keep being blocked by Twitter.
 
 ## 0.7.0 ( 2018-05-06 )

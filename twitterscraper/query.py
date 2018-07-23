@@ -61,8 +61,12 @@ def query_single_page(url, html_response=True, retry=10):
         tweets = list(Tweet.from_html(html))
 
         if not tweets:
-            print('ok')
-            pos = json.loads(html)['min_position']
+            print('ok', html)
+            try:
+                pos = json.loads(html)['min_position']
+            except Exception as e:
+                print('POS JSON EXC', e)
+                return [], None
             print('pos', pos)
             return [], pos
 

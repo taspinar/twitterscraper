@@ -151,12 +151,14 @@ Also see `Twitter's Standard operators <https://developer.twitter.com/en/docs/tw
 2.2.3 Examples of scraping user pages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can also scraped all tweets written by retweetet by a specific user. This can be done by adding the ``-u / --user`` argument to the query, which should be the profile username. This does not work in combination with ``-p``, ``-bd``, or ``-ed`` but it is the only way to scrape for retweets. 
+You can also scraped all tweets written by retweetet by a specific user. This can be done by adding the boolean argument ``-u / --user`` argument to the query. 
+If this argument is used, the query should be equal to the username. 
 
 Here is an example of scraping a specific user:
 
 ``twitterscraper realDonaldTrump -u -o tweets_username.json``
 
+This does not work in combination with ``-p``, ``-bd``, or ``-ed`` but it is the only way to scrape for retweets. 
 
 
 2.3 From within Python

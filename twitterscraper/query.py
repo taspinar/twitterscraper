@@ -69,7 +69,10 @@ def query_single_page(query, lang, pos, retry=10):
         tweets = list(Tweet.from_html(html))
 
         if not tweets:
-            pos = json_resp['min_position']
+            if json_resp:
+                pos = json_resp['min_position']
+            else:
+                pos = None
             if retry > 0:
                 return query_single_page(query, lang, pos, retry - 1)
             else:

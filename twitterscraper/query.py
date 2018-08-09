@@ -103,7 +103,7 @@ def query_single_page(query, lang, pos, retry=10):
     return [], None
 
 
-def query_tweets_once_generator(query, limit=None, lang=''):
+def query_tweets_once_generator(query, limit=None, lang='', pos=None):
     """
     Queries twitter for all the tweets you want! It will load all pages it gets
     from twitter. However, twitter might out of a sudden stop serving new pages,
@@ -116,13 +116,13 @@ def query_tweets_once_generator(query, limit=None, lang=''):
                   https://twitter.com/search-advanced and just copy the query!
     :param limit: Scraping will be stopped when at least ``limit`` number of
                   items are fetched.
+    :param pos: Field used as a "checkpoint" to continue where you left off in iteration
     :param num_tweets: Number of tweets fetched outside this function.
     :return:      A list of twitterscraper.Tweet objects. You will get at least
                   ``limit`` number of items.
     """
     logger.info('Querying {}'.format(query))
     query = query.replace(' ', '%20').replace('#', '%23').replace(':', '%3A')
-    pos = None
     num_tweets = 0
     try:
         while True:

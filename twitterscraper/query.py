@@ -117,7 +117,6 @@ def query_tweets_once_generator(query, limit=None, lang='', pos=None):
     :param limit: Scraping will be stopped when at least ``limit`` number of
                   items are fetched.
     :param pos: Field used as a "checkpoint" to continue where you left off in iteration
-    :param num_tweets: Number of tweets fetched outside this function.
     :return:      A list of twitterscraper.Tweet objects. You will get at least
                   ``limit`` number of items.
     """

@@ -125,7 +125,7 @@ def query_tweets_once_generator(query, limit=None, lang='', pos=None):
     num_tweets = 0
     try:
         while True:
-            new_tweets, pos = query_single_page(query, lang, pos)
+            new_tweets, new_pos = query_single_page(query, lang, pos)
             if len(new_tweets) == 0:
                 logger.info('Got {} tweets for {}.'.format(
                     num_tweets, query))
@@ -133,6 +133,9 @@ def query_tweets_once_generator(query, limit=None, lang='', pos=None):
 
             for t in new_tweets:
                 yield t, pos
+
+            # use new_pos only once you have iterated through all old tweets
+            pos = new_pos
 
             num_tweets += len(new_tweets)
 

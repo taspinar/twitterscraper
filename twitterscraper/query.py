@@ -41,7 +41,7 @@ def linspace(start, stop, n):
         yield start + h * i
 
 
-def query_single_page(query, lang, pos, retry=10):
+def query_single_page(query, lang, pos, retry=1000):
     """
     Returns tweets from the given URL.
 

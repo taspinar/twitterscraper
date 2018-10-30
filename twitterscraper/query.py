@@ -8,6 +8,7 @@ from multiprocessing.pool import Pool
 
 from twitterscraper.tweet import Tweet
 from twitterscraper.ts_logger import logger
+import urllib
 
 HEADERS_LIST = [
     'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',
@@ -66,7 +67,7 @@ def query_single_page(url, html_response=True, retry=10, from_user=False):
             return [], None
 
         if not html_response:
-            return tweets, json_resp['min_position']
+            return tweets, urllib.parse.quote(json_resp['min_position'])
 
         if from_user:
             return tweets, tweets[-1].id

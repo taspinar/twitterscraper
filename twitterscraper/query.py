@@ -158,6 +158,10 @@ def query_tweets_once(*args, **kwargs):
 
 def query_tweets(query, limit=None, begindate=dt.date(2006,3,21), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
+
+    if(no_days < 0):
+        sys.exit('Begin date must occur before end date.')
+
     if poolsize > no_days:
         # Since we are assigning each pool a range of dates to query,
 		# the number of pools should not exceed the number of dates.

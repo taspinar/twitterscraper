@@ -28,15 +28,15 @@ class Tweet:
             timestamp=datetime.utcfromtimestamp(
                 int(tweet.find('span', '_timestamp')['data-time'])),
             text=tweet.find('p', 'tweet-text').text or "",
-            replies = tweet.find(
+            replies = int(tweet.find(
                 'span', 'ProfileTweet-action--reply u-hiddenVisually').find(
-                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0',
-            retweets = tweet.find(
+                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0'),
+            retweets = int(tweet.find(
                 'span', 'ProfileTweet-action--retweet u-hiddenVisually').find(
-                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0',
-            likes = tweet.find(
+                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0'),
+            likes = int(tweet.find(
                 'span', 'ProfileTweet-action--favorite u-hiddenVisually').find(
-                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0',
+                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0'),
             html=str(tweet.find('p', 'tweet-text')) or "",
         )
 

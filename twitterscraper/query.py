@@ -8,6 +8,7 @@ from multiprocessing.pool import Pool
 
 from twitterscraper.tweet import Tweet
 from twitterscraper.ts_logger import logger
+import urllib
 
 HEADERS_LIST = [
     'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',
@@ -23,6 +24,10 @@ INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
 RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
              'default&include_available_features=1&include_entities=1&' \
              'reset_error_state=false&src=typd&max_position={pos}&q={q}&l={lang}'
+INIT_URL_USER = 'https://twitter.com/{u}'
+RELOAD_URL_USER = 'https://twitter.com/i/profiles/show/{u}/timeline/tweets?' \
+                  'include_available_features=1&include_entities=1&' \
+                  'max_position={pos}&reset_error_state=false'
 
 
 def get_query_url(query, lang, pos):
@@ -41,7 +46,8 @@ def linspace(start, stop, n):
         yield start + h * i
 
 
-def query_single_page(query, lang, pos, retry=50):
+
+def query_single_page(query, lang, pos, retry=50, from_user=False):
     """
     Returns tweets from the given URL.
 
@@ -74,14 +80,16 @@ def query_single_page(query, lang, pos, retry=50):
             else:
                 pos = None
             if retry > 0:
-                return query_single_page(query, lang, pos, retry - 1)
+                return query_single_page(query, lang, pos, retry - 1, from_user)
             else:
                 return [], pos
 
         if json_resp:
-            return tweets, json_resp['min_position']
+            return tweets, urllib.parse.quote(json_resp['min_position'])
+        if from_user:
+            return tweets, tweets[-1].id
+        return tweets, "TWEET-{}-{}".format(tweets[-1].id, tweets[0].id)
 
-        return tweets, 'TWEET-{}-{}'.format(tweets[-1].id, tweets[0].id)
     except requests.exceptions.HTTPError as e:
         logger.exception('HTTPError {} while requesting "{}"'.format(
             e, url))
@@ -165,6 +173,10 @@ def query_tweets_once(*args, **kwargs):
 
 def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
+
+    if(no_days < 0):
+        sys.exit('Begin date must occur before end date.')
+
     if poolsize > no_days:
         # Since we are assigning each pool a range of dates to query,
 		# the number of pools should not exceed the number of dates.
@@ -196,3 +208,32 @@ def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.d
         pool.join()
 
     return all_tweets
+
+def query_tweets_from_user(user, limit=None):
+    pos = None
+    tweets = []
+    try:
+        while True:
+           new_tweets, pos = query_single_page(INIT_URL_USER.format(u=user) if pos is None
+                                               else RELOAD_URL_USER.format(u=user, pos=pos), pos is None,
+                                               from_user=True)
+           if len(new_tweets) == 0:
+               logger.info("Got {} tweets from username {}".format(len(tweets), user))
+               return tweets
+
+           tweets += new_tweets
+
+           if limit and len(tweets) >= limit:
+               logger.info("Got {} tweets from username {}".format(len(tweets), user))
+               return tweets
+
+    except KeyboardInterrupt:
+        logger.info("Program interrupted by user. Returning tweets gathered "
+                     "so far...")
+    except BaseException:
+        logger.exception("An unknown error occurred! Returning tweets "
+                          "gathered so far.")
+    logger.info("Got {} tweets from username {}.".format(
+        len(tweets), user))
+    return tweets
+

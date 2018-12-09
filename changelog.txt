@@ -1,9 +1,21 @@
 # twitterscraper changelog
 
+# 0.9.3 ( 2018-11-04 )
+### Fixed
+- PR #143: cancels query if end-date is earlier than begin-date. 
+- PR #151: returned json_resp['min_position] is parsed in order to quote special characters.
+- PR #153: cast Tweets attributes to proper data types (int instead of str)
+- Use codecs.open() to write to file. Should fix issues 144 and 147.
+
+# 0.9.0 ( 2018-07-18 )
+### Added
+- Added -u / --user command line argument which can be used to scrape all 
+  tweets from an users profile page.
+
 ## 0.8.1 ( 2018-07-18 )
 - saving .csv files as an utf-8 encoded file. This fixes https://github.com/taspinar/twitterscraper/issues/138
 
-## 0.8.0
+## 0.8.0 ( 2018-07-17 )
 ### Fixed
 - remove two headers which caused bad fetching results https://github.com/taspinar/twitterscraper/issues/126#issuecomment-405132147
 - fix python2 logger bug https://github.com/taspinar/twitterscraper/issues/134 https://github.com/taspinar/twitterscraper/issues/132 https://github.com/taspinar/twitterscraper/issues/127

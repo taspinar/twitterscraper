@@ -30,7 +30,12 @@ RELOAD_URL_USER = 'https://twitter.com/i/profiles/show/{u}/timeline/tweets?' \
                   'max_position={pos}&reset_error_state=false'
 
 
-def get_query_url(query, lang, pos):
+def get_query_url(query, lang, pos, from_user = False):
+    if from_user:
+        if pos is None:
+            return INIT_URL_USER.format(u=query)
+        else:
+            return RELOAD_URL_USER.format(u=query, pos=pos)
     if pos is None:
         return INIT_URL.format(q=query, lang=lang)
     else:
@@ -57,7 +62,7 @@ def query_single_page(query, lang, pos, retry=50, from_user=False):
     :param retry: Number of retries if something goes wrong.
     :return: The list of tweets, the pos argument for getting the next page.
     """
-    url = get_query_url(query, lang, pos)
+    url = get_query_url(query, lang, pos, from_user)
 
     try:
         response = requests.get(url, headers=HEADER)
@@ -214,9 +219,7 @@ def query_tweets_from_user(user, limit=None):
     tweets = []
     try:
         while True:
-           new_tweets, pos = query_single_page(INIT_URL_USER.format(u=user) if pos is None
-                                               else RELOAD_URL_USER.format(u=user, pos=pos), pos is None,
-                                               from_user=True)
+           new_tweets, pos = query_single_page(query, lang='', pos, from_user=True)
            if len(new_tweets) == 0:
                logger.info("Got {} tweets from username {}".format(len(tweets), user))
                return tweets

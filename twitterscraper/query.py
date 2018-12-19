@@ -8,7 +8,7 @@ from multiprocessing.pool import Pool
 
 from twitterscraper.tweet import Tweet
 from twitterscraper.ts_logger import logger
-import twitterscraper.user
+from twitterscraper.user import User
 import urllib
 
 HEADERS_LIST = [
@@ -222,22 +222,20 @@ def query_tweets_from_user(user, limit=None):
     return tweets
 
 
-def query_user_page(url, html_response=True, retry=10):
+def query_user_page(url, retry=10):
     """
     Returns the scraped user data from a twitter user page.
 
     :param url: The URL to get the twitter user info from (url contains the user page)
-    :param html_response: False, if the HTML is embedded in a JSON (by default we specify True)
     :param retry: Number of retries if something goes wrong.
     :return: Returns the scraped user data from a twitter user page.
     """
 
     try:
         response = requests.get(url, headers=HEADER)
-        if html_response:
-            html = response.text or ''
-        
-        user= twitterscraper.user.User()
+        html = response.text or ''
+
+        user = User()
         user_info = user.from_html(html)
         if not user_info:
             return None
@@ -256,7 +254,7 @@ def query_user_page(url, html_response=True, retry=10):
 
     if retry > 0:
         logger.info('Retrying... (Attempts left: {})'.format(retry))
-        return query_user_page(url, html_response, retry-1)
+        return query_user_page(url, retry-1)
 
     logger.error('Giving up.')
     return None

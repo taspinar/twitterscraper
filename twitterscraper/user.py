@@ -16,7 +16,7 @@ class User:
         self.likes = likes
         self.lists = lists
         
-
+    @classmethod
     def from_soup(self, tag_prof_header, tag_prof_nav):
         """
         Returns the scraped user data from a twitter user page.
@@ -85,7 +85,7 @@ class User:
             self.lists = int(lists)
         return(self)
 
-
+    @classmethod
     def from_html(self, html):
         soup = BeautifulSoup(html, "lxml")
         user_profile_header = soup.find("div", {"class":'ProfileHeaderCard'})

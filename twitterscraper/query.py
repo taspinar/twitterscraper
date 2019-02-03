@@ -8,6 +8,7 @@ from multiprocessing.pool import Pool
 
 from twitterscraper.tweet import Tweet
 from twitterscraper.ts_logger import logger
+from twitterscraper.user import User
 import urllib
 
 HEADERS_LIST = [
@@ -178,10 +179,6 @@ def query_tweets_once(*args, **kwargs):
 
 def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
-
-    if(no_days < 0):
-        sys.exit('Begin date must occur before end date.')
-
     if poolsize > no_days:
         # Since we are assigning each pool a range of dates to query,
 		# the number of pools should not exceed the number of dates.
@@ -214,6 +211,7 @@ def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.d
 
     return all_tweets
 
+
 def query_tweets_from_user(user, limit=None):
     pos = None
     tweets = []
@@ -240,3 +238,63 @@ def query_tweets_from_user(user, limit=None):
         len(tweets), user))
     return tweets
 
+
+def query_user_page(url, retry=10):
+    """
+    Returns the scraped user data from a twitter user page.
+
+    :param url: The URL to get the twitter user info from (url contains the user page)
+    :param retry: Number of retries if something goes wrong.
+    :return: Returns the scraped user data from a twitter user page.
+    """
+
+    try:
+        response = requests.get(url, headers=HEADER)
+        html = response.text or ''
+
+        user = User()
+        user_info = user.from_html(html)
+        if not user_info:
+            return None
+
+        return user_info
+
+    except requests.exceptions.HTTPError as e:
+        logger.exception('HTTPError {} while requesting "{}"'.format(
+            e, url))
+    except requests.exceptions.ConnectionError as e:
+        logger.exception('ConnectionError {} while requesting "{}"'.format(
+            e, url))
+    except requests.exceptions.Timeout as e:
+        logger.exception('TimeOut {} while requesting "{}"'.format(
+            e, url))
+
+    if retry > 0:
+        logger.info('Retrying... (Attempts left: {})'.format(retry))
+        return query_user_page(url, retry-1)
+
+    logger.error('Giving up.')
+    return None
+
+
+def query_user_info(user):
+    """
+    Returns the scraped user data from a twitter user page.
+
+    :param user: the twitter user to web scrape its twitter page info 
+    """
+
+
+    try:
+        user_info = query_user_page(INIT_URL_USER.format(u=user))
+        if user_info:
+            logger.info(f"Got user information from username {user}")
+            return user_info
+
+    except KeyboardInterrupt:
+        logger.info("Program interrupted by user. Returning user information gathered so far...")
+    except BaseException:
+        logger.exception("An unknown error occurred! Returning user information gathered so far...")
+
+    logger.info(f"Got user information from username {user}")
+    return user_info             

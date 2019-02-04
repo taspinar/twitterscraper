@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 
 
 class User:
-    def __init__(self, user=None, full_name="", location="", blog="", date_joined=None, id=None, tweets=0, 
+    def __init__(self, user="", full_name="", location="", blog="", date_joined="", id="", tweets=0, 
         following=0, followers=0, likes=0, lists=0):
         self.user = user
         self.full_name = full_name
@@ -15,7 +15,7 @@ class User:
         self.followers = followers
         self.likes = likes
         self.lists = lists
-        
+       
     @classmethod
     def from_soup(self, tag_prof_header, tag_prof_nav):
         """

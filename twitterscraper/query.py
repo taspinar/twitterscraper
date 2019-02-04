@@ -298,6 +298,3 @@ def query_user_info(user):
         logger.info("Program interrupted by user. Returning user information gathered so far...")
     except BaseException:
         logger.exception("An unknown error occurred! Returning user information gathered so far...")
-
-    logger.info(f"Got user information from username {user}")
-    return user_info             

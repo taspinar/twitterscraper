@@ -1,5 +1,13 @@
 # twitterscraper changelog
 
+# 1.0.0 ( 2019-02-04 )
+### Added
+- PR #159: scrapes user profile pages for additional information. 
+### Fixed:
+- Moved example scripts demonstrating use of get_user_info() functionality to examples folder
+- removed screenshot demonstrating get_user_info() works
+- Added command line argument to main.py which calls get_user_info() for all users in list of scraped tweets.
+
 # 0.9.3 ( 2018-11-04 )
 ### Fixed
 - PR #143: cancels query if end-date is earlier than begin-date. 

@@ -186,7 +186,7 @@ def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.d
         poolsize = no_days
     dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
 
-    if limit:
+    if limit and poolsize:
         limit_per_pool = (limit // poolsize)+1
     else:
         limit_per_pool = None

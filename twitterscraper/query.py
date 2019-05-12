@@ -1,5 +1,4 @@
 from __future__ import division
-import random
 import requests
 import datetime as dt
 import json
@@ -9,17 +8,12 @@ from multiprocessing.pool import Pool
 from twitterscraper.tweet import Tweet
 from twitterscraper.ts_logger import logger
 from twitterscraper.user import User
+from fake_useragent import UserAgent
 import urllib
 
-HEADERS_LIST = [
-    'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',
-    'Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
-    'Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201',
-    'Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16',
-    'Mozilla/5.0 (Windows NT 5.2; RW; rv:7.0a1) Gecko/20091211 SeaMonkey/9.23a1pre'
-]
-
-HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
+ua = UserAgent()
+HEADER = {'User-Agent': ua.random}
+logger.info(HEADER)
 
 INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
 RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
@@ -288,7 +282,7 @@ def query_user_info(user):
     try:
         user_info = query_user_page(INIT_URL_USER.format(u=user))
         if user_info:
-            logger.info(f"Got user information from username {user}")
+            logger.info("Got user information from username {user}")
             return user_info
 
     except KeyboardInterrupt:
@@ -296,5 +290,5 @@ def query_user_info(user):
     except BaseException:
         logger.exception("An unknown error occurred! Returning user information gathered so far...")
 
-    logger.info(f"Got user information from username {user}")
+    logger.info("Got user information from username {user}")
     return user_info             

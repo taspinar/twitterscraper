@@ -6,39 +6,61 @@ from coala_utils.decorators import generate_ordering
 
 @generate_ordering('timestamp', 'id', 'text', 'user', 'replies', 'retweets', 'likes')
 class Tweet:
-    def __init__(self, user, fullname, id, url, timestamp, text, replies, retweets, likes, html):
-        self.user = user.strip('\@')
+    def __init__(self, username, fullname, user_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets,
+                 likes, is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html):
+        self.username = username.strip('\@')
         self.fullname = fullname
-        self.id = id
-        self.url = url
+        self.user_id = user_id
+        self.tweet_id = tweet_id
+        self.tweet_url = tweet_url
         self.timestamp = timestamp
-        self.text = text
+        self.timestamp_epochs = timestamp_epochs
         self.replies = replies
         self.retweets = retweets
         self.likes = likes
+        self.is_retweet = is_retweet
+        self.retweeter_username = retweeter_username
+        self.retweeter_userid = retweeter_userid
+        self.retweet_id = retweet_id
+        self.text = text
         self.html = html
 
     @classmethod
     def from_soup(cls, tweet):
-        return cls(
-            user=tweet.find('span', 'username').text or "",
-            fullname=tweet.find('strong', 'fullname').text or "", 
-            id=tweet['data-item-id'] or "",
-            url = tweet.find('div', 'tweet')['data-permalink-path'] or "",
-            timestamp=datetime.utcfromtimestamp(
-                int(tweet.find('span', '_timestamp')['data-time'])),
-            text=tweet.find('p', 'tweet-text').text or "",
-            replies = int(tweet.find(
-                'span', 'ProfileTweet-action--reply u-hiddenVisually').find(
-                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0'),
-            retweets = int(tweet.find(
-                'span', 'ProfileTweet-action--retweet u-hiddenVisually').find(
-                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0'),
-            likes = int(tweet.find(
-                'span', 'ProfileTweet-action--favorite u-hiddenVisually').find(
-                    'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0'),
-            html=str(tweet.find('p', 'tweet-text')) or "",
-        )
+        tweet_div = tweet.find('div', 'tweet')
+        username = tweet_div["data-screen-name"]
+        fullname = tweet_div["data-name"]
+        user_id = tweet_div["data-user-id"]
+        tweet_id = tweet_div["data-tweet-id"]
+        tweet_url = tweet_div["data-permalink-path"]
+        timestamp_epochs = int(tweet.find('span', '_timestamp')['data-time'])
+        timestamp = datetime.utcfromtimestamp(timestamp_epochs)
+        try:
+            retweet_id = tweet_div["data-retweet-id"]
+            retweeter_username = tweet_div["data-retweeter"]
+            retweeter_userid = tweet_div.find('a', "pretty-link js-user-profile-link")["data-user-id"]
+            is_retweet = 1
+        except:
+            retweet_id = ""
+            retweeter_username = ""
+            retweeter_userid = ""
+            is_retweet = 0
+
+        text = tweet.find('p', 'tweet-text').text or ""
+        replies = int(tweet.find(
+            'span', 'ProfileTweet-action--reply u-hiddenVisually').find(
+            'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')
+        retweets = int(tweet.find(
+            'span', 'ProfileTweet-action--retweet u-hiddenVisually').find(
+            'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')
+        likes = int(tweet.find(
+            'span', 'ProfileTweet-action--favorite u-hiddenVisually').find(
+            'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')
+        html = str(tweet.find('p', 'tweet-text')) or ""
+            
+        c = cls(username, fullname, user_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets, likes,
+                 is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html)
+        return c
 
     @classmethod
     def from_html(cls, html):

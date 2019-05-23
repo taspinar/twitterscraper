@@ -64,6 +64,7 @@ def query_single_page(query, lang, pos, retry=50, from_user=False):
     :return: The list of tweets, the pos argument for getting the next page.
     """
     url = get_query_url(query, lang, pos, from_user)
+    logger.info('Scraping tweets from {}', url)
 
     try:
         response = requests.get(url, headers=HEADER)

@@ -81,11 +81,19 @@ def query_single_page(query, lang, pos, retry=50, from_user=False):
         tweets = list(Tweet.from_html(html))
 
         if not tweets:
-            if json_resp:
-                pos = json_resp['min_position']
-            else:
-                pos = None
+            try:
+                if json_resp:
+                    pos = json_resp['min_position']
+                    has_more_items = json_resp['has_more_items']
+                    if not has_more_items:
+                        logger.info("Twitter returned : 'has_more_items' ")
+                        return [], None
+                else:
+                    pos = None
+            except:
+                pass
             if retry > 0:
+                logger.info('Retrying... (Attempts left: {})'.format(retry))
                 return query_single_page(query, lang, pos, retry - 1, from_user)
             else:
                 return [], pos
@@ -93,8 +101,8 @@ def query_single_page(query, lang, pos, retry=50, from_user=False):
         if json_resp:
             return tweets, urllib.parse.quote(json_resp['min_position'])
         if from_user:
-            return tweets, tweets[-1].id
-        return tweets, "TWEET-{}-{}".format(tweets[-1].id, tweets[0].id)
+            return tweets, tweets[-1].tweet_id
+        return tweets, "TWEET-{}-{}".format(tweets[-1].tweet_id, tweets[0].tweet_id)
 
     except requests.exceptions.HTTPError as e:
         logger.exception('HTTPError {} while requesting "{}"'.format(

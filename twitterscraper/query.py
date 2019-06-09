@@ -217,7 +217,7 @@ def query_tweets_from_user(user, limit=None):
     tweets = []
     try:
         while True:
-           new_tweets, pos = query_single_page(query, lang='', pos=pos, from_user=True)
+           new_tweets, pos = query_single_page(user, lang='', pos=pos, from_user=True)
            if len(new_tweets) == 0:
                logger.info("Got {} tweets from username {}".format(len(tweets), user))
                return tweets

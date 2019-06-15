@@ -1,10 +1,4 @@
 
-=============
-
-You can just input your keywords, and dont have to worry about the programming part.
-
-Besides the information which can be retrieved via the free twitterscraper tool, the website also retrieves user information. 
-
 Synopsis
 ========
 
@@ -123,6 +117,13 @@ JSON right away. Twitterscraper takes several arguments:
 -  ``-d`` or ``--dump``: With this argument, the scraped tweets will be
    printed to the screen instead of an outputfile. If you are using this
    argument, the ``--output`` argument doe not need to be used.
+   
+-  ``-ow`` or ``--overwrite``: With this argument, if the output file already exists
+   it will be overwritten. If this argument is not set (default) twitterscraper will 
+   exit with the warning that the output file already exists.
+   
+-  ``--profiles``: twitterscraper will in addition to the tweets, also scrape for the profile information of the users who have written these tweets.
+    The results will be saved in the file "userprofiles_<filename>".
 
 
 2.2.1 Examples of simple queries
@@ -248,14 +249,7 @@ After the file has been opened, it can easily be converted into a pandas DataFra
 
 :: 
 
-    import codecs, json
     import pandas as pd
-    
-    with codecs.open('tweets.json', 'r', 'utf-8') as f:
-        tweets = json.load(f, encoding='utf-8')
-    
-    list_tweets = [list(elem.values()) for elem in tweets]
-    list_columns = list(tweets[0].keys())
-    df = pd.DataFrame(list_tweets, columns=list_columns
+    df = pd.read_json('tweets.json', encoding='utf-8')
 
 

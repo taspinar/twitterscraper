@@ -7,7 +7,9 @@ import argparse
 import collections
 import datetime as dt
 from os.path import isfile
-from twitterscraper.query import query_tweets, query_tweets_from_user
+from twitterscraper.query import query_tweets
+from twitterscraper.query import query_tweets_from_user
+from twitterscraper.query import query_user_info
 from twitterscraper.ts_logger import logger
 
 
@@ -58,6 +60,10 @@ def main():
         parser.add_argument("-u", "--user", action='store_true',
                             help="Set this flag to if you want to scrape tweets from a specific user"
                                  "The query should then consist of the profilename you want to scrape without @")
+        parser.add_argument("--profiles", action='store_true',
+                            help="Set this flag to if you want to scrape profile info of all the users where you" 
+                            "have previously scraped from. After all of the tweets have been scraped it will start"
+                            "a new process of scraping profile pages.")
         parser.add_argument("--lang", type=str, default=None,
                             help="Set this flag if you want to query tweets in \na specific language. You can choose from:\n"
                                  "en (English)\nar (Arabic)\nbn (Bengali)\n"
@@ -112,5 +118,11 @@ def main():
                                         x.text, x.html])
                     else:
                         json.dump(tweets, output, cls=JSONEncoder)
+            if args.profiles and tweets:
+                list_users = list(set([tweet.user for tweet in tweets]))
+                list_users_info = [query_user_info(elem) for elem in list_users]
+                filename = 'userprofiles_' + args.output
+                with open(filename, "w", encoding="utf-8") as output:
+                    json.dump(list_users_info, output, cls=JSONEncoder)
     except KeyboardInterrupt:
         logger.info("Program interrupted by user. Quitting...")

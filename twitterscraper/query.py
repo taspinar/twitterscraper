@@ -4,7 +4,8 @@ import requests
 import datetime as dt
 import json
 from functools import partial
-from multiprocessing.pool import Pool
+# from multiprocessing.pool import Pool
+from billiard.pool import Pool
 
 from twitterscraper.tweet import Tweet
 from twitterscraper.ts_logger import logger
@@ -189,7 +190,7 @@ def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.d
         poolsize = no_days
     dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
 
-    if limit:
+    if limit and poolsize:
         limit_per_pool = (limit // poolsize)+1
     else:
         limit_per_pool = None
@@ -221,7 +222,7 @@ def query_tweets_from_user(user, limit=None):
     tweets = []
     try:
         while True:
-           new_tweets, pos = query_single_page(query, lang='', pos=pos, from_user=True)
+           new_tweets, pos = query_single_page(user, lang='', pos=pos, from_user=True)
            if len(new_tweets) == 0:
                logger.info("Got {} tweets from username {}".format(len(tweets), user))
                return tweets
@@ -284,7 +285,7 @@ def query_user_info(user):
     """
     Returns the scraped user data from a twitter user page.
 
-    :param user: the twitter user to web scrape its twitter page info 
+    :param user: the twitter user to web scrape its twitter page info
     """
 
 
@@ -298,3 +299,6 @@ def query_user_info(user):
         logger.info("Program interrupted by user. Returning user information gathered so far...")
     except BaseException:
         logger.exception("An unknown error occurred! Returning user information gathered so far...")
+
+    logger.info(f"Got user information from username {user}")
+    return user_info

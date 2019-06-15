@@ -1,7 +1,5 @@
-Visit the `Website <http://twitterscraper.nl>`__
+
 =============
-Don't know that much about programming? Or you don't have enough time? 
-Then visit the `Web Version <http://twitterscraper.nl>`__
 
 You can just input your keywords, and dont have to worry about the programming part.
 
@@ -39,9 +37,27 @@ access Tweets written in the **past 7 days**. This is a major bottleneck
 for anyone looking for older past data to make a model from. With
 TwitterScraper there is no such limitation.
 
-Per Tweet it scrapes the following information: + Username and Full Name
-+ Tweet-id + Tweet-url + Tweet text + Tweet html + Tweet timestamp + No. of likes +
-No. of replies + No. of retweets
+Per Tweet it scrapes the following information: 
+ + Tweet-id 
+ + Tweet-url 
+ + Tweet text 
+ + Tweet html 
+ + Tweet timestamp 
+ + Tweet No. of likes
+ + Tweet No. of replies
+ + Tweet No. of retweets
+ + Username
+ + User Full Name
+ + User ID
+ + Date user joined
+ + User location (if filled in)
+ + User blog (if filled in)
+ + User No. of  tweets
+ + User No. of following
+ + User No. of followers
+ + User No. of likes
+ + User No. of lists
+ 
 
 2. Installation and Usage
 =========================
@@ -120,7 +136,6 @@ Below is an example of how twitterscraper can be used:
 
 ``twitterscraper Trump -l 100 -bd 2017-01-01 -ed 2017-06-01 -o tweets.json``
 
-``twitterscraper realDonaldTrump -u -o tweets_username.json``
 
 
 2.2.2 Examples of advanced queries
@@ -151,14 +166,17 @@ Also see `Twitter's Standard operators <https://developer.twitter.com/en/docs/tw
 2.2.3 Examples of scraping user pages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can also scraped all tweets written by retweetet by a specific user. This can be done by adding the boolean argument ``-u / --user`` argument to the query. 
+You can also scraped all tweets written or retweetet by a specific user. This can be done by adding the boolean argument ``-u / --user`` argument to the query. 
 If this argument is used, the query should be equal to the username. 
 
 Here is an example of scraping a specific user:
 
 ``twitterscraper realDonaldTrump -u -o tweets_username.json``
 
-This does not work in combination with ``-p``, ``-bd``, or ``-ed`` but it is the only way to scrape for retweets. 
+This does not work in combination with ``-p``, ``-bd``, or ``-ed``.
+
+The main difference with the example "search for tweets from a specific user" in section 2.2.2 is that this method really scrapes
+all tweets from a profile page (including retweets). The example in 2.2.2 scrapes the results from the search page (excluding retweets). 
 
 
 2.3 From within Python
@@ -189,6 +207,13 @@ You can easily use TwitterScraper from within python:
 
 A regular search within Twitter will not show you any retweets. Twitterscraper therefore does not contain any retweets in the output. To give an example: If user1 has written a tweet containing ``#trump2020`` and user2 has retweetet this tweet, a search for ``#trump2020`` will only show the original tweet. The only way you can scrape for retweets is if you scrape for all tweets of a specific user with the ``-u / --user`` argument. 
 
+
+2.5 Scraping for User Profile information
+----------------------
+By adding the argument ``--profiles`` twitterscraper will in addition to the tweets, also scrape for the profile information of the users who have written these tweets.
+The results will be saved in the file "userprofiles_<filename>".
+Try not to use this argument too much. If you have already scraped profile information for a set of users, there is no need to do it again :)
+It is also possible to scrape for profile information without scraping for tweets. Examples of this can be found in the examples folder. 
 
 
 3. Output

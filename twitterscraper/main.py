@@ -81,6 +81,8 @@ def main():
                                  )
         parser.add_argument("-d", "--dump", action="store_true",
                             help="Set this flag if you want to dump the tweets \nto the console rather than outputting to a file")
+        parser.add_argument("-ow", "--overwrite", action="store_true",
+                            help="Set this flag if you want to overwrite the existing output file.")
         parser.add_argument("-bd", "--begindate", type=valid_date, default="2006-03-21",
                             help="Scrape for tweets starting from this date. Format YYYY-MM-DD. \nDefault value is 2006-03-21", metavar='\b')
         parser.add_argument("-ed", "--enddate", type=valid_date, default=dt.date.today(),
@@ -90,7 +92,7 @@ def main():
                             "Set to 1 if you dont want to run any parallel processes.", metavar='\b')
         args = parser.parse_args()
 
-        if isfile(args.output) and not args.dump:
+        if isfile(args.output) and not args.dump and not args.overwrite:
             logger.error("Output file already exists! Aborting.")
             exit(-1)
 
@@ -110,7 +112,7 @@ def main():
             if tweets:
                 with open(args.output, "w", encoding="utf-8") as output:
                     if args.csv:
-                        f = csv.writer(output)
+                        f = csv.writer(output, delimiter=";")
                         f.writerow(["user", "fullname", "tweet-id", "timestamp", "url", "likes", "replies", "retweets", "text", "html"])
                         for x in tweets:
                             f.writerow([x.user, x.fullname, x.id, x.timestamp, x.url,

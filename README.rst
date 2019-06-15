@@ -1,7 +1,5 @@
 
 =============
-Don't know that much about programming? Or you don't have enough time? 
-Then visit the `Web Version <http://twitterscraper.nl>`__
 
 You can just input your keywords, and dont have to worry about the programming part.
 

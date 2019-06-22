@@ -5,7 +5,7 @@
 Twitter Scraper tool
 """
 
-__version__ = '1.0.0'
+__version__ = '1.2.0'
 __author__ = 'Ahmet Taspinar'
 __license__ = 'MIT'
 

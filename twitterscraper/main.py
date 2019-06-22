@@ -113,11 +113,13 @@ def main():
                 with open(args.output, "w", encoding="utf-8") as output:
                     if args.csv:
                         f = csv.writer(output, delimiter=";")
-                        f.writerow(["user", "fullname", "tweet-id", "timestamp", "url", "likes", "replies", "retweets", "text", "html"])
-                        for x in tweets:
-                            f.writerow([x.user, x.fullname, x.id, x.timestamp, x.url,
-                                        x.likes, x.replies, x.retweets,
-                                        x.text, x.html])
+                        f.writerow(["username", "fullname","user_id", "tweet_id", "tweet_url", "timestamp","timestamp_epochs",
+                                    "replies", "retweets", "likes", "is_retweet", "retweeter_username" , "retweeter_userid" ,
+                                    "retweet_id","text", "html"])
+                        for t in tweets:
+                            f.writerow([t.username, t.fullname,t.user_id, t.tweet_id, t.tweet_url, t.timestamp, t.timestamp_epochs,
+                                        t.replies, t.retweets, t.likes, t.is_retweet, t.retweeter_username , t.retweeter_userid ,
+                                        t.retweet_id, t.text, t.html])
                     else:
                         json.dump(tweets, output, cls=JSONEncoder)
             if args.profiles and tweets:

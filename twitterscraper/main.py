@@ -7,7 +7,9 @@ import argparse
 import collections
 import datetime as dt
 from os.path import isfile
-from twitterscraper.query import query_tweets, query_tweets_from_user
+from twitterscraper.query import query_tweets
+from twitterscraper.query import query_tweets_from_user
+from twitterscraper.query import query_user_info
 from twitterscraper.ts_logger import logger
 
 
@@ -58,6 +60,10 @@ def main():
         parser.add_argument("-u", "--user", action='store_true',
                             help="Set this flag to if you want to scrape tweets from a specific user"
                                  "The query should then consist of the profilename you want to scrape without @")
+        parser.add_argument("--profiles", action='store_true',
+                            help="Set this flag to if you want to scrape profile info of all the users where you" 
+                            "have previously scraped from. After all of the tweets have been scraped it will start"
+                            "a new process of scraping profile pages.")
         parser.add_argument("--lang", type=str, default=None,
                             help="Set this flag if you want to query tweets in \na specific language. You can choose from:\n"
                                  "en (English)\nar (Arabic)\nbn (Bengali)\n"
@@ -75,6 +81,8 @@ def main():
                                  )
         parser.add_argument("-d", "--dump", action="store_true",
                             help="Set this flag if you want to dump the tweets \nto the console rather than outputting to a file")
+        parser.add_argument("-ow", "--overwrite", action="store_true",
+                            help="Set this flag if you want to overwrite the existing output file.")
         parser.add_argument("-bd", "--begindate", type=valid_date, default="2006-03-21",
                             help="Scrape for tweets starting from this date. Format YYYY-MM-DD. \nDefault value is 2006-03-21", metavar='\b')
         parser.add_argument("-ed", "--enddate", type=valid_date, default=dt.date.today(),
@@ -84,7 +92,7 @@ def main():
                             "Set to 1 if you dont want to run any parallel processes.", metavar='\b')
         args = parser.parse_args()
 
-        if isfile(args.output) and not args.dump:
+        if isfile(args.output) and not args.dump and not args.overwrite:
             logger.error("Output file already exists! Aborting.")
             exit(-1)
 
@@ -104,7 +112,7 @@ def main():
             if tweets:
                 with open(args.output, "w", encoding="utf-8") as output:
                     if args.csv:
-                        f = csv.writer(output)
+                        f = csv.writer(output, delimiter=";")
                         f.writerow(["username", "fullname","user_id", "tweet_id", "tweet_url", "timestamp","timestamp_epochs",
                                     "replies", "retweets", "likes", "is_retweet", "retweeter_username" , "retweeter_userid" ,
                                     "retweet_id","text", "html"])
@@ -114,5 +122,11 @@ def main():
                                         t.retweet_id, t.text, t.html])
                     else:
                         json.dump(tweets, output, cls=JSONEncoder)
+            if args.profiles and tweets:
+                list_users = list(set([tweet.user for tweet in tweets]))
+                list_users_info = [query_user_info(elem) for elem in list_users]
+                filename = 'userprofiles_' + args.output
+                with open(filename, "w", encoding="utf-8") as output:
+                    json.dump(list_users_info, output, cls=JSONEncoder)
     except KeyboardInterrupt:
         logger.info("Program interrupted by user. Quitting...")

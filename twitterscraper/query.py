@@ -1,25 +1,20 @@
 from __future__ import division
-import random
 import requests
 import datetime as dt
 import json
 from functools import partial
-from multiprocessing.pool import Pool
+# from multiprocessing.pool import Pool
+from billiard.pool import Pool
 
 from twitterscraper.tweet import Tweet
 from twitterscraper.ts_logger import logger
 from twitterscraper.user import User
+from fake_useragent import UserAgent
 import urllib
 
-HEADERS_LIST = [
-    'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',
-    'Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
-    'Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201',
-    'Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16',
-    'Mozilla/5.0 (Windows NT 5.2; RW; rv:7.0a1) Gecko/20091211 SeaMonkey/9.23a1pre'
-]
-
-HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
+ua = UserAgent()
+HEADER = {'User-Agent': ua.random}
+logger.info(HEADER)
 
 INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
 RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
@@ -188,13 +183,17 @@ def query_tweets_once(*args, **kwargs):
 
 def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
+    
+    if(no_days < 0):
+        sys.exit('Begin date must occur before end date.')
+    
     if poolsize > no_days:
         # Since we are assigning each pool a range of dates to query,
 		# the number of pools should not exceed the number of dates.
         poolsize = no_days
     dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
 
-    if limit:
+    if limit and poolsize:
         limit_per_pool = (limit // poolsize)+1
     else:
         limit_per_pool = None
@@ -226,7 +225,7 @@ def query_tweets_from_user(user, limit=None):
     tweets = []
     try:
         while True:
-           new_tweets, pos = query_single_page(query, lang='', pos=pos, from_user=True)
+           new_tweets, pos = query_single_page(user, lang='', pos=pos, from_user=True)
            if len(new_tweets) == 0:
                logger.info("Got {} tweets from username {}".format(len(tweets), user))
                return tweets
@@ -261,8 +260,7 @@ def query_user_page(url, retry=10):
         response = requests.get(url, headers=HEADER)
         html = response.text or ''
 
-        user = User()
-        user_info = user.from_html(html)
+        user_info = User.from_html(html)
         if not user_info:
             return None
 
@@ -290,14 +288,14 @@ def query_user_info(user):
     """
     Returns the scraped user data from a twitter user page.
 
-    :param user: the twitter user to web scrape its twitter page info 
+    :param user: the twitter user to web scrape its twitter page info
     """
 
 
     try:
         user_info = query_user_page(INIT_URL_USER.format(u=user))
         if user_info:
-            logger.info(f"Got user information from username {user}")
+            logger.info("Got user information from username {user}")
             return user_info
 
     except KeyboardInterrupt:
@@ -306,4 +304,4 @@ def query_user_info(user):
         logger.exception("An unknown error occurred! Returning user information gathered so far...")
 
     logger.info(f"Got user information from username {user}")
-    return user_info             
+    return user_info

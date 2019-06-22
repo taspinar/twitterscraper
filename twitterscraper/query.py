@@ -3,7 +3,8 @@ import requests
 import datetime as dt
 import json
 from functools import partial
-from multiprocessing.pool import Pool
+# from multiprocessing.pool import Pool
+from billiard.pool import Pool
 
 from twitterscraper.tweet import Tweet
 from twitterscraper.ts_logger import logger
@@ -173,13 +174,17 @@ def query_tweets_once(*args, **kwargs):
 
 def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
+    
+    if(no_days < 0):
+        sys.exit('Begin date must occur before end date.')
+    
     if poolsize > no_days:
         # Since we are assigning each pool a range of dates to query,
 		# the number of pools should not exceed the number of dates.
         poolsize = no_days
     dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
 
-    if limit:
+    if limit and poolsize:
         limit_per_pool = (limit // poolsize)+1
     else:
         limit_per_pool = None
@@ -211,7 +216,7 @@ def query_tweets_from_user(user, limit=None):
     tweets = []
     try:
         while True:
-           new_tweets, pos = query_single_page(query, lang='', pos=pos, from_user=True)
+           new_tweets, pos = query_single_page(user, lang='', pos=pos, from_user=True)
            if len(new_tweets) == 0:
                logger.info("Got {} tweets from username {}".format(len(tweets), user))
                return tweets
@@ -246,8 +251,7 @@ def query_user_page(url, retry=10):
         response = requests.get(url, headers=HEADER)
         html = response.text or ''
 
-        user = User()
-        user_info = user.from_html(html)
+        user_info = User.from_html(html)
         if not user_info:
             return None
 
@@ -275,7 +279,7 @@ def query_user_info(user):
     """
     Returns the scraped user data from a twitter user page.
 
-    :param user: the twitter user to web scrape its twitter page info 
+    :param user: the twitter user to web scrape its twitter page info
     """
 
 
@@ -290,5 +294,5 @@ def query_user_info(user):
     except BaseException:
         logger.exception("An unknown error occurred! Returning user information gathered so far...")
 
-    logger.info("Got user information from username {user}")
-    return user_info             
+    logger.info(f"Got user information from username {user}")
+    return user_info

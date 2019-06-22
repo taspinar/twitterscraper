@@ -1,5 +1,11 @@
 # twitterscraper changelog
 
+# 1.2.0 ( 2019-06-22 )
+### Added
+- PR #186: adds the fields is_retweet, retweeter related information, and timestamp_epochs to the output.
+- PR #184: use fake_useragent for generation of random user agent headers. 
+- Additionally scraper for 'is_verified' when scraping for user profile pages.
+
 # 1.1.0 ( 2019-06-15 )
 ### Added
 - PR #176: Using billiard library instead of multiprocessing to add the ability to use this library with Celery.

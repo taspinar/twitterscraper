@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 from setuptools import setup, find_packages
-
-
 with open('requirements.txt') as requirements:
     required = requirements.read().splitlines()
 
 setup(
     name='twitterscraper',
-    version='1.1.0',
+    version='1.2.0',
     description='Tool for scraping Tweets',
     url='https://github.com/taspinar/twitterscraper',
     author=['Ahmet Taspinar', 'Lasse Schuirmann'],

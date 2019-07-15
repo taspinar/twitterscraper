@@ -48,7 +48,7 @@ def linspace(start, stop, n):
 
 
 
-def query_single_page(query, lang, pos, retry=50, from_user=False):
+def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
     """
     Returns tweets from the given URL.
 
@@ -62,7 +62,7 @@ def query_single_page(query, lang, pos, retry=50, from_user=False):
     logger.info('Scraping tweets from {}', url)
 
     try:
-        response = requests.get(url, headers=HEADER)
+        response = requests.get(url, headers=HEADER, timeout=timeout)
         if pos is None:  # html response
             html = response.text or ''
             json_resp = None

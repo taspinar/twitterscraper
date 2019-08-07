@@ -324,7 +324,7 @@ def query_user_info(user):
     try:
         user_info = query_user_page(INIT_URL_USER.format(u=user))
         if user_info:
-            logger.info("Got user information from username {user}")
+            logger.info("Got user information from username {}".format(user))
             return user_info
 
     except KeyboardInterrupt:
@@ -332,5 +332,5 @@ def query_user_info(user):
     except BaseException:
         logger.exception("An unknown error occurred! Returning user information gathered so far...")
 
-    logger.info(f"Got user information from username {user}")
+    logger.info("Got user information from username {}".format(user))
     return user_info

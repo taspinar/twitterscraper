@@ -3,4 +3,3 @@ bs4
 lxml
 requests
 billiard
-fake-useragent

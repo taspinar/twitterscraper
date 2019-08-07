@@ -47,7 +47,7 @@ Per Tweet it scrapes the following information:
  + Tweet is an retweet
  + Username retweeter
  + Userid retweeter
- + Retweer ID
+ + Retweet ID
  
 In addition it can scrape for the following user information: 
  + Date user joined
@@ -107,9 +107,9 @@ JSON right away. Twitterscraper takes several arguments:
    This also includes all retweets by that user. See section 2.2.4 in the examples below 
    for more information.
    
--  ``--profiles`` twitterscraper will in addition to the tweets, also scrape for the profile 
-    information of the users who have written these tweets. The results will be saved in the 
-    file userprofiles_<filename>.
+-  ``--profiles`` : Twitterscraper will in addition to the tweets, also scrape for the profile 
+   information of the users who have written these tweets. The results will be saved in the 
+   file userprofiles_<filename>.
 
 -  ``-p`` or ``--poolsize`` Set the number of parallel processes
    TwitterScraper should initiate while scraping for your query. Default

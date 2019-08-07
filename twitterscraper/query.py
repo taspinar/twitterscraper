@@ -1,19 +1,32 @@
 from __future__ import division
-import requests
-import datetime as dt
+
 import json
+import requests
+import urllib
+import random
+import datetime as dt
+
 from functools import partial
-# from multiprocessing.pool import Pool
 from billiard.pool import Pool
+from bs4 import BeautifulSoup
+from itertools import cycle
 
 from twitterscraper.tweet import Tweet
 from twitterscraper.ts_logger import logger
 from twitterscraper.user import User
-from fake_useragent import UserAgent
-import urllib
 
-ua = UserAgent()
-HEADER = {'User-Agent': ua.random}
+#from fake_useragent import UserAgent
+#ua = UserAgent()
+#HEADER = {'User-Agent': ua.random}
+HEADERS_LIST = [
+    'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',
+    'Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
+    'Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201',
+    'Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16',
+    'Mozilla/5.0 (Windows NT 5.2; RW; rv:7.0a1) Gecko/20091211 SeaMonkey/9.23a1pre'
+]
+
+HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
 logger.info(HEADER)
 
 INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
@@ -24,8 +37,20 @@ INIT_URL_USER = 'https://twitter.com/{u}'
 RELOAD_URL_USER = 'https://twitter.com/i/profiles/show/{u}/timeline/tweets?' \
                   'include_available_features=1&include_entities=1&' \
                   'max_position={pos}&reset_error_state=false'
+PROXY_URL = 'https://free-proxy-list.net/'
 
-
+def get_proxies():
+    response = requests.get(PROXY_URL)
+    soup = BeautifulSoup(response.text, 'lxml')
+    table = soup.find('table',id='proxylisttable')
+    list_tr = table.find_all('tr')
+    list_td = [elem.find_all('td') for elem in list_tr]
+    list_td = list(filter(None, list_td))
+    list_ip = [elem[0].text for elem in list_td]
+    list_ports = [elem[1].text for elem in list_td]
+    list_proxies = [':'.join(elem) for elem in list(zip(list_ip, list_ports))]
+    return list_proxies               
+                  
 def get_query_url(query, lang, pos, from_user = False):
     if from_user:
         if pos is None:
@@ -37,7 +62,6 @@ def get_query_url(query, lang, pos, from_user = False):
     else:
         return RELOAD_URL.format(q=query, pos=pos, lang=lang)
 
-
 def linspace(start, stop, n):
     if n == 1:
         yield stop
@@ -46,7 +70,8 @@ def linspace(start, stop, n):
     for i in range(n):
         yield start + h * i
 
-
+proxies = get_proxies()
+proxy_pool = cycle(proxies)
 
 def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
     """
@@ -62,7 +87,9 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
     logger.info('Scraping tweets from {}'.format(url))
 
     try:
-        response = requests.get(url, headers=HEADER, timeout=timeout)
+        proxy = next(proxy_pool)
+        logger.info('Using proxy {}'.format(proxy))
+        response = requests.get(url, headers=HEADER, proxies={"http": proxy})
         if pos is None:  # html response
             html = response.text or ''
             json_resp = None
@@ -247,7 +274,7 @@ def query_tweets_from_user(user, limit=None):
     return tweets
 
 
-def query_user_page(url, retry=10):
+def query_user_page(url, retry=10, timeout=60):
     """
     Returns the scraped user data from a twitter user page.
 
@@ -257,7 +284,9 @@ def query_user_page(url, retry=10):
     """
 
     try:
-        response = requests.get(url, headers=HEADER)
+        proxy = next(proxy_pool)
+        logger.info('Using proxy {}'.format(proxy))
+        response = requests.get(url, headers=HEADER, proxies={"http": proxy})
         html = response.text or ''
 
         user_info = User.from_html(html)

@@ -1,5 +1,15 @@
 # twitterscraper changelog
 
+# 1.3.0 ( 2019-09-07 )
+## Added
+- Added the use of proxies while making an request. 
+- PR #204: Added a max timeout to twitterscraper requests which is set to 60s by default. 
+
+# 1.2.1 ( 2019-08-06 )
+### Fixed
+- PR #208: Fixed a type in a print statement which was breaking down twitterscraper
+- Remove the use of fake_useragent library
+
 # 1.2.0 ( 2019-06-22 )
 ### Added
 - PR #186: adds the fields is_retweet, retweeter related information, and timestamp_epochs to the output.

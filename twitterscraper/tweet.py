@@ -46,7 +46,11 @@ class Tweet:
             retweeter_userid = ""
             is_retweet = 0
 
-        text = tweet.find('p', 'tweet-text').text or ""
+        text_div = tweet.find('p', 'tweet-text')
+        for img in text_div.findAll("img", "Emoji"):
+            img.replace_with(img.attrs.get("alt", ''))
+        text = text_div.get_text()
+
         replies = int(tweet.find(
             'span', 'ProfileTweet-action--reply u-hiddenVisually').find(
             'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')
@@ -57,9 +61,9 @@ class Tweet:
             'span', 'ProfileTweet-action--favorite u-hiddenVisually').find(
             'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')
         html = str(tweet.find('p', 'tweet-text')) or ""
-            
+
         c = cls(username, fullname, user_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets, likes,
-                 is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html)
+                 is_retweet, retweeter_username, retweeter_userid, retweet_id, text, html)
         return c
 
     @classmethod

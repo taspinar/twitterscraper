@@ -7,7 +7,7 @@ from coala_utils.decorators import generate_ordering
 @generate_ordering('timestamp', 'id', 'text', 'user', 'replies', 'retweets', 'likes')
 class Tweet:
     def __init__(self, username, fullname, user_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets,
-                 likes, is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html):
+                 likes, is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html, images_urls, has_video):
         self.username = username.strip('\@')
         self.fullname = fullname
         self.user_id = user_id
@@ -24,6 +24,8 @@ class Tweet:
         self.retweet_id = retweet_id
         self.text = text
         self.html = html
+        self.images_urls = images_urls
+        self.has_video = has_video
 
     @classmethod
     def from_soup(cls, tweet):
@@ -57,9 +59,16 @@ class Tweet:
             'span', 'ProfileTweet-action--favorite u-hiddenVisually').find(
             'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')
         html = str(tweet.find('p', 'tweet-text')) or ""
-            
+
+        images_urls = [
+            div.find("img").attrs.get("src", '') for div
+            in tweet_div.findAll("div", "AdaptiveMedia-photoContainer")
+        ]
+
+        has_video = tweet_div.find("div", "PlayableMedia-players") is not None
+
         c = cls(username, fullname, user_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets, likes,
-                 is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html)
+                 is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html, images_urls, has_video)
         return c
 
     @classmethod

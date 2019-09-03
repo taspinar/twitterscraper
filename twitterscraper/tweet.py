@@ -7,7 +7,7 @@ from coala_utils.decorators import generate_ordering
 @generate_ordering('timestamp', 'id', 'text', 'user', 'replies', 'retweets', 'likes')
 class Tweet:
     def __init__(self, username, fullname, user_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets,
-                 likes, is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html):
+                 likes, is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html, picture_url):
         self.username = username.strip('\@')
         self.fullname = fullname
         self.user_id = user_id
@@ -24,6 +24,7 @@ class Tweet:
         self.retweet_id = retweet_id
         self.text = text
         self.html = html
+        self.picture = picture_url
 
     @classmethod
     def from_soup(cls, tweet):
@@ -57,9 +58,15 @@ class Tweet:
             'span', 'ProfileTweet-action--favorite u-hiddenVisually').find(
             'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')
         html = str(tweet.find('p', 'tweet-text')) or ""
-            
+        
+        img = tweet.find('div', 'js-adaptive-photo')
+        if img:
+            picture_url = img["data-image-url"]
+        else:
+            picture_url = ''
+        
         c = cls(username, fullname, user_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets, likes,
-                 is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html)
+                 is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html, picture_url)
         return c
 
     @classmethod

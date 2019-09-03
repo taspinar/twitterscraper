@@ -89,7 +89,7 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
     try:
         proxy = next(proxy_pool)
         logger.info('Using proxy {}'.format(proxy))
-        response = requests.get(url, headers=HEADER, proxies={"http": proxy})
+        response = requests.get(url, headers=HEADER, proxies={"http": proxy}, timeout=timeout)
         if pos is None:  # html response
             html = response.text or ''
             json_resp = None

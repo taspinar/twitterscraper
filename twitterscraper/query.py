@@ -96,7 +96,7 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
         else:
             html = ''
             try:
-                json_resp = json.loads(response.text)
+                json_resp = response.json()
                 html = json_resp['items_html'] or ''
             except ValueError as e:
                 logger.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))

@@ -75,7 +75,7 @@ or you can clone the repository and in the folder containing setup.py
 
     python setup.py install
 
-If you prefer more isolation you can  build a docker image
+If you prefer more isolation you can build a docker image
 
 .. code:: python
 

@@ -6,6 +6,11 @@ A simple script to scrape for Tweets using the Python package requests
 to retrieve the content and Beautifullsoup4 to parse the retrieved
 content.
 
+1. Prerequisites
+=============
+
+Python3.7
+
 1. Motivation
 =============
 
@@ -64,17 +69,11 @@ In addition it can scrape for the following user information:
 2. Installation and Usage
 =========================
 
-To install **twitterscraper**:
+To install this modified version of **twitterscraper** ensure you have a minimum version of python3.7:
 
 .. code:: python
 
-    (sudo) pip install twitterscraper
-
-or you can clone the repository and in the folder containing setup.py
-
-.. code:: python
-
-    python setup.py install
+    python3 setup.py install
 
 2.2 The CLI
 -----------

@@ -6,11 +6,12 @@ from coala_utils.decorators import generate_ordering
 
 @generate_ordering('timestamp', 'id', 'text', 'user', 'replies', 'retweets', 'likes')
 class Tweet:
-    def __init__(self, username, fullname, user_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets,
+    def __init__(self, username, fullname, user_id, conversation_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets,
                  likes, is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html):
         self.username = username.strip('\@')
         self.fullname = fullname
         self.user_id = user_id
+        self.conversation_id = conversation_id
         self.tweet_id = tweet_id
         self.tweet_url = tweet_url
         self.timestamp = timestamp
@@ -31,6 +32,7 @@ class Tweet:
         username = tweet_div["data-screen-name"]
         fullname = tweet_div["data-name"]
         user_id = tweet_div["data-user-id"]
+        conversation_id = tweet_div["data-conversation-id"]
         tweet_id = tweet_div["data-tweet-id"]
         tweet_url = tweet_div["data-permalink-path"]
         timestamp_epochs = int(tweet.find('span', '_timestamp')['data-time'])
@@ -58,7 +60,7 @@ class Tweet:
             'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')
         html = str(tweet.find('p', 'tweet-text')) or ""
             
-        c = cls(username, fullname, user_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets, likes,
+        c = cls(username, fullname, user_id, conversation_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets, likes,
                  is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html)
         return c
 

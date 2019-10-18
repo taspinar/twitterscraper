@@ -61,7 +61,7 @@ class Tweet:
         html = str(tweet.find('p', 'tweet-text')) or ""
             
         c = cls(username, fullname, user_id, conversation_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets, likes,
-                 is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html)
+                 is_retweet, retweeter_username, retweeter_userid, retweet_id, text, html)
         return c
 
     @classmethod

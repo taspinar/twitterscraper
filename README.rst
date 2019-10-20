@@ -1,3 +1,4 @@
+[![Downloads](https://pepy.tech/badge/twitterscraper)](https://pepy.tech/project/twitterscraper) 
 
 Synopsis
 ========

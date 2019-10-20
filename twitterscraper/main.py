@@ -112,7 +112,7 @@ def main():
             if tweets:
                 with open(args.output, "w", encoding="utf-8") as output:
                     if args.csv:
-                        f = csv.writer(output, delimiter=";")
+                        f = csv.writer(output, delimiter=";", quoting=csv.QUOTE_NONNUMERIC)
                         f.writerow(["username", "fullname","user_id", "tweet_id", "tweet_url", "timestamp","timestamp_epochs",
                                     "replies", "retweets", "likes", "is_retweet", "retweeter_username" , "retweeter_userid" ,
                                     "retweet_id","text", "html"])

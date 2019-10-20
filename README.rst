@@ -3,7 +3,7 @@ Synopsis
 ========
 
 A simple script to scrape for Tweets using the Python package requests
-to retrieve the content and Beautifullsoup4 to parse the retrieved
+to retrieve the content and Beautifulsoup4 to parse the retrieved
 content.
 
 1. Motivation

@@ -124,7 +124,7 @@ def main():
                     else:
                         json.dump(tweets, output, cls=JSONEncoder)
             if args.profiles and tweets:
-                list_users = list(set([tweet.user for tweet in tweets]))
+                list_users = list(set([tweet.username for tweet in tweets]))
                 list_users_info = [query_user_info(elem) for elem in list_users]
                 filename = 'userprofiles_' + args.output
                 with open(filename, "w", encoding="utf-8") as output:

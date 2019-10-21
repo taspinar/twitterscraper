@@ -116,11 +116,11 @@ def main():
                         f = csv.writer(output, delimiter=";", quoting=csv.QUOTE_NONNUMERIC)
                         f.writerow(["username", "fullname","user_id", "tweet_id", "tweet_url", "timestamp","timestamp_epochs",
                                     "replies", "retweets", "likes", "is_retweet", "retweeter_username" , "retweeter_userid" ,
-                                    "retweet_id","text", "html"])
+                                    "retweet_id","text", "html", "images_urls", "has_video"])
                         for t in tweets:
                             f.writerow([t.username, t.fullname,t.user_id, t.tweet_id, t.tweet_url, t.timestamp, t.timestamp_epochs,
                                         t.replies, t.retweets, t.likes, t.is_retweet, t.retweeter_username , t.retweeter_userid ,
-                                        t.retweet_id, t.text, t.html])
+                                        t.retweet_id, t.text, t.html, t.images_urls, t.has_video])
                     else:
                         json.dump(tweets, output, cls=JSONEncoder)
             if args.profiles and tweets:

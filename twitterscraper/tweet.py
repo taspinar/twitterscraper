@@ -15,7 +15,7 @@ class Tweet:
         # tweet text
         text, text_html, links, hashtags,
         # tweet media
-        is_media, img_urls, video_url,
+        has_media, img_urls, video_url,
         # tweet actions numbers
         likes, retweets, replies, is_replied,
         # detail of reply to others
@@ -36,7 +36,7 @@ class Tweet:
         self.links = links
         self.hashtags = hashtags
         # tweet media
-        self.is_media = is_media
+        self.has_media = has_media
         self.img_urls = img_urls
         self.video_url = video_url
         # tweet actions numbers
@@ -82,7 +82,7 @@ class Tweet:
         # --- videos
         video_div = tweet_div.find('div', 'PlayableMedia-container')
         video_url = video_div.find('a')['href'] if video_div else ''
-        is_media = True if img_urls or video_url else False
+        has_media = True if img_urls or video_url else False
         # eliminate video_url from links for duplicate
         links = [link for link in links if link != video_url]
 
@@ -129,7 +129,7 @@ class Tweet:
             # tweet text
             text, text_html, links, hashtags,
             # tweet media
-            is_media, img_urls, video_url,
+            has_media, img_urls, video_url,
             # tweet actions numbers
             likes, retweets, replies, is_replied,
             # detail of reply to others

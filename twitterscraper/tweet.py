@@ -151,15 +151,15 @@ class Tweet:
 
     @staticmethod
     def extract_links_and_hashtags(soup_html):
-        links = []
-        hashtags = []  # 'hashflag' is hashtag + emoji
+        links = set()
+        hashtags = set()  # 'hashflag' is hashtag + emoji
 
         for atag in soup_html.find_all('a'):
             class_ = atag.get('class', None)
             if 'hashtag' in atag['href']:
                 # atag['href'] like '/hashtag/NBA?src=hash' -> 'NBA'
                 hashtag = atag['href'].split('?')[0].split('/')[-1]
-                hashtags.append(hashtag)
+                hashtags.add(hashtag)
 
             elif class_:
                 # for links
@@ -167,6 +167,6 @@ class Tweet:
                         'pic.twitter' not in atag.text:  # eliminate picture
                     expanded_url = atag.get('data-expanded-url', None)
                     link = expanded_url if expanded_url else atag['href']
-                    links.append(link)
+                    links.add(link)
 
-        return links, hashtags
+        return list(links), list(hashtags)

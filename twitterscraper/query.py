@@ -166,7 +166,7 @@ def query_tweets_once_generator(query, limit=None, lang='', pos=None):
                   ``limit`` number of items.
     """
     logger.info('Querying {}'.format(query))
-    query = query.replace(' ', '%20').replace('#', '%23').replace(':', '%3A')
+    query = query.replace(' ', '%20').replace('#', '%23').replace(':', '%3A').replace('&', '%26')
     num_tweets = 0
     try:
         while True:

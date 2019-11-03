@@ -80,8 +80,9 @@ class Tweet:
         video_div = tweet_div.find('div', 'PlayableMedia-container')
         video_url = video_div.find('a')['href'] if video_div else ''
         has_media = True if img_urls or video_url else False
-        # eliminate 'video_url' from 'links' for duplicate
-        links = [link for link in links if link != video_url]
+
+        # update 'links': eliminate 'video_url' from 'links' for duplicate
+        links = list(filter(lambda x: x != video_url, links))
 
         # tweet actions numbers
         action_div = tweet_div.find('div', 'ProfileTweet-actionCountList')

@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 from bs4 import BeautifulSoup
@@ -66,7 +67,7 @@ class Tweet:
             for atag in soup_html.find_all('a', class_='twitter-timeline-link')
             if 'pic.twitter' not in atag.text  # eliminate picture
         ]
-        hashtags = re.findall(r'#\w+', text)
+        hashtags = [tag.strip('#')for tag in re.findall(r'#\w+', text)]
 
         # tweet media
         # --- imgs
@@ -79,7 +80,7 @@ class Tweet:
         video_div = tweet_div.find('div', 'PlayableMedia-container')
         video_url = video_div.find('a')['href'] if video_div else ''
         has_media = True if img_urls or video_url else False
-        # eliminate video_url from links for duplicate
+        # eliminate 'video_url' from 'links' for duplicate
         links = [link for link in links if link != video_url]
 
         # tweet actions numbers
@@ -97,7 +98,7 @@ class Tweet:
         replies = int(action_div.find(
             'span', 'ProfileTweet-action--reply u-hiddenVisually').find(
             'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')
-        is_replied = False if replies == '0' else True
+        is_replied = False if replies == 0 else True
 
         # detail of reply to others
         # - reply to others

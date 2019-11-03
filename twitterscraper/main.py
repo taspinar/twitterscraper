@@ -7,6 +7,7 @@ import argparse
 import collections
 import datetime as dt
 from os.path import isfile
+from pprint import pprint
 from twitterscraper.query import query_tweets
 from twitterscraper.query import query_tweets_from_user
 from twitterscraper.query import query_user_info
@@ -107,12 +108,12 @@ def main():
                               poolsize = args.poolsize, lang = args.lang)
 
         if args.dump:
-            print(json.dumps(tweets, cls=JSONEncoder))
+            pprint([tweet.__dict__ for tweet in tweets])
         else:
             if tweets:
                 with open(args.output, "w", encoding="utf-8") as output:
                     if args.csv:
-                        f = csv.writer(output, delimiter=";")
+                        f = csv.writer(output, delimiter=";", quoting=csv.QUOTE_NONNUMERIC)
                         f.writerow([
                             "screen_name", "username", "user_id", "tweet_id",
                             "tweet_url", "timestamp", "timestamp_epochs",
@@ -134,7 +135,7 @@ def main():
                     else:
                         json.dump(tweets, output, cls=JSONEncoder)
             if args.profiles and tweets:
-                list_users = list(set([tweet.user for tweet in tweets]))
+                list_users = list(set([tweet.username for tweet in tweets]))
                 list_users_info = [query_user_info(elem) for elem in list_users]
                 filename = 'userprofiles_' + args.output
                 with open(filename, "w", encoding="utf-8") as output:

@@ -89,14 +89,14 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
     try:
         proxy = next(proxy_pool)
         logger.info('Using proxy {}'.format(proxy))
-        response = requests.get(url, headers=HEADER, proxies={"http": proxy})
+        response = requests.get(url, headers=HEADER, proxies={"http": proxy}, timeout=timeout)
         if pos is None:  # html response
             html = response.text or ''
             json_resp = None
         else:
             html = ''
             try:
-                json_resp = json.loads(response.text)
+                json_resp = response.json()
                 html = json_resp['items_html'] or ''
             except ValueError as e:
                 logger.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))
@@ -166,7 +166,7 @@ def query_tweets_once_generator(query, limit=None, lang='', pos=None):
                   ``limit`` number of items.
     """
     logger.info('Querying {}'.format(query))
-    query = query.replace(' ', '%20').replace('#', '%23').replace(':', '%3A')
+    query = query.replace(' ', '%20').replace('#', '%23').replace(':', '%3A').replace('&', '%26')
     num_tweets = 0
     try:
         while True:

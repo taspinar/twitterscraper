@@ -7,19 +7,10 @@ from coala_utils.decorators import generate_ordering
 @generate_ordering('timestamp', 'id', 'text', 'user', 'replies', 'retweets', 'likes')
 class Tweet:
     def __init__(
-        self,
-        # user name & id
-        screen_name, username, user_id,
-        # tweet basic data
-        tweet_id, tweet_url, timestamp, timestamp_epochs,
-        # tweet text
-        text, text_html, links, hashtags,
-        # tweet media
-        has_media, img_urls, video_url,
-        # tweet actions numbers
-        likes, retweets, replies, is_replied,
-        # detail of reply to others
-        is_reply_to, parent_tweet_id, reply_to_users
+        self, screen_name, username, user_id, tweet_id, tweet_url, timestamp,
+        timestamp_epochs, text, text_html, links, hashtags, has_media, img_urls,
+        video_url, likes, retweets, replies, is_replied, is_reply_to,
+        parent_tweet_id, reply_to_users
     ):
         # user name & id
         self.screen_name = screen_name
@@ -122,17 +113,9 @@ class Tweet:
             } for user in soup_reply_to_users]
 
         return cls(
-            # user name & id
-            screen_name, username, user_id,
-            # tweet basic data
-            tweet_id, tweet_url, timestamp, timestamp_epochs,
-            # tweet text
-            text, text_html, links, hashtags,
-            # tweet media
-            has_media, img_urls, video_url,
-            # tweet actions numbers
-            likes, retweets, replies, is_replied,
-            # detail of reply to others
+            screen_name, username, user_id, tweet_id, tweet_url, timestamp,
+            timestamp_epochs, text, text_html, links, hashtags, has_media,
+            img_urls, video_url, likes, retweets, replies, is_replied,
             is_reply_to, parent_tweet_id, reply_to_users
         )
 

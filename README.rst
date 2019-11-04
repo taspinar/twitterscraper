@@ -5,7 +5,8 @@ Synopsis
 
 .. |Downloads| image:: https://pepy.tech/badge/twitterscraper
    :target: https://pepy.tech/project/twitterscraper
-
+.. image:: https://badge.fury.io/py/twitterscraper.svg
+    :target: https://badge.fury.io/py/twitterscraper
 
 
 A simple script to scrape for Tweets using the Python package requests

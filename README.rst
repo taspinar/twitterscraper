@@ -1,6 +1,3 @@
-Synopsis
-========
-
 |Downloads|
 
 .. |Downloads| image:: https://pepy.tech/badge/twitterscraper
@@ -8,6 +5,9 @@ Synopsis
 .. image:: https://badge.fury.io/py/twitterscraper.svg
     :target: https://badge.fury.io/py/twitterscraper
 
+
+Synopsis
+========
 
 A simple script to scrape for Tweets using the Python package requests
 to retrieve the content and Beautifulsoup4 to parse the retrieved

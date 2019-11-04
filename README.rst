@@ -1,12 +1,12 @@
-|Downloads| |Downloads_month| |PyPI version fury.io| |GitHub contributors|
+|Downloads| |Downloads| |PyPI version| |GitHub contributors|
 
 .. |Downloads| image:: https://pepy.tech/badge/twitterscraper
    :target: https://pepy.tech/project/twitterscraper
-.. |Downloads_month| image:: https://pepy.tech/badge/twitterscraper/month
+.. |Downloads| image:: https://pepy.tech/badge/twitterscraper/month
    :target: https://pepy.tech/project/twitterscraper/month
-.. |PyPI version fury.io| image:: https://badge.fury.io/py/ansicolortags.svg
-   :target: https://pypi.python.org/pypi/ansicolortags/
-.. |GitHub contributors| image:: https://img.shields.io/github/contributors/taspinar/twitterscraper
+.. |PyPI version| image:: https://badge.fury.io/py/twitterscraper.svg
+   :target: https://badge.fury.io/py/twitterscraper
+.. |GitHub contributors| image:: https://img.shields.io/github/contributors/taspinar/StrapDown.js.svg
    :target: https://github.com/taspinar/twitterscraper/graphs/contributors
 
 

@@ -6,7 +6,7 @@
    :target: https://pepy.tech/project/twitterscraper/month
 .. |PyPI version| image:: https://badge.fury.io/py/twitterscraper.svg
    :target: https://badge.fury.io/py/twitterscraper
-.. |GitHub contributors| image:: https://img.shields.io/github/contributors/taspinar/StrapDown.js.svg
+.. |GitHub contributors| image:: https://img.shields.io/github/contributors/taspinar/twitterscraper.svg
    :target: https://github.com/taspinar/twitterscraper/graphs/contributors
 
 

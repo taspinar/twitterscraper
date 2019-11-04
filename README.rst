@@ -1,8 +1,8 @@
-|Downloads| |Downloads| |PyPI version| |GitHub contributors|
+|Downloads| |Downloads_month| |PyPI version| |GitHub contributors|
 
 .. |Downloads| image:: https://pepy.tech/badge/twitterscraper
    :target: https://pepy.tech/project/twitterscraper
-.. |Downloads| image:: https://pepy.tech/badge/twitterscraper/month
+.. |Downloads_month| image:: https://pepy.tech/badge/twitterscraper/month
    :target: https://pepy.tech/project/twitterscraper/month
 .. |PyPI version| image:: https://badge.fury.io/py/twitterscraper.svg
    :target: https://badge.fury.io/py/twitterscraper

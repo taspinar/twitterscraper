@@ -114,13 +114,24 @@ def main():
                 with open(args.output, "w", encoding="utf-8") as output:
                     if args.csv:
                         f = csv.writer(output, delimiter=";", quoting=csv.QUOTE_NONNUMERIC)
-                        f.writerow(["username", "fullname","user_id", "tweet_id", "tweet_url", "timestamp","timestamp_epochs",
-                                    "replies", "retweets", "likes", "is_retweet", "retweeter_username" , "retweeter_userid" ,
-                                    "retweet_id","text", "html"])
+                        f.writerow([
+                            "screen_name", "username", "user_id", "tweet_id",
+                            "tweet_url", "timestamp", "timestamp_epochs",
+                            "text", "text_html", "links", "hashtags",
+                            "has_media", "img_urls", "video_url", "likes",
+                            "retweets", "replies", "is_replied", "is_reply_to",
+                            "parent_tweet_id", "reply_to_users"
+                        ])
                         for t in tweets:
-                            f.writerow([t.username, t.fullname,t.user_id, t.tweet_id, t.tweet_url, t.timestamp, t.timestamp_epochs,
-                                        t.replies, t.retweets, t.likes, t.is_retweet, t.retweeter_username , t.retweeter_userid ,
-                                        t.retweet_id, t.text, t.html])
+                            f.writerow([
+                                t.screen_name, t.username, t.user_id,
+                                t.tweet_id, t.tweet_url, t.timestamp,
+                                t.timestamp_epochs, t.text, t.text_html,
+                                t.links, t.hashtags, t.has_media, t.img_urls,
+                                t.video_url, t.likes, t.retweets, t.replies,
+                                t.is_replied, t.is_reply_to, t.parent_tweet_id,
+                                t.reply_to_users
+                            ])
                     else:
                         json.dump(tweets, output, cls=JSONEncoder)
             if args.profiles and tweets:

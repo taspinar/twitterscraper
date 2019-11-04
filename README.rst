@@ -1,6 +1,13 @@
 Synopsis
 ========
 
+|Downloads|
+
+.. |Downloads| image:: https://pepy.tech/badge/twitterscraper
+   :target: https://pepy.tech/project/twitterscraper
+
+
+
 A simple script to scrape for Tweets using the Python package requests
 to retrieve the content and Beautifulsoup4 to parse the retrieved
 content.
@@ -35,19 +42,24 @@ Per Tweet it scrapes the following information:
  + Tweet-url
  + Tweet text
  + Tweet html
+ + Links inside Tweet
+ + Hashtags inside Tweet
+ + Image URLS inside Tweet
+ + Video URL inside Tweet
  + Tweet timestamp
  + Tweet Epoch timestamp
  + Tweet No. of likes
  + Tweet No. of replies
  + Tweet No. of retweets
  + Username
- + User Full Name
+ + User Full Name / Screen Name
  + User ID
- + Tweet is an retweet (only when scraping for user profiles)
- + Username retweeter (only when scraping for user profiles)
- + Userid retweeter (only when scraping for user profiles)
- + Retweet ID (only when scraping for user profiles)
+ + Tweet is an reply to
+ + Tweet is replied to
+ + List of users Tweet is an reply to
+ + Tweet ID of parent tweet
 
+ 
 In addition it can scrape for the following user information:
  + Date user joined
  + User location (if filled in)

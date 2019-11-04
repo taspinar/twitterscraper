@@ -10,6 +10,21 @@
    :target: https://github.com/taspinar/twitterscraper/graphs/contributors
 
 
+Backers
+-------
+
+Thank you to all our backers! 🙏 [`Become a backer`_]
+
+Sponsors
+--------
+
+Support this project by becoming a sponsor. Your logo will show up here
+with a link to your website. [`Become a sponsor`_]
+
+.. _Become a backer: https://opencollective.com/twitterscraper#backer
+.. _Become a sponsor: https://opencollective.com/twitterscraper#sponsor
+
+
 Synopsis
 ========
 

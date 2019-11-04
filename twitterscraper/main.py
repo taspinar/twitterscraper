@@ -91,6 +91,7 @@ def main():
         parser.add_argument("-p", "--poolsize", type=int, default=20, help="Specify the number of parallel process you want to run. \n"
                             "Default value is set to 20. \nYou can change this number if you have more computing power available. \n"
                             "Set to 1 if you dont want to run any parallel processes.", metavar='\b')
+        parser.add_argument("-dp", "--disableproxy", action="store_true", default=False, help="Set this flag if you want to disable use of proxy servers when scrapping tweets and user profiles. \n")
         args = parser.parse_args()
 
         if isfile(args.output) and not args.dump and not args.overwrite:
@@ -101,11 +102,11 @@ def main():
             args.begindate = dt.date(2006,3,1)
 
         if args.user:
-            tweets = query_tweets_from_user(user = args.query, limit = args.limit)
+            tweets = query_tweets_from_user(user = args.query, limit = args.limit, use_proxy = not args.disableproxy)
         else:
             tweets = query_tweets(query = args.query, limit = args.limit,
                               begindate = args.begindate, enddate = args.enddate,
-                              poolsize = args.poolsize, lang = args.lang)
+                              poolsize = args.poolsize, lang = args.lang, use_proxy = not args.disableproxy)
 
         if args.dump:
             pprint([tweet.__dict__ for tweet in tweets])
@@ -136,7 +137,7 @@ def main():
                         json.dump(tweets, output, cls=JSONEncoder)
             if args.profiles and tweets:
                 list_users = list(set([tweet.username for tweet in tweets]))
-                list_users_info = [query_user_info(elem) for elem in list_users]
+                list_users_info = [query_user_info(elem, not args.disableproxy) for elem in list_users]
                 filename = 'userprofiles_' + args.output
                 with open(filename, "w", encoding="utf-8") as output:
                     json.dump(list_users_info, output, cls=JSONEncoder)

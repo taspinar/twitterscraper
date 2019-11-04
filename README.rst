@@ -1,8 +1,8 @@
-|Downloads| |Downloads| |PyPI version fury.io| |GitHub contributors|
+|Downloads| |Downloads_month| |PyPI version fury.io| |GitHub contributors|
 
 .. |Downloads| image:: https://pepy.tech/badge/twitterscraper
    :target: https://pepy.tech/project/twitterscraper
-.. |Downloads| image:: https://pepy.tech/badge/twitterscraper/month
+.. |Downloads_month| image:: https://pepy.tech/badge/twitterscraper/month
    :target: https://pepy.tech/project/twitterscraper/month
 .. |PyPI version fury.io| image:: https://badge.fury.io/py/ansicolortags.svg
    :target: https://pypi.python.org/pypi/ansicolortags/

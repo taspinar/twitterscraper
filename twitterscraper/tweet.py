@@ -43,7 +43,7 @@ class Tweet:
             retweet_id = tweet_div["data-retweet-id"]
             retweeter_username = tweet_div["data-retweeter"]
             retweeter_userid = tweet_div.find('a', "pretty-link js-user-profile-link")["data-user-id"]
-            tweet_image = img_div["data-img-url"]
+            tweet_image = img_div["data-image-url"]
             is_retweet = 1
         except:
             retweet_id = ""

@@ -30,7 +30,6 @@ class Tweet:
     @classmethod
     def from_soup(cls, tweet):
         tweet_div = tweet.find('div', 'tweet')
-        img_div = tweet.find('div', 'AdaptiveMedia-photoContainer')
         username = tweet_div["data-screen-name"]
         fullname = tweet_div["data-name"]
         user_id = tweet_div["data-user-id"]
@@ -43,16 +42,15 @@ class Tweet:
             retweet_id = tweet_div["data-retweet-id"]
             retweeter_username = tweet_div["data-retweeter"]
             retweeter_userid = tweet_div.find('a', "pretty-link js-user-profile-link")["data-user-id"]
-            tweet_image = img_div["data-image-url"]
             is_retweet = 1
         except:
             retweet_id = ""
             retweeter_username = ""
             retweeter_userid = ""
-            tweet_image = ""
             is_retweet = 0
 
         text = tweet.find('p', 'tweet-text').text or ""
+        tweet_image = tweet.find('div', 'AdaptiveMedia-photoContainer')["data-image-url"] or ""
         replies = int(tweet.find(
             'span', 'ProfileTweet-action--reply u-hiddenVisually').find(
             'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')

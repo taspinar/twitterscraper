@@ -38,6 +38,8 @@ class Tweet:
         tweet_id = tweet_div["data-tweet-id"]
         tweet_url = tweet_div["data-permalink-path"]
         tweet_image = img_div["data-img-url"]
+        print('img div' + img_div)
+        print('tweet image ' + tweet_image)
         timestamp_epochs = int(tweet.find('span', '_timestamp')['data-time'])
         timestamp = datetime.utcfromtimestamp(timestamp_epochs)
         try:

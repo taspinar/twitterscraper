@@ -50,8 +50,8 @@ class Tweet:
             is_retweet = 0
 
         text = tweet.find('p', 'tweet-text').text or ""
-        # tweet_image = tweet.find('div', 'AdaptiveMedia-photoContainer')["data-image-url"] or ""
-        tweet_image = "www.test.com"
+        tweet_image = tweet.find('div', 'AdaptiveMedia-photoContainer')["data-image-url"] or ""
+        # tweet_image = "www.test.com"
         replies = int(tweet.find(
             'span', 'ProfileTweet-action--reply u-hiddenVisually').find(
             'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')

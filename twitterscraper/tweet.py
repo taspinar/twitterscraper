@@ -37,20 +37,19 @@ class Tweet:
         conversation_id = tweet_div["data-conversation-id"]
         tweet_id = tweet_div["data-tweet-id"]
         tweet_url = tweet_div["data-permalink-path"]
-        tweet_image = img_div["data-img-url"]
-        print('img div' + img_div)
-        print('tweet image ' + tweet_image)
         timestamp_epochs = int(tweet.find('span', '_timestamp')['data-time'])
         timestamp = datetime.utcfromtimestamp(timestamp_epochs)
         try:
             retweet_id = tweet_div["data-retweet-id"]
             retweeter_username = tweet_div["data-retweeter"]
             retweeter_userid = tweet_div.find('a', "pretty-link js-user-profile-link")["data-user-id"]
+            tweet_image = img_div["data-img-url"]
             is_retweet = 1
         except:
             retweet_id = ""
             retweeter_username = ""
             retweeter_userid = ""
+            tweet_image = ""
             is_retweet = 0
 
         text = tweet.find('p', 'tweet-text').text or ""

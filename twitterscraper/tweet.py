@@ -6,7 +6,7 @@ from coala_utils.decorators import generate_ordering
 
 @generate_ordering('timestamp', 'id', 'text', 'user', 'replies', 'retweets', 'likes')
 class Tweet:
-    def __init__(self, username, fullname, user_id, conversation_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets,
+    def __init__(self, username, fullname, user_id, conversation_id, tweet_id, tweet_url, tweet_image, timestamp, timestamp_epochs, replies, retweets,
                  likes, is_retweet, retweeter_username, retweeter_userid, retweet_id,text, html):
         self.username = username.strip('\@')
         self.fullname = fullname
@@ -14,6 +14,7 @@ class Tweet:
         self.conversation_id = conversation_id
         self.tweet_id = tweet_id
         self.tweet_url = tweet_url
+        self.tweet_image = tweet_image
         self.timestamp = timestamp
         self.timestamp_epochs = timestamp_epochs
         self.replies = replies
@@ -29,12 +30,14 @@ class Tweet:
     @classmethod
     def from_soup(cls, tweet):
         tweet_div = tweet.find('div', 'tweet')
+        img_div = tweet.find('div', 'AdaptiveMedia-photoContainer')
         username = tweet_div["data-screen-name"]
         fullname = tweet_div["data-name"]
         user_id = tweet_div["data-user-id"]
         conversation_id = tweet_div["data-conversation-id"]
         tweet_id = tweet_div["data-tweet-id"]
         tweet_url = tweet_div["data-permalink-path"]
+        tweet_image = img_div["data-img-url"]
         timestamp_epochs = int(tweet.find('span', '_timestamp')['data-time'])
         timestamp = datetime.utcfromtimestamp(timestamp_epochs)
         try:
@@ -60,7 +63,7 @@ class Tweet:
             'span', 'ProfileTweet-actionCount')['data-tweet-stat-count'] or '0')
         html = str(tweet.find('p', 'tweet-text')) or ""
             
-        c = cls(username, fullname, user_id, conversation_id, tweet_id, tweet_url, timestamp, timestamp_epochs, replies, retweets, likes,
+        c = cls(username, fullname, user_id, conversation_id, tweet_id, tweet_url, tweet_image, timestamp, timestamp_epochs, replies, retweets, likes,
                  is_retweet, retweeter_username, retweeter_userid, retweet_id, text, html)
         return c
 

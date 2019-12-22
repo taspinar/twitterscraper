@@ -1,0 +1,19 @@
+FROM python:3.7-alpine
+
+COPY . /workspaces/twitterscraper
+WORKDIR /workspaces/twitterscraper
+
+RUN apk add --no-cache \
+    gcc \
+    libc-dev \
+    libxml2-dev \
+    libxslt-dev \
+    git
+
+# for NOT installing "twitterscraper" from PyPI
+RUN pip install -r requirements.txt
+
+# for importing editable `twitterscraper` anywhere
+ENV PYTHONPATH /workspaces/twitterscraper
+
+CMD ["/bin/ash"]

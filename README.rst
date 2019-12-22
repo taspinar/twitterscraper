@@ -315,3 +315,49 @@ After the file has been opened, it can easily be converted into a pandas DataFra
 
     import pandas as pd
     df = pd.read_json('tweets.json', encoding='utf-8')
+
+4. For Developers
+=================
+
+If you are Docker user, you can develop ``twitterscraper`` comfortably.
+
+4.1 For Developers using Docker
+-------------------------------
+
+In the container built by ``Dockerfile``, your edits are not reflected to ``import twitterscraper``
+because ``twitterscraper`` is installed from PyPI in this container.
+
+If you wanna develop ``twitterscraper`` by "try and error",
+you should build a container by ``Dockerfile.env``, not ``Dockerfile``.
+
+If you use ``Dockerfile.env``, your edits will be reflected immediately to ``import twitterscraper``
+because the container building by ``Dockerfile.env`` doesn't install ``twitterscraper`` from PyPI,
+In this container, your cloned ``twitterscraper``, not from PyPI, will be used when executing ``import twitterscraper``.
+(in ``Dockerfile.env``, your cloned ``twitterscraper`` is added to ``PYTHONPATH``).
+
+The procedure is as follows:
+
+::
+
+    $ git clone https://github.com/taspinar/twitterscraper.git
+    $ cd twitterscraper
+    $ docker build . -f Dockerfile.dev -t twitterscraper:dev
+    $ docker run -it --rm twitterscraper:dev /bin/ash
+    # into the container
+
+Now, you can import ``twitterscraper`` anywhere in Python files in the container.
+
+4.2 For Developers using Docker & Visual Studio Code
+----------------------------------------------------
+
+If you are Docker & Visual Studio Code(VSCode) user, you can conveniently
+develop ``twitterscraper`` by using VSCode's extension "**Remote Development**".
+The procedure is as follows:
+
+1. Install the extension "Remote Development".
+2. Add VSCode extensions to the setting file ``.devcontainer/devcontainer.json``.
+3. Press `cmd + shift + P`, enter & select ``Remote-Containers: Open Folder in Container...``
+4. Select the directory cloned by `git clone https://github.com/taspinar/twitterscraper.git`
+5. Stating to build. After building, you can now develop ``twitterscraper``!!
+
+In this procedure, ``Dockerfile.dev`` is used, so your edits are reflected immediately to ``import twitterscraper``.

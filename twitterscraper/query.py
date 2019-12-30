@@ -1,16 +1,23 @@
 from __future__ import division
-import random
-import requests
-import datetime as dt
+
 import json
+import requests
+import urllib
+import random
+import datetime as dt
+
 from functools import partial
-from multiprocessing.pool import Pool
+from billiard.pool import Pool
+from bs4 import BeautifulSoup
+from itertools import cycle
 
 from twitterscraper.tweet import Tweet
 from twitterscraper.ts_logger import logger
 from twitterscraper.user import User
-import urllib
 
+#from fake_useragent import UserAgent
+#ua = UserAgent()
+#HEADER = {'User-Agent': ua.random}
 HEADERS_LIST = [
     'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',
     'Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
@@ -20,6 +27,7 @@ HEADERS_LIST = [
 ]
 
 HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
+logger.info(HEADER)
 
 INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
 RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
@@ -29,8 +37,20 @@ INIT_URL_USER = 'https://twitter.com/{u}'
 RELOAD_URL_USER = 'https://twitter.com/i/profiles/show/{u}/timeline/tweets?' \
                   'include_available_features=1&include_entities=1&' \
                   'max_position={pos}&reset_error_state=false'
+PROXY_URL = 'https://free-proxy-list.net/'
 
-
+def get_proxies():
+    response = requests.get(PROXY_URL)
+    soup = BeautifulSoup(response.text, 'lxml')
+    table = soup.find('table',id='proxylisttable')
+    list_tr = table.find_all('tr')
+    list_td = [elem.find_all('td') for elem in list_tr]
+    list_td = list(filter(None, list_td))
+    list_ip = [elem[0].text for elem in list_td]
+    list_ports = [elem[1].text for elem in list_td]
+    list_proxies = [':'.join(elem) for elem in list(zip(list_ip, list_ports))]
+    return list_proxies               
+                  
 def get_query_url(query, lang, pos, from_user = False):
     if from_user:
         if pos is None:
@@ -42,7 +62,6 @@ def get_query_url(query, lang, pos, from_user = False):
     else:
         return RELOAD_URL.format(q=query, pos=pos, lang=lang)
 
-
 def linspace(start, stop, n):
     if n == 1:
         yield stop
@@ -51,9 +70,10 @@ def linspace(start, stop, n):
     for i in range(n):
         yield start + h * i
 
+proxies = get_proxies()
+proxy_pool = cycle(proxies)
 
-
-def query_single_page(query, lang, pos, retry=50, from_user=False):
+def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
     """
     Returns tweets from the given URL.
 
@@ -64,16 +84,19 @@ def query_single_page(query, lang, pos, retry=50, from_user=False):
     :return: The list of tweets, the pos argument for getting the next page.
     """
     url = get_query_url(query, lang, pos, from_user)
+    logger.info('Scraping tweets from {}'.format(url))
 
     try:
-        response = requests.get(url, headers=HEADER)
+        proxy = next(proxy_pool)
+        logger.info('Using proxy {}'.format(proxy))
+        response = requests.get(url, headers=HEADER, proxies={"http": proxy}, timeout=timeout)
         if pos is None:  # html response
             html = response.text or ''
             json_resp = None
         else:
             html = ''
             try:
-                json_resp = json.loads(response.text)
+                json_resp = response.json()
                 html = json_resp['items_html'] or ''
             except ValueError as e:
                 logger.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))
@@ -81,11 +104,19 @@ def query_single_page(query, lang, pos, retry=50, from_user=False):
         tweets = list(Tweet.from_html(html))
 
         if not tweets:
-            if json_resp:
-                pos = json_resp['min_position']
-            else:
-                pos = None
+            try:
+                if json_resp:
+                    pos = json_resp['min_position']
+                    has_more_items = json_resp['has_more_items']
+                    if not has_more_items:
+                        logger.info("Twitter returned : 'has_more_items' ")
+                        return [], None
+                else:
+                    pos = None
+            except:
+                pass
             if retry > 0:
+                logger.info('Retrying... (Attempts left: {})'.format(retry))
                 return query_single_page(query, lang, pos, retry - 1, from_user)
             else:
                 return [], pos
@@ -93,8 +124,8 @@ def query_single_page(query, lang, pos, retry=50, from_user=False):
         if json_resp:
             return tweets, urllib.parse.quote(json_resp['min_position'])
         if from_user:
-            return tweets, tweets[-1].id
-        return tweets, "TWEET-{}-{}".format(tweets[-1].id, tweets[0].id)
+            return tweets, tweets[-1].tweet_id
+        return tweets, "TWEET-{}-{}".format(tweets[-1].tweet_id, tweets[0].tweet_id)
 
     except requests.exceptions.HTTPError as e:
         logger.exception('HTTPError {} while requesting "{}"'.format(
@@ -135,7 +166,7 @@ def query_tweets_once_generator(query, limit=None, lang='', pos=None):
                   ``limit`` number of items.
     """
     logger.info('Querying {}'.format(query))
-    query = query.replace(' ', '%20').replace('#', '%23').replace(':', '%3A')
+    query = query.replace(' ', '%20').replace('#', '%23').replace(':', '%3A').replace('&', '%26')
     num_tweets = 0
     try:
         while True:
@@ -179,13 +210,17 @@ def query_tweets_once(*args, **kwargs):
 
 def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
+    
+    if(no_days < 0):
+        sys.exit('Begin date must occur before end date.')
+    
     if poolsize > no_days:
         # Since we are assigning each pool a range of dates to query,
 		# the number of pools should not exceed the number of dates.
         poolsize = no_days
     dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
 
-    if limit:
+    if limit and poolsize:
         limit_per_pool = (limit // poolsize)+1
     else:
         limit_per_pool = None
@@ -217,7 +252,7 @@ def query_tweets_from_user(user, limit=None):
     tweets = []
     try:
         while True:
-           new_tweets, pos = query_single_page(query, lang='', pos=pos, from_user=True)
+           new_tweets, pos = query_single_page(user, lang='', pos=pos, from_user=True)
            if len(new_tweets) == 0:
                logger.info("Got {} tweets from username {}".format(len(tweets), user))
                return tweets
@@ -239,7 +274,7 @@ def query_tweets_from_user(user, limit=None):
     return tweets
 
 
-def query_user_page(url, retry=10):
+def query_user_page(url, retry=10, timeout=60):
     """
     Returns the scraped user data from a twitter user page.
 
@@ -249,11 +284,12 @@ def query_user_page(url, retry=10):
     """
 
     try:
-        response = requests.get(url, headers=HEADER)
+        proxy = next(proxy_pool)
+        logger.info('Using proxy {}'.format(proxy))
+        response = requests.get(url, headers=HEADER, proxies={"http": proxy})
         html = response.text or ''
 
-        user = User()
-        user_info = user.from_html(html)
+        user_info = User.from_html(html)
         if not user_info:
             return None
 
@@ -281,14 +317,14 @@ def query_user_info(user):
     """
     Returns the scraped user data from a twitter user page.
 
-    :param user: the twitter user to web scrape its twitter page info 
+    :param user: the twitter user to web scrape its twitter page info
     """
 
 
     try:
         user_info = query_user_page(INIT_URL_USER.format(u=user))
         if user_info:
-            logger.info(f"Got user information from username {user}")
+            logger.info("Got user information from username {}".format(user))
             return user_info
 
     except KeyboardInterrupt:
@@ -296,5 +332,5 @@ def query_user_info(user):
     except BaseException:
         logger.exception("An unknown error occurred! Returning user information gathered so far...")
 
-    logger.info(f"Got user information from username {user}")
-    return user_info             
+    logger.info("Got user information from username {}".format(user))
+    return user_info

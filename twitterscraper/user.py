@@ -2,8 +2,8 @@ from bs4 import BeautifulSoup
 
 
 class User:
-    def __init__(self, user=None, full_name="", location="", blog="", date_joined=None, id=None, tweets=0, 
-        following=0, followers=0, likes=0, lists=0):
+    def __init__(self, user="", full_name="", location="", blog="", date_joined="", id="", tweets=0, 
+        following=0, followers=0, likes=0, lists=0, is_verified=0):
         self.user = user
         self.full_name = full_name
         self.location = location
@@ -15,8 +15,9 @@ class User:
         self.followers = followers
         self.likes = likes
         self.lists = lists
-        
-
+        self.is_verified = is_verified
+       
+    @classmethod
     def from_soup(self, tag_prof_header, tag_prof_nav):
         """
         Returns the scraped user data from a twitter user page.
@@ -47,6 +48,10 @@ class User:
         else:    
             self.date_joined = date_joined.strip()
 
+        tag_verified = tag_prof_header.find('span', {'class': "ProfileHeaderCard-badges"})
+        if tag_verified is not None:
+            self.is_verified = 1
+            
         self.id = tag_prof_nav.find('div',{'class':'ProfileNav'})['data-user-id']
         tweets = tag_prof_nav.find('span', {'class':"ProfileNav-value"})['data-count']
         if tweets is None:
@@ -85,7 +90,7 @@ class User:
             self.lists = int(lists)
         return(self)
 
-
+    @classmethod
     def from_html(self, html):
         soup = BeautifulSoup(html, "lxml")
         user_profile_header = soup.find("div", {"class":'ProfileHeaderCard'})

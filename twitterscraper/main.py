@@ -7,7 +7,10 @@ import argparse
 import collections
 import datetime as dt
 from os.path import isfile
-from twitterscraper.query import query_tweets, query_tweets_from_user
+from pprint import pprint
+from twitterscraper.query import query_tweets
+from twitterscraper.query import query_tweets_from_user
+from twitterscraper.query import query_user_info
 from twitterscraper.ts_logger import logger
 
 
@@ -58,6 +61,10 @@ def main():
         parser.add_argument("-u", "--user", action='store_true',
                             help="Set this flag to if you want to scrape tweets from a specific user"
                                  "The query should then consist of the profilename you want to scrape without @")
+        parser.add_argument("--profiles", action='store_true',
+                            help="Set this flag to if you want to scrape profile info of all the users where you" 
+                            "have previously scraped from. After all of the tweets have been scraped it will start"
+                            "a new process of scraping profile pages.")
         parser.add_argument("--lang", type=str, default=None,
                             help="Set this flag if you want to query tweets in \na specific language. You can choose from:\n"
                                  "en (English)\nar (Arabic)\nbn (Bengali)\n"
@@ -75,6 +82,8 @@ def main():
                                  )
         parser.add_argument("-d", "--dump", action="store_true",
                             help="Set this flag if you want to dump the tweets \nto the console rather than outputting to a file")
+        parser.add_argument("-ow", "--overwrite", action="store_true",
+                            help="Set this flag if you want to overwrite the existing output file.")
         parser.add_argument("-bd", "--begindate", type=valid_date, default="2006-03-21",
                             help="Scrape for tweets starting from this date. Format YYYY-MM-DD. \nDefault value is 2006-03-21", metavar='\b')
         parser.add_argument("-ed", "--enddate", type=valid_date, default=dt.date.today(),
@@ -84,7 +93,7 @@ def main():
                             "Set to 1 if you dont want to run any parallel processes.", metavar='\b')
         args = parser.parse_args()
 
-        if isfile(args.output) and not args.dump:
+        if isfile(args.output) and not args.dump and not args.overwrite:
             logger.error("Output file already exists! Aborting.")
             exit(-1)
 
@@ -99,18 +108,37 @@ def main():
                               poolsize = args.poolsize, lang = args.lang)
 
         if args.dump:
-            print(json.dumps(tweets, cls=JSONEncoder))
+            pprint([tweet.__dict__ for tweet in tweets])
         else:
             if tweets:
                 with open(args.output, "w", encoding="utf-8") as output:
                     if args.csv:
-                        f = csv.writer(output)
-                        f.writerow(["user", "fullname", "tweet-id", "timestamp", "url", "likes", "replies", "retweets", "text", "html"])
-                        for x in tweets:
-                            f.writerow([x.user, x.fullname, x.id, x.timestamp, x.url,
-                                        x.likes, x.replies, x.retweets,
-                                        x.text, x.html])
+                        f = csv.writer(output, delimiter=";", quoting=csv.QUOTE_NONNUMERIC)
+                        f.writerow([
+                            "screen_name", "username", "user_id", "tweet_id",
+                            "tweet_url", "timestamp", "timestamp_epochs",
+                            "text", "text_html", "links", "hashtags",
+                            "has_media", "img_urls", "video_url", "likes",
+                            "retweets", "replies", "is_replied", "is_reply_to",
+                            "parent_tweet_id", "reply_to_users"
+                        ])
+                        for t in tweets:
+                            f.writerow([
+                                t.screen_name, t.username, t.user_id,
+                                t.tweet_id, t.tweet_url, t.timestamp,
+                                t.timestamp_epochs, t.text, t.text_html,
+                                t.links, t.hashtags, t.has_media, t.img_urls,
+                                t.video_url, t.likes, t.retweets, t.replies,
+                                t.is_replied, t.is_reply_to, t.parent_tweet_id,
+                                t.reply_to_users
+                            ])
                     else:
                         json.dump(tweets, output, cls=JSONEncoder)
+            if args.profiles and tweets:
+                list_users = list(set([tweet.username for tweet in tweets]))
+                list_users_info = [query_user_info(elem) for elem in list_users]
+                filename = 'userprofiles_' + args.output
+                with open(filename, "w", encoding="utf-8") as output:
+                    json.dump(list_users_info, output, cls=JSONEncoder)
     except KeyboardInterrupt:
         logger.info("Program interrupted by user. Quitting...")

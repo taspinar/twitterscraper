@@ -5,6 +5,7 @@ import requests
 import urllib
 import random
 import datetime as dt
+import logging
 
 from functools import partial
 from billiard.pool import Pool
@@ -148,7 +149,7 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
     return [], None
 
 
-def query_tweets_once_generator(query, limit=None, lang='', pos=None):
+def query_tweets_once_generator(query, limit=None, lang='', pos=None, log_level=logging.INFO):
     """
     Queries twitter for all the tweets you want! It will load all pages it gets
     from twitter. However, twitter might out of a sudden stop serving new pages,
@@ -162,9 +163,12 @@ def query_tweets_once_generator(query, limit=None, lang='', pos=None):
     :param limit: Scraping will be stopped when at least ``limit`` number of
                   items are fetched.
     :param pos: Field used as a "checkpoint" to continue where you left off in iteration
+    :param log_level: Specify the level of logs to be output. Must be a valid name of a Python log level.
+                      See https://docs.python.org/2/library/logging.html#logging-levels
     :return:      A list of twitterscraper.Tweet objects. You will get at least
                   ``limit`` number of items.
     """
+    logger.setLevel(log_level)
     logger.info('Querying {}'.format(query))
     query = query.replace(' ', '%20').replace('#', '%23').replace(':', '%3A').replace('&', '%26')
     num_tweets = 0

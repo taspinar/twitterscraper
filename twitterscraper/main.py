@@ -13,7 +13,7 @@ from pprint import pprint
 from twitterscraper.query import (query_tweets, query_tweets_from_user,
                                   query_user_info)
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger('twitterscraper')
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -104,6 +104,7 @@ def main():
                             "Default log level is set to INFO.")
         args = parser.parse_args()
 
+        logging.basicConfig()
         logger.setLevel(args.loglevel)
 
         if isfile(args.output) and not args.dump and not args.overwrite:

@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from twitterscraper.tweet import Tweet
 from twitterscraper.user import User
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger('twitterscraper')
 
 #from fake_useragent import UserAgent
 #ua = UserAgent()

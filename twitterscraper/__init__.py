@@ -15,4 +15,3 @@ from twitterscraper.query import query_tweets_from_user
 from twitterscraper.query import query_user_info
 from twitterscraper.tweet import Tweet
 from twitterscraper.user import User
-from twitterscraper.ts_logger import logger as ts_logger

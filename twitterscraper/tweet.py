@@ -61,7 +61,9 @@ class Tweet:
             .find('div', 'js-tweet-text-container') \
             .find('p', 'tweet-text')
         text_html = str(soup_html) or ""
-        text = soup_html.text or ""
+        for img in soup_html.findAll("img", "Emoji"):
+            img.replace_with(img.attrs.get("alt", ''))
+        text = soup_html.get_text() or ""
         links = [
             atag.get('data-expanded-url', atag['href'])
             for atag in soup_html.find_all('a', class_='twitter-timeline-link')

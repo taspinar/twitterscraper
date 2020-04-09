@@ -49,8 +49,8 @@ def get_proxies():
     list_ip = [elem[0].text for elem in list_td]
     list_ports = [elem[1].text for elem in list_td]
     list_proxies = [':'.join(elem) for elem in list(zip(list_ip, list_ports))]
-    return list_proxies               
-                  
+    return list_proxies
+
 def get_query_url(query, lang, pos, from_user = False):
     if from_user:
         if pos is None:
@@ -207,18 +207,43 @@ def query_tweets_once(*args, **kwargs):
     else:
         return []
 
+def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21),
+                 enddate=dt.date.today(), poolsize=20, lang=''):
 
-def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang=''):
-    no_days = (enddate - begindate).days
-    
-    if(no_days < 0):
-        sys.exit('Begin date must occur before end date.')
-    
-    if poolsize > no_days:
+    number_days = (enddate - begindate).days
+    if(number_days < 0):
+        print('Begin date must occur before end date.')
+        return []
+
+    all_tweets = []
+    if poolsize > 1:
+        all_tweets = query_tweets_parallel(query, limit=limit, begindate=begindate,
+                                              enddate=enddate, poolsize=poolsize, lang=lang)
+    else:
+        all_tweets = query_tweets_serial(query, limit=limit, begindate=begindate,
+                                           enddate=enddate, lang=lang)
+    return all_tweets
+
+def query_tweets_serial(query, limit=None, begindate=dt.date(2006, 3, 21),
+                          enddate=dt.date.today(), lang=''):
+
+    query = F'{query} since:{begindate} until:{enddate}'
+
+    logger.info(F'query: {query}')
+    all_tweets = query_tweets_once(query, limit=limit, lang=lang)
+    logger.info(F'Got {len(all_tweets)} tweets.')
+
+    return all_tweets
+
+def query_tweets_parallel(query, limit=None, begindate=dt.date(2006, 3, 21),
+                          enddate=dt.date.today(), poolsize=20, lang=''):
+
+    number_days = (enddate - begindate).days
+    if poolsize > number_days:
         # Since we are assigning each pool a range of dates to query,
-		# the number of pools should not exceed the number of dates.
-        poolsize = no_days
-    dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
+        # the number of pools should not exceed the number of dates.
+        poolsize = number_days
+    dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, number_days, poolsize+1)]
 
     if limit and poolsize:
         limit_per_pool = (limit // poolsize)+1

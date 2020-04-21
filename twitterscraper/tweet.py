@@ -78,7 +78,11 @@ class Tweet:
 
         # --- videos
         video_div = tweet_div.find('div', 'PlayableMedia-container')
-        video_url = video_div.find('a')['href'] if video_div else ''
+        video_url = ''
+        if video_div:
+            video_id = re.search(r"https://pbs.twimg.com/tweet_video_thumb/(.*)\.jpg", str(video_div)).group(1)
+            video_url = "https://video.twimg.com/tweet_video/{}.mp4".format(video_id)
+
         has_media = True if img_urls or video_url else False
 
         # update 'links': eliminate 'video_url' from 'links' for duplicate

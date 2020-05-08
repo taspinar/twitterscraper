@@ -271,7 +271,8 @@ You can easily use TwitterScraper from within python:
          - timeout:   Time until query finishes   
 
       .. code:: python
-            query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60)
+
+          query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60)
    
    - Query all tweets that match qeury:
       Takes in 6 parameters:
@@ -283,7 +284,8 @@ You can easily use TwitterScraper from within python:
          - lang:      Language of query
       
       .. code:: python
-            query_tweets('query', limit=None, begindate=dt.date.today(), enddate=dt.date.today(), poolsize=20, lang='')
+
+          query_tweets('query', limit=None, begindate=dt.date.today(), enddate=dt.date.today(), poolsize=20, lang='')
 
    - Query tweets from a specific user:
       Takes in 2 parameters:
@@ -291,7 +293,8 @@ You can easily use TwitterScraper from within python:
          - limit:     Number of tweets returned
 
       .. code:: python
-            query_tweets(user, limit=None)
+      
+          query_tweets(user, limit=None)
       
 2.4 Scraping for retweets
 ----------------------

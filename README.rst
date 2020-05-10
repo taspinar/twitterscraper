@@ -28,8 +28,8 @@ with a link to your website. [`Become a sponsor`_]
 Synopsis
 ========
 
-A simple script to scrape Tweets using the Python package ```requests```
-to retrieve the content and ```Beautifulsoup4``` to parse the retrieved
+A simple script to scrape Tweets using the Python package ``requests``
+to retrieve the content and ``Beautifulsoup4`` to parse the retrieved
 content.
 
 1. Motivation

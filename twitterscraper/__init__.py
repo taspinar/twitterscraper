@@ -10,6 +10,7 @@ __author__ = 'Ahmet Taspinar'
 __license__ = 'MIT'
 
 
+from twitterscraper.query import query_tweets, query_tweets_from_user, query_user_info
 from twitterscraper.query_js import get_user_data, get_query_data
 from twitterscraper.user import User
 from twitterscraper.ts_logger import logger as ts_logger

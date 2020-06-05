@@ -92,7 +92,7 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
         retries = 20
         while retries > 0:
             if [r for r in driver.requests][-1].response is None:
-                time.sleep(0.5)
+                time.sleep(0.2)
                 # not done loading
                 continue
             relevant_requests = [
@@ -101,20 +101,14 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
                 r.response is not None and r.response.body is not None and
                 isinstance(r.response.body, dict) and 'globalObjects' in r.response.body
             ]
-            if len(relevant_requests) == 0:
-                time.sleep(1)
-                retries -= 1
-                continue
-            latest_request = relevant_requests[-1]
-            if not latest_request.response.body['globalObjects']['tweets']:
-                time.sleep(1)
+            if len(relevant_requests) == 0 or not relevant_requests[-1].response.body['globalObjects']['tweets']:
+                time.sleep(0.2)
                 retries -= 1
                 continue
             actions = ActionChains(driver)
             for _ in range(10):
                 actions.send_keys(Keys.PAGE_DOWN)
             actions.perform()
-            time.sleep(1)
             retries = 20
 
         # accumulate responses

@@ -45,7 +45,7 @@ def get_driver(proxy=None, timeout=10):
         profile.set_preference("network.proxy.http", proxy)
 
     opt = Options()
-    opt.headless = False
+    opt.headless = True
 
     driver = webdriver.Firefox(profile, options=opt)
     driver.implicitly_wait(timeout)
@@ -116,7 +116,6 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
             actions.perform()
             time.sleep(1)
             retries = 20
-            -/
 
         # accumulate responses
         complete_relevant_requests = [

@@ -26,7 +26,7 @@ HEADERS_LIST = [
     'Mozilla/5.0 (Windows NT 5.2; RW; rv:7.0a1) Gecko/20091211 SeaMonkey/9.23a1pre'
 ]
 
-HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
+HEADER = {'User-Agent': random.choice(HEADERS_LIST), 'X-Requested-With': 'XMLHttpRequest'}
 logger.info(HEADER)
 
 INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
@@ -49,8 +49,8 @@ def get_proxies():
     list_ip = [elem[0].text for elem in list_td]
     list_ports = [elem[1].text for elem in list_td]
     list_proxies = [':'.join(elem) for elem in list(zip(list_ip, list_ports))]
-    return list_proxies               
-                  
+    return list_proxies
+
 def get_query_url(query, lang, pos, from_user = False):
     if from_user:
         if pos is None:
@@ -210,10 +210,10 @@ def query_tweets_once(*args, **kwargs):
 
 def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang=''):
     no_days = (enddate - begindate).days
-    
+
     if(no_days < 0):
         sys.exit('Begin date must occur before end date.')
-    
+
     if poolsize > no_days:
         # Since we are assigning each pool a range of dates to query,
 		# the number of pools should not exceed the number of dates.

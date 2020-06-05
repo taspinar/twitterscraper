@@ -53,13 +53,6 @@ def get_driver(proxy=None, timeout=10):
     return driver
 
 
-def get_query_url(query, lang, from_user=False):
-    if from_user:
-        return INIT_URL_USER.format(u=query)
-    else:
-        return INIT_URL.format(q=query, lang=lang)
-
-
 def linspace(start, stop, n):
     if n == 1:
         yield stop
@@ -163,10 +156,7 @@ def get_query_data(query, limit=None, begindate=None, enddate=None, from_user=No
     queries = ['{} since:{} until:{}'.format(query, since, until)
                for since, until in zip(dateranges[:-1], dateranges[1:])]
     logger.debug('queries: {}'.format(queries))
-    urls = [
-        get_query_url(query, lang, from_user=None)
-        for query in queries
-    ]
+    urls = [INIT_URL.format(q=query, lang=lang) for query in queries]
     return retrieve_data_from_urls(urls, limit=limit, poolsize=poolsize)
 
 

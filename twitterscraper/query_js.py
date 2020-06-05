@@ -45,7 +45,7 @@ def get_driver(proxy=None, timeout=10):
         profile.set_preference("network.proxy.http", proxy)
 
     opt = Options()
-    opt.headless = False
+    opt.headless = True
 
     driver = webdriver.Firefox(profile, options=opt)
     driver.implicitly_wait(timeout)

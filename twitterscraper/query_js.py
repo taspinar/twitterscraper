@@ -45,7 +45,7 @@ def get_driver(proxy=None, timeout=10):
         profile.set_preference("network.proxy.http", proxy)
 
     opt = Options()
-    opt.headless = True
+    opt.headless = False
 
     driver = webdriver.Firefox(profile, options=opt)
     driver.implicitly_wait(timeout)
@@ -89,7 +89,8 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
     try:
         # page down until there isn't anything new
         driver.get(url)
-        while True:
+        retries = 20
+        while retries < 0:
             if [r for r in driver.requests][-1].response is None:
                 time.sleep(0.5)
                 # not done loading
@@ -100,25 +101,29 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
                 r.response is not None and r.response.body is not None and
                 isinstance(r.response.body, dict) and 'globalObjects' in r.response.body
             ]
+            if len(relevant_requests) == 0:
+                time.sleep(1)
+                retries -= 1
+                continue
             latest_request = relevant_requests[-1]
-            try:
-                latest_request.response.body['globalObjects']['tweets']
-            except:
-                import pdb;pdb.set_trace()
             if not latest_request.response.body['globalObjects']['tweets']:
-                break
+                time.sleep(1)
+                retries -= 1
+                continue
             actions = ActionChains(driver)
             for _ in range(10):
                 actions.send_keys(Keys.PAGE_DOWN)
             actions.perform()
             time.sleep(1)
+            retries = 20
+            -/
 
         # accumulate responses
         complete_relevant_requests = [
             r for r in driver.requests
             # all data responses have json in their path, but guide.json is irrelevant
             if 'json' in r.path and 'guide.json' not in r.path and
-            r.response.body and isinstance(r.response.body, dict) and
+            r.response and r.response.body and isinstance(r.response.body, dict) and
             'globalObjects' in r.response.body
         ]
         data = defaultdict(dict)
@@ -129,7 +134,6 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
         return data
 
     except Exception as e:
-        import pdb;pdb.set_trace()
         logger.exception('Exception {} while requesting "{}"'.format(
             e, url))
     finally:
@@ -144,7 +148,7 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
 
 def get_user_data(from_user, limit=None, lang=''):
     url = INIT_URL_USER.format(u=from_user)
-    return query_single_page(url)
+    return retrieve_data_from_urls([url], limit=limit, poolsize=1)
 
 
 def get_query_data(query, limit=None, begindate=None, enddate=None, from_user=None, poolsize=None, lang=''):
@@ -170,21 +174,22 @@ def get_query_data(query, limit=None, begindate=None, enddate=None, from_user=No
         get_query_url(query, lang, from_user=None)
         for query in queries
     ]
-    return retrieve_urls(urls)
+    return retrieve_data_from_urls(urls, limit=limit, poolsize=poolsize)
 
 
-def retrieve_urls(urls, limit, poolsize):
+def retrieve_data_from_urls(urls, limit, poolsize):
     # send query urls to multiprocessing pool, and aggregate
     if limit and poolsize:
         limit_per_pool = (limit // poolsize) + 1
     else:
         limit_per_pool = None
 
-    all_data = defaultdict
+    all_data = defaultdict(dict)
     try:
         pool = Pool(poolsize)
         try:
-            for new_data in pool.imap_unordered(partial(query_single_page, limit=limit_per_pool), urls):
+            #for new_data in pool.imap_unordered(partial(query_single_page, limit=limit_per_pool), urls):
+            for new_data in pool.imap_unordered(partial(query_single_page), urls):
                 for key, value in new_data.items():
                     all_data[key].update(value)
                 logger.info('Got {} data ({} new).'.format(

@@ -8,9 +8,7 @@ import collections
 import datetime as dt
 from os.path import isfile
 from pprint import pprint
-from twitterscraper.query import query_tweets
-from twitterscraper.query import query_tweets_from_user
-from twitterscraper.query import query_user_info
+from twitterscraper.query_js import get_user_data, get_query_data
 from twitterscraper.ts_logger import logger
 
 
@@ -62,7 +60,7 @@ def main():
                             help="Set this flag to if you want to scrape tweets from a specific user"
                                  "The query should then consist of the profilename you want to scrape without @")
         parser.add_argument("--profiles", action='store_true',
-                            help="Set this flag to if you want to scrape profile info of all the users where you" 
+                            help="Set this flag to if you want to scrape profile info of all the users where you"
                             "have previously scraped from. After all of the tweets have been scraped it will start"
                             "a new process of scraping profile pages.")
         parser.add_argument("--lang", type=str, default=None,
@@ -101,11 +99,13 @@ def main():
             args.begindate = dt.date(2006,3,1)
 
         if args.user:
-            tweets = query_tweets_from_user(user = args.query, limit = args.limit)
+            tweets = get_user_data(from_user=args.query, limit=args.limit)['tweets']
         else:
-            tweets = query_tweets(query = args.query, limit = args.limit,
-                              begindate = args.begindate, enddate = args.enddate,
-                              poolsize = args.poolsize, lang = args.lang)
+            tweets = get_query_data(
+                query=args.query, limit=args.limit,
+                begindate=args.begindate, enddate=args.enddate,
+                poolsize=args.poolsize, lang=args.lang
+            )['tweets']
 
         if args.dump:
             pprint([tweet.__dict__ for tweet in tweets])

@@ -90,7 +90,7 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
         # page down until there isn't anything new
         driver.get(url)
         retries = 20
-        while retries < 0:
+        while retries > 0:
             if [r for r in driver.requests][-1].response is None:
                 time.sleep(0.5)
                 # not done loading

@@ -59,13 +59,14 @@ def linspace(start, stop, n):
         yield start + h * i
 
 
-def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True):
+def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True, limit=float('inf')):
     """
     Returns tweets from the given URL.
     :param query: The query url
     :param retry: Number of retries if something goes wrong.
     :param use_proxy: Determines whether to fetch tweets with proxy
-    :return: The list of tweets
+    :param limit: Max number of tweets to get
+    :return: Twitter dict containing tweets users, locations, and other metadata
     """
 
     logger.info('Scraping tweets from {}'.format(url))
@@ -77,42 +78,44 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
     driver = get_driver(proxy)
 
     try:
-        # page down until there isn't anything new
+        data = defaultdict(dict)
+        already_idxs = set()
+
+        # page down, recording the results, until there isn't anything new or limit has been breached
         driver.get(url)
         retries = 20
-        while retries > 0:
-            if [r for r in driver.requests][-1].response is None:
-                time.sleep(0.2)
-                # not done loading
-                continue
-            relevant_requests = [
-                r for r in driver.requests
+        while retries > 0 and len(data['tweets']) < limit:
+
+            # relevant requests have completely responses, json in their path (but not guide.json), and a globalObjects key
+            relevant_request_idxs = set([
+                i for i, r in enumerate(driver.requests)
                 if 'json' in r.path and 'guide.json' not in r.path and
-                r.response is not None and r.response.body is not None and
-                isinstance(r.response.body, dict) and 'globalObjects' in r.response.body
-            ]
-            if len(relevant_requests) == 0 or not relevant_requests[-1].response.body['globalObjects']['tweets']:
+                r.response is not None and isinstance(r.response.body, dict) and
+                'globalObjects' in r.response.body and i not in already_idxs
+            ])
+            already_idxs |= relevant_request_idxs
+
+            # if no relevant requests, or latest relevant request isn't done loading, wait then check again
+            latest_tweets = driver.requests[max(relevant_request_idxs)].response.body['globalObjects']['tweets']
+            if len(relevant_request_idxs) == 0 or not latest_tweets:
                 time.sleep(0.2)
                 retries -= 1
                 continue
+
+            # scroll down
             actions = ActionChains(driver)
-            for _ in range(10):
+            for _ in range(100):
                 actions.send_keys(Keys.PAGE_DOWN)
             actions.perform()
-            retries = 20
 
-        # accumulate responses
-        complete_relevant_requests = [
-            r for r in driver.requests
-            # all data responses have json in their path, but guide.json is irrelevant
-            if 'json' in r.path and 'guide.json' not in r.path and
-            r.response and r.response.body and isinstance(r.response.body, dict) and
-            'globalObjects' in r.response.body
-        ]
-        data = defaultdict(dict)
-        for req in complete_relevant_requests:
-            for key, value in req.response.body['globalObjects'].items():
-                data[key].update(value)
+            # record relevant responses
+            for idx in relevant_request_idxs:
+                driver.requests[idx]
+                for key, value in driver.requests[idx].response.body['globalObjects'].items():
+                    data[key].update(value)
+
+            # reset retries
+            retries = 20
 
         return data
 
@@ -126,7 +129,7 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
         logger.debug('Retrying... (Attempts left: {})'.format(retry))
         return query_single_page(url, retry - 1)
     logger.error('Giving up.')
-    return {}
+    return defaultdict(dict)
 
 
 def get_user_data(from_user, limit=None, lang=''):
@@ -168,8 +171,7 @@ def retrieve_data_from_urls(urls, limit, poolsize):
     try:
         pool = Pool(poolsize)
         try:
-            #for new_data in pool.imap_unordered(partial(query_single_page, limit=limit_per_pool), urls):
-            for new_data in pool.imap_unordered(partial(query_single_page), urls):
+            for new_data in pool.imap_unordered(partial(query_single_page, limit=limit_per_pool), urls):
                 for key, value in new_data.items():
                     all_data[key].update(value)
                 logger.info('Got {} data ({} new).'.format(

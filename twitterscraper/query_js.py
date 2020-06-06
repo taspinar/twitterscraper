@@ -1,5 +1,3 @@
-from __future__ import division
-
 from collections import defaultdict
 import requests
 import datetime as dt
@@ -17,7 +15,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
 from twitterscraper.ts_logger import logger
-from twitterscraper.user import User
 
 
 INIT_URL = 'https://twitter.com/search?f=live&vertical=default&q={q}&l={lang}'

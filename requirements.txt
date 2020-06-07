@@ -4,4 +4,3 @@ lxml
 requests
 billiard
 selenium-wire==1.0.1
-requests==2.23.0

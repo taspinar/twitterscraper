@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
+from twitterscraper.ts_logger import logger
 
 
 class User:
-    def __init__(self, user="", full_name="", location="", blog="", date_joined="", id="", tweets=0, 
+    def __init__(self, user="", full_name="", location="", blog="", date_joined="", id="", tweets=0,
         following=0, followers=0, likes=0, lists=0, is_verified=0):
         self.user = user
         self.full_name = full_name
@@ -16,7 +17,7 @@ class User:
         self.likes = likes
         self.lists = lists
         self.is_verified = is_verified
-       
+
     @classmethod
     def from_soup(self, tag_prof_header, tag_prof_nav):
         """
@@ -27,31 +28,31 @@ class User:
         :return: Returns a User object with captured data via beautifulsoup
         """
 
-        self.user= tag_prof_header.find('a', {'class':'ProfileHeaderCard-nameLink u-textInheritColor js-nav'})['href'].strip("/") 
+        self.user= tag_prof_header.find('a', {'class':'ProfileHeaderCard-nameLink u-textInheritColor js-nav'})['href'].strip("/")
         self.full_name = tag_prof_header.find('a', {'class':'ProfileHeaderCard-nameLink u-textInheritColor js-nav'}).text
-        
-        location = tag_prof_header.find('span', {'class':'ProfileHeaderCard-locationText u-dir'}) 
+
+        location = tag_prof_header.find('span', {'class':'ProfileHeaderCard-locationText u-dir'})
         if location is None:
             self.location = "None"
-        else: 
+        else:
             self.location = location.text.strip()
 
         blog = tag_prof_header.find('span', {'class':"ProfileHeaderCard-urlText u-dir"})
         if blog is None:
             blog = "None"
         else:
-            self.blog = blog.text.strip() 
+            self.blog = blog.text.strip()
 
         date_joined = tag_prof_header.find('div', {'class':"ProfileHeaderCard-joinDate"}).find('span', {'class':'ProfileHeaderCard-joinDateText js-tooltip u-dir'})['title']
         if date_joined is None:
             self.data_joined = "Unknown"
-        else:    
+        else:
             self.date_joined = date_joined.strip()
 
         tag_verified = tag_prof_header.find('span', {'class': "ProfileHeaderCard-badges"})
         if tag_verified is not None:
             self.is_verified = 1
-            
+
         self.id = tag_prof_nav.find('div',{'class':'ProfileNav'})['data-user-id']
         tweets = tag_prof_nav.find('span', {'class':"ProfileNav-value"})['data-count']
         if tweets is None:
@@ -59,46 +60,47 @@ class User:
         else:
             self.tweets = int(tweets)
 
-        following = tag_prof_nav.find('li', {'class':"ProfileNav-item ProfileNav-item--following"}).\
-        find('span', {'class':"ProfileNav-value"})['data-count']
+        following = tag_prof_nav.find('li', {'class':"ProfileNav-item ProfileNav-item--following"})
         if following is None:
-            following = 0
+            self.following = 0
         else:
+            following = following.find('span', {'class':"ProfileNav-value"})['data-count']
             self.following = int(following)
 
-        followers = tag_prof_nav.find('li', {'class':"ProfileNav-item ProfileNav-item--followers"}).\
-        find('span', {'class':"ProfileNav-value"})['data-count']
+        followers = tag_prof_nav.find('li', {'class':"ProfileNav-item ProfileNav-item--followers"})
         if followers is None:
             self.followers = 0
         else:
-            self.followers = int(followers)    
-        
-        likes = tag_prof_nav.find('li', {'class':"ProfileNav-item ProfileNav-item--favorites"}).\
-        find('span', {'class':"ProfileNav-value"})['data-count']
+            followers = followers.find('span', {'class':"ProfileNav-value"})['data-count']
+            self.followers = int(followers)
+
+        likes = tag_prof_nav.find('li', {'class':"ProfileNav-item ProfileNav-item--favorites"})
         if likes is None:
             self.likes = 0
         else:
-            self.likes = int(likes)    
-        
+            likes = likes.find('span', {'class':"ProfileNav-value"})['data-count']
+            self.likes = int(likes)
+
         lists = tag_prof_nav.find('li', {'class':"ProfileNav-item ProfileNav-item--lists"})
         if lists is None:
             self.lists = 0
-        elif lists.find('span', {'class':"ProfileNav-value"}) is None:    
+        elif lists.find('span', {'class':"ProfileNav-value"}) is None:
             self.lists = 0
-        else:    
-            lists = lists.find('span', {'class':"ProfileNav-value"}).text    
+        else:
+            lists = lists.find('span', {'class':"ProfileNav-value"}).text
             self.lists = int(lists)
         return(self)
 
     @classmethod
     def from_html(self, html):
         soup = BeautifulSoup(html, "lxml")
-        user_profile_header = soup.find("div", {"class":'ProfileHeaderCard'})
-        user_profile_canopy = soup.find("div", {"class":'ProfileCanopy-nav'})
+        user_profile_header = soup.find("div", {"class": 'ProfileHeaderCard'})
+        user_profile_canopy = soup.find("div", {"class": 'ProfileCanopy-nav'})
+
         if user_profile_header and user_profile_canopy:
             try:
                 return self.from_soup(user_profile_header, user_profile_canopy)
-            except AttributeError:
-                pass  # Incomplete info? Discard!
-            except TypeError:
-                pass  # Incomplete info? Discard!
+            except AttributeError as e:
+                logger.exception(e)  # Incomplete info? Discard!
+            except TypeError as e:
+                logger.exception(e)  # Incomplete info? Discard!

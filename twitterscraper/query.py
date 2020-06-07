@@ -319,8 +319,6 @@ def query_user_info(user):
 
     :param user: the twitter user to web scrape its twitter page info
     """
-
-
     try:
         user_info = query_user_page(INIT_URL_USER.format(u=user))
         if user_info:
@@ -333,4 +331,4 @@ def query_user_info(user):
         logger.exception("An unknown error occurred! Returning user information gathered so far...")
 
     logger.info("Got user information from username {}".format(user))
-    return user_info
+    return None

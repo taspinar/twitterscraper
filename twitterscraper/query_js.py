@@ -59,7 +59,7 @@ def linspace(start, stop, n):
         yield start + h * i
 
 
-def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True, limit=float('inf')):
+def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True, limit=None):
     """
     Returns tweets from the given URL.
     :param query: The query url
@@ -68,6 +68,7 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
     :param limit: Max number of tweets to get
     :return: Twitter dict containing tweets users, locations, and other metadata
     """
+    limit = limit or float('inf')
 
     logger.info('Scraping tweets from {}'.format(url))
 
@@ -94,6 +95,11 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
                 'globalObjects' in r.response.body and i not in already_idxs
             ])
             already_idxs |= relevant_request_idxs
+
+            if not relevant_request_idxs:
+                time.sleep(0.2)
+                retries -= 1
+                continue
 
             # if no relevant requests, or latest relevant request isn't done loading, wait then check again
             latest_tweets = driver.requests[max(relevant_request_idxs)].response.body['globalObjects']['tweets']
@@ -144,13 +150,14 @@ def get_query_data(queries, limit=None, begindate=None, enddate=None, poolsize=N
 
     if poolsize > num_days:
         # Since we are assigning each pool a range of dates to query,
-        # the number of pools should not exceed tnhe number of dates.
+        # the number of pools should not exceed the number of dates.
         poolsize = num_days
-    dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, num_days, poolsize + 1)]
+    # query one day at a time so driver doesn't use too much memory
+    dateranges = list(reversed([begindate + dt.timedelta(days=elem) for elem in linspace(0, num_days, num_days)]))
 
     urls = []
-    for query in queries:
-        for since, until in zip(dateranges[:-1], dateranges[1:]):
+    for until, since in zip(dateranges[:-1], dateranges[1:]):
+        for query in queries:
             query_str = '{} since:{} until:{}'.format(query, since, until)
             urls.append(INIT_URL.format(q=query_str, lang=lang))
             logger.info('query: {}'.format(query_str))

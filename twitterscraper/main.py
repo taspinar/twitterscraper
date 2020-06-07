@@ -102,7 +102,10 @@ def main():
 
         if args.user:
             if args.javascript:
-                tweets = query_js.get_user_data(from_user=args.query, limit=args.limit)['tweets']
+                tweets = query_js.get_user_data(
+                    from_user=args.query, limit=args.limit,
+                    poolsize=args.poolsize, lang=args.lang
+                )['tweets']
             else:
                 tweets = query.query_tweets_from_user(user=args.query, limit=args.limit)
 

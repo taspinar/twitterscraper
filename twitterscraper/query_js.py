@@ -132,15 +132,10 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
     return defaultdict(dict)
 
 
-def get_user_data(from_user, limit=None, lang=''):
-    url = INIT_URL_USER.format(u=from_user)
-    return retrieve_data_from_urls([url], limit=limit, poolsize=1)
-
-
-def get_query_data(query, limit=None, begindate=None, enddate=None, from_user=None, poolsize=None, lang=''):
+def get_query_data(queries, limit=None, begindate=None, enddate=None, poolsize=None, lang=''):
     begindate = begindate or dt.date(2006, 3, 21)
     enddate = enddate or dt.date.today()
-    poolsize = poolsize or 20
+    poolsize = poolsize or 5
 
     num_days = (enddate - begindate).days
 
@@ -153,11 +148,21 @@ def get_query_data(query, limit=None, begindate=None, enddate=None, from_user=No
         poolsize = num_days
     dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, num_days, poolsize + 1)]
 
-    queries = ['{} since:{} until:{}'.format(query, since, until)
-               for since, until in zip(dateranges[:-1], dateranges[1:])]
-    logger.debug('queries: {}'.format(queries))
-    urls = [INIT_URL.format(q=query, lang=lang) for query in queries]
+    urls = []
+    for query in queries:
+        for since, until in zip(dateranges[:-1], dateranges[1:]):
+            query_str = '{} since:{} until:{}'.format(query, since, until)
+            urls.append(INIT_URL.format(q=query_str, lang=lang))
+            logger.info('query: {}'.format(query_str))
+
     return retrieve_data_from_urls(urls, limit=limit, poolsize=poolsize)
+
+
+def get_user_data(from_user, *args, **kwargs):
+    # include retweets
+    retweet_query = f'filter:nativeretweets from:{from_user}'
+    no_retweet_query = f'from:{from_user}'
+    return get_query_data([retweet_query, no_retweet_query], *args, **kwargs)
 
 
 def retrieve_data_from_urls(urls, limit, poolsize):

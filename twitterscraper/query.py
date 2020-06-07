@@ -109,7 +109,7 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
                     pos = json_resp['min_position']
                     has_more_items = json_resp['has_more_items']
                     if not has_more_items:
-                        logger.info("Twitter returned : 'has_more_items' ")
+                        logger.info("Twitter response: 'has_more_items' == False ")
                         return [], None
                 else:
                     pos = None

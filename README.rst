@@ -258,7 +258,42 @@ You can easily use TwitterScraper from within python:
             file.write(str(tweet.text.encode('utf-8')))
         file.close()
 
+2.3.1 Examples of Python Queries
+--------------------------------
 
+   - Query tweets from a given URL:
+      Parameters:
+         - query:     The query search parameter of url
+         - lang:      Language of queried url
+         - pos:       Parameter passed for where to start looking in url
+         - retry:     Number of times to retry if error   
+
+      .. code:: python
+
+          query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60)
+   
+   - Query all tweets that match qeury:
+      Parameters:
+         - query:     The query search parameter
+         - limit:     Number of tweets returned
+         - begindate: Start date of query
+         - enddate:   End date of query
+         - poolsize:  Tweets per poolsize
+         - lang:      Language of query
+      
+      .. code:: python
+
+          query_tweets('query', limit=None, begindate=dt.date.today(), enddate=dt.date.today(), poolsize=20, lang='')
+
+   - Query tweets from a specific user:
+      Parameters:
+         - user:      Twitter username
+         - limit:     Number of tweets returned
+
+      .. code:: python
+      
+          query_tweets(user, limit=None)
+      
 2.4 Scraping for retweets
 ----------------------
 

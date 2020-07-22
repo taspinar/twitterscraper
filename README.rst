@@ -179,6 +179,7 @@ JSON right away. Twitterscraper takes several arguments:
    it will be overwritten. If this argument is not set (default) twitterscraper will
    exit with the warning that the output file already exists.
 
+-  ``-dp`` or ``--disableproxy``: With this argument, proxy servers are not used when scrapping tweets or user profiles from twitter.
 
 2.2.1 Examples of simple queries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

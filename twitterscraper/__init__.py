@@ -1,11 +1,11 @@
 # TwitterScraper
-# Copyright 2016-2019 Ahmet Taspinar
+# Copyright 2016-2020 Ahmet Taspinar
 # See LICENSE for details.
 """
 Twitter Scraper tool
 """
 
-__version__ = '1.4.0'
+__version__ = '1.5.0'
 __author__ = 'Ahmet Taspinar'
 __license__ = 'MIT'
 

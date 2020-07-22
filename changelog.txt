@@ -1,5 +1,13 @@
 # twitterscraper changelog
 
+# 1.5.0 ( 2020-06-05 )
+## Fixed
+- PR304: Fixed query.py by adding 'X-Requested-With': 'XMLHttpRequest' to header value.
+- PR253: Fixed Docker build
+## Added
+- PR313: Added example to README (section 2.3.1).
+- PR277: Support emojis by adding the alt text of images to the tweet text.
+
 # 1.4.0 ( 2019-11-03 )
 ## Fixed
 - PR228: Fixed Typo in Readme

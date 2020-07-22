@@ -29,7 +29,7 @@ HEADERS_LIST = [
     'Mozilla/5.0 (Windows NT 5.2; RW; rv:7.0a1) Gecko/20091211 SeaMonkey/9.23a1pre'
 ]
 
-HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
+HEADER = {'User-Agent': random.choice(HEADERS_LIST), 'X-Requested-With': 'XMLHttpRequest'}
 logger.info(HEADER)
 
 INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
@@ -76,7 +76,7 @@ def linspace(start, stop, n):
 proxies = get_proxies()
 proxy_pool = cycle(proxies)
 
-def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
+def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60, use_proxy=True):
     """
     Returns tweets from the given URL.
 
@@ -90,9 +90,13 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
     logger.info('Scraping tweets from {}'.format(url))
 
     try:
-        proxy = next(proxy_pool)
-        logger.info('Using proxy {}'.format(proxy))
-        response = requests.get(url, headers=HEADER, proxies={"http": proxy}, timeout=timeout)
+        if use_proxy:
+            proxy = next(proxy_pool)
+            logger.info('Using proxy {}'.format(proxy))
+            response = requests.get(url, headers=HEADER, proxies={"http": proxy}, timeout=timeout)
+        else:
+            print('not using proxy')
+            response = requests.get(url, headers=HEADER, timeout=timeout)
         if pos is None:  # html response
             html = response.text or ''
             json_resp = None
@@ -120,7 +124,7 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
                 pass
             if retry > 0:
                 logger.info('Retrying... (Attempts left: {})'.format(retry))
-                return query_single_page(query, lang, pos, retry - 1, from_user)
+                return query_single_page(query, lang, pos, retry - 1, from_user, use_proxy=use_proxy)
             else:
                 return [], pos
 
@@ -145,13 +149,13 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60):
 
     if retry > 0:
         logger.info('Retrying... (Attempts left: {})'.format(retry))
-        return query_single_page(query, lang, pos, retry - 1)
+        return query_single_page(query, lang, pos, retry - 1, use_proxy=use_proxy)
 
     logger.error('Giving up.')
     return [], None
 
 
-def query_tweets_once_generator(query, limit=None, lang='', pos=None):
+def query_tweets_once_generator(query, limit=None, lang='', pos=None, use_proxy=True):
     """
     Queries twitter for all the tweets you want! It will load all pages it gets
     from twitter. However, twitter might out of a sudden stop serving new pages,
@@ -173,7 +177,7 @@ def query_tweets_once_generator(query, limit=None, lang='', pos=None):
     num_tweets = 0
     try:
         while True:
-            new_tweets, new_pos = query_single_page(query, lang, pos)
+            new_tweets, new_pos = query_single_page(query, lang, pos, use_proxy=use_proxy)
             if len(new_tweets) == 0:
                 logger.info('Got {} tweets for {}.'.format(
                     num_tweets, query))
@@ -211,7 +215,7 @@ def query_tweets_once(*args, **kwargs):
         return []
 
 
-def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang=''):
+def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang='', use_proxy=True):
     no_days = (enddate - begindate).days
     
     if(no_days < 0):
@@ -236,7 +240,7 @@ def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.d
         pool = Pool(poolsize)
         logger.info('queries: {}'.format(queries))
         try:
-            for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool, lang=lang), queries):
+            for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool, lang=lang, use_proxy=use_proxy), queries):
                 all_tweets.extend(new_tweets)
                 logger.info('Got {} tweets ({} new).'.format(
                     len(all_tweets), len(new_tweets)))
@@ -250,12 +254,12 @@ def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.d
     return all_tweets
 
 
-def query_tweets_from_user(user, limit=None):
+def query_tweets_from_user(user, limit=None, use_proxy=True):
     pos = None
     tweets = []
     try:
         while True:
-           new_tweets, pos = query_single_page(user, lang='', pos=pos, from_user=True)
+           new_tweets, pos = query_single_page(user, lang='', pos=pos, from_user=True, use_proxy=use_proxy)
            if len(new_tweets) == 0:
                logger.info("Got {} tweets from username {}".format(len(tweets), user))
                return tweets
@@ -277,7 +281,7 @@ def query_tweets_from_user(user, limit=None):
     return tweets
 
 
-def query_user_page(url, retry=10, timeout=60):
+def query_user_page(url, retry=10, timeout=60, use_proxy=True):
     """
     Returns the scraped user data from a twitter user page.
 
@@ -287,9 +291,12 @@ def query_user_page(url, retry=10, timeout=60):
     """
 
     try:
-        proxy = next(proxy_pool)
-        logger.info('Using proxy {}'.format(proxy))
-        response = requests.get(url, headers=HEADER, proxies={"http": proxy})
+        if use_proxy:
+            proxy = next(proxy_pool)
+            logger.info('Using proxy {}'.format(proxy))
+            response = requests.get(url, headers=HEADER, proxies={"http": proxy})
+        else:
+            response = requests.get(url, headers=HEADER)
         html = response.text or ''
 
         user_info = User.from_html(html)
@@ -310,13 +317,13 @@ def query_user_page(url, retry=10, timeout=60):
 
     if retry > 0:
         logger.info('Retrying... (Attempts left: {})'.format(retry))
-        return query_user_page(url, retry-1)
+        return query_user_page(url, retry-1, use_proxy)
 
     logger.error('Giving up.')
     return None
 
 
-def query_user_info(user):
+def query_user_info(user, use_proxy=True):
     """
     Returns the scraped user data from a twitter user page.
 
@@ -325,7 +332,7 @@ def query_user_info(user):
 
 
     try:
-        user_info = query_user_page(INIT_URL_USER.format(u=user))
+        user_info = query_user_page(INIT_URL_USER.format(u=user), use_proxy=use_proxy)
         if user_info:
             logger.info("Got user information from username {}".format(user))
             return user_info

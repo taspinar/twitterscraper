@@ -1,19 +1,22 @@
 from __future__ import division
 
-import json
-import requests
-import urllib
-import random
 import datetime as dt
-
+import json
+import logging
+import random
+import sys
+import urllib
 from functools import partial
-from billiard.pool import Pool
-from bs4 import BeautifulSoup
 from itertools import cycle
 
+import requests
+from billiard.pool import Pool
+from bs4 import BeautifulSoup
+
 from twitterscraper.tweet import Tweet
-from twitterscraper.ts_logger import logger
 from twitterscraper.user import User
+
+logger = logging.getLogger('twitterscraper')
 
 #from fake_useragent import UserAgent
 #ua = UserAgent()

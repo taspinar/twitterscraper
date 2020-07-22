@@ -1,17 +1,19 @@
 """
 This is a command line application that allows you to scrape twitter!
 """
-import csv
-import json
 import argparse
 import collections
+import csv
 import datetime as dt
+import json
+import logging
 from os.path import isfile
 from pprint import pprint
-from twitterscraper.query import query_tweets
-from twitterscraper.query import query_tweets_from_user
-from twitterscraper.query import query_user_info
-from twitterscraper.ts_logger import logger
+
+from twitterscraper.query import (query_tweets, query_tweets_from_user,
+                                  query_user_info)
+
+logger = logging.getLogger('twitterscraper')
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -38,6 +40,12 @@ def valid_date(s):
     except ValueError:
         msg = "Not a valid date: '{0}'.".format(s)
         raise argparse.ArgumentTypeError(msg)
+
+def valid_loglevel(level):
+    try:
+        return logging._checkLevel(level)
+    except (ValueError, TypeError) as ex:
+        raise argparse.ArgumentTypeError(ex)
 
 def main():
     try:
@@ -91,8 +99,14 @@ def main():
         parser.add_argument("-p", "--poolsize", type=int, default=20, help="Specify the number of parallel process you want to run. \n"
                             "Default value is set to 20. \nYou can change this number if you have more computing power available. \n"
                             "Set to 1 if you dont want to run any parallel processes.", metavar='\b')
+        parser.add_argument("--loglevel", type=valid_loglevel, default=logging.INFO, help="Specify the level for logging. \n"
+                            "Must be a valid value from https://docs.python.org/2/library/logging.html#logging-levels. \n"
+                            "Default log level is set to INFO.")
         parser.add_argument("-dp", "--disableproxy", action="store_true", default=False, help="Set this flag if you want to disable use of proxy servers when scrapping tweets and user profiles. \n")
         args = parser.parse_args()
+
+        logging.basicConfig()
+        logger.setLevel(args.loglevel)
 
         if isfile(args.output) and not args.dump and not args.overwrite:
             logger.error("Output file already exists! Aborting.")

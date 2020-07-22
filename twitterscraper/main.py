@@ -6,6 +6,7 @@ import json
 import argparse
 import collections
 import datetime as dt
+import sys
 from os.path import isfile
 from pprint import pprint
 from twitterscraper.query import query_tweets
@@ -34,10 +35,13 @@ class JSONEncoder(json.JSONEncoder):
 
 def valid_date(s):
     try:
-        return dt.datetime.strptime(s, "%Y-%m-%d").date()
+        return dt.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
     except ValueError:
-        msg = "Not a valid date: '{0}'.".format(s)
-        raise argparse.ArgumentTypeError(msg)
+        try:
+            return dt.datetime.strptime(s, "%Y-%m-%d")
+        except ValueError:
+            msg = "Not a valid date: '{0}'.".format(s)
+            raise argparse.ArgumentTypeError(msg)
 
 def main():
     try:
@@ -82,12 +86,14 @@ def main():
                                  )
         parser.add_argument("-d", "--dump", action="store_true",
                             help="Set this flag if you want to dump the tweets \nto the console rather than outputting to a file")
+        parser.add_argument("-dj", "--dump-json", action="store_true",
+                            help="Set this flag if you want to dump the tweets in json \nto the console rather than outputting to a file")
         parser.add_argument("-ow", "--overwrite", action="store_true",
                             help="Set this flag if you want to overwrite the existing output file.")
         parser.add_argument("-bd", "--begindate", type=valid_date, default="2006-03-21",
-                            help="Scrape for tweets starting from this date. Format YYYY-MM-DD. \nDefault value is 2006-03-21", metavar='\b')
-        parser.add_argument("-ed", "--enddate", type=valid_date, default=dt.date.today(),
-                            help="Scrape for tweets until this date. Format YYYY-MM-DD. \nDefault value is the date of today.", metavar='\b')
+                            help="Scrape for tweets starting from this date. Format YYYY-MM-DD HH:mm:SS. \nDefault value is 2006-03-21", metavar='\b')
+        parser.add_argument("-ed", "--enddate", type=valid_date, default=dt.datetime.now(),
+                            help="Scrape for tweets until this date. Format YYYY-MM-DD HH:mm:SS. \nDefault value is now.", metavar='\b')
         parser.add_argument("-p", "--poolsize", type=int, default=20, help="Specify the number of parallel process you want to run. \n"
                             "Default value is set to 20. \nYou can change this number if you have more computing power available. \n"
                             "Set to 1 if you dont want to run any parallel processes.", metavar='\b')
@@ -109,6 +115,8 @@ def main():
 
         if args.dump:
             pprint([tweet.__dict__ for tweet in tweets])
+        elif args.dump_json:
+            json.dump(tweets, sys.stdout, cls=JSONEncoder)
         else:
             if tweets:
                 with open(args.output, "w", encoding="utf-8") as output:

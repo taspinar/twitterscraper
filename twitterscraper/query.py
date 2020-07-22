@@ -5,6 +5,7 @@ import requests
 import urllib
 import random
 import datetime as dt
+import time
 
 from functools import partial
 from billiard.pool import Pool
@@ -208,24 +209,24 @@ def query_tweets_once(*args, **kwargs):
         return []
 
 
-def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang=''):
-    no_days = (enddate - begindate).days
+def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.datetime.now(), poolsize=20, lang=''):
+    no_secs = (enddate - begindate).seconds
     
-    if(no_days < 0):
+    if(no_secs < 0):
         sys.exit('Begin date must occur before end date.')
-    
-    if poolsize > no_days:
+
+    if poolsize > no_secs:
         # Since we are assigning each pool a range of dates to query,
 		# the number of pools should not exceed the number of dates.
-        poolsize = no_days
-    dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
+        poolsize = no_secs
+    dateranges = [begindate + dt.timedelta(seconds=elem) for elem in linspace(0, no_secs, poolsize+1)]
 
     if limit and poolsize:
         limit_per_pool = (limit // poolsize)+1
     else:
         limit_per_pool = None
 
-    queries = ['{} since:{} until:{}'.format(query, since, until)
+    queries = ['{} since_time:{} until_time:{}'.format(query, int(time.mktime(since.timetuple())), int(time.mktime(until.timetuple())))
                for since, until in zip(dateranges[:-1], dateranges[1:])]
 
     all_tweets = []

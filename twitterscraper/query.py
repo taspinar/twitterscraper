@@ -105,8 +105,8 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60, u
             try:
                 json_resp = response.json()
                 html = json_resp['items_html'] or ''
-            except ValueError as e:
-                logger.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))
+            except (ValueError, KeyError) as e:
+                logger.exception('Failed to parse JSON while requesting "{}"'.format(url))
 
         tweets = list(Tweet.from_html(html))
 

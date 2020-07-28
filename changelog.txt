@@ -1,5 +1,9 @@
 # twitterscraper changelog
 
+# 1.6.1 ( 2020-07-28 )
+## Fixed
+- Issue 330: Added KeyError to the try / except so that it no longer breaks when json_resp does not have this key.
+
 # 1.6.0 ( 2020-07-22 )
 ## Added
 - PR234: Adds command line argument -dp or --disableproxy to disable to use of proxy when querying.

@@ -98,14 +98,19 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60, u
             print('not using proxy')
             response = requests.get(url, headers=HEADER, timeout=timeout)
         if pos is None:  # html response
-            html = response.text or ''
-            json_resp = None
+            html = response.text or None
+	    try:
+                json_resp = None
+	    except KeyError:
+		html = ''
         else:
             html = ''
             try:
                 json_resp = response.json()
                 html = json_resp['items_html'] or ''
-            except (ValueError, KeyError) as e:
+	    except KeyError:
+		html = ''
+            except ValueError as e:
                 logger.exception('Failed to parse JSON while requesting "{}"'.format(url))
 
         tweets = list(Tweet.from_html(html))

@@ -47,14 +47,14 @@ and are therefore constrained by the limitations of the API's.
 
 With Twitter's Search API you can only send 180 Requests every 15
 minutes. With a maximum number of 100 tweets per Request, you
-can mine 72 tweets per hour (4 x 180 x 100 =72) . By using
+can mine 72,000 tweets per hour (4 x 180 x 100 = 72,000) . By using
 TwitterScraper you are not limited by this number but by your internet
 speed/bandwith and the number of instances of TwitterScraper you are
 willing to start.
 
 One of the bigger disadvantages of the Search API is that you can only
 access Tweets written in the **past 7 days**. This is a major bottleneck
-for anyone looking for older data. With TwitterScraper there is no such 
+for anyone looking for older data. With TwitterScraper there is no such
 limitation.
 
 Per Tweet it scrapes the following information:
@@ -79,7 +79,7 @@ Per Tweet it scrapes the following information:
  + List of users Tweet is an reply to
  + Tweet ID of parent tweet
 
- 
+
 In addition it can scrape for the following user information:
  + Date user joined
  + User location (if filled in)
@@ -267,12 +267,12 @@ You can easily use TwitterScraper from within python:
          - query:     The query search parameter of url
          - lang:      Language of queried url
          - pos:       Parameter passed for where to start looking in url
-         - retry:     Number of times to retry if error   
+         - retry:     Number of times to retry if error
 
       .. code:: python
 
           query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60)
-   
+
    - Query all tweets that match qeury:
       Parameters:
          - query:     The query search parameter
@@ -281,7 +281,7 @@ You can easily use TwitterScraper from within python:
          - enddate:   End date of query
          - poolsize:  Tweets per poolsize
          - lang:      Language of query
-      
+
       .. code:: python
 
           query_tweets('query', limit=None, begindate=dt.date.today(), enddate=dt.date.today(), poolsize=20, lang='')
@@ -292,9 +292,9 @@ You can easily use TwitterScraper from within python:
          - limit:     Number of tweets returned
 
       .. code:: python
-      
+
           query_tweets(user, limit=None)
-      
+
 2.4 Scraping for retweets
 ----------------------
 

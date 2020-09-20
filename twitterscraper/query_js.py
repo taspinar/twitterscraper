@@ -136,7 +136,7 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
         logger.debug('Retrying... (Attempts left: {})'.format(retry))
         return query_single_page(url, retry - 1)
     logger.error('Giving up.')
-    return defaultdict(dict)
+    return defaultdict({})
 
 
 def get_query_data(queries, limit=None, begindate=None, enddate=None, poolsize=None, lang=''):

@@ -15,6 +15,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
 from twitterscraper.ts_logger import logger
+from twitterscraper.tweet import Tweet
 
 
 INIT_URL = 'https://twitter.com/search?f=live&vertical=default&q={q}&l={lang}'
@@ -162,7 +163,52 @@ def get_query_data(queries, limit=None, begindate=None, enddate=None, poolsize=N
             urls.append(INIT_URL.format(q=query_str, lang=lang))
             logger.info('query: {}'.format(query_str))
 
-    return retrieve_data_from_urls(urls, limit=limit, poolsize=poolsize)
+    data = retrieve_data_from_urls(urls, limit=limit, poolsize=poolsize)
+    tweets = get_tweets_in_daterange(data['tweets'], begindate, enddate)
+
+
+def get_tweet_objects(tweets_dict, users):
+    tweets = []
+    for tid, tweet_item in tweets_dict.items():
+        user = users[tweet_item['user_id']]
+        tweets.append(Tweet(
+            screen_name=user['screen_name'],
+            username=user['name'],
+            user_id=tweet_item['user_id'],
+            tweet_id=tid,
+            tweet_url=f'https://twitter.com/{user["screen_name"]}/status/{tid}',  # hack?
+            timestamp=timestamp_of_tweet(tweet_item),  # hack?
+            timestamp_epochs=timestamp_of_tweet(tweet_item),  # hack?
+            text=tweet_item['full_text'],
+            text_html=None,  # hack?
+            links=tweet_item['entities']['urls'],
+            hashtags=tweet_item['entities']['hashtags'],
+            has_media=None,  # hack?
+            img_urls=None,  # hack?
+            parent_tweet_id=tweet_item['in_reply_to_status_id'],
+            reply_to_users=tweet_item['in_reply_to_user_id'],  # hack?
+        ))
+
+
+def date_of_tweet(tweet):
+    return dt.datetime.strptime(
+        tweet['created_at'], '%a %b %d %H:%M:%S %z %Y'
+    ).replace(tzinfo=None).date()
+
+
+def timestamp_of_tweet(tweet):
+    return dt.datetime.strptime(
+        tweet['created_at'], '%a %b %d %H:%M:%S %z %Y'
+    ).timestamp()
+
+
+def get_tweets_in_daterange(tweets, begindate=None, enddate=None):
+    begindate = begindate or dt.date(1990, 1, 1)
+    enddate = enddate or dt.date(2100, 1, 1)
+    return {
+        tid: tweet for tid, tweet in tweets.items()
+        if begindate < date_of_tweet(tweet) < enddate
+    }
 
 
 def get_user_data(from_user, *args, **kwargs):

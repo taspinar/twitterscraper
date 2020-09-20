@@ -165,6 +165,7 @@ def get_query_data(queries, limit=None, begindate=None, enddate=None, poolsize=N
 
     data = retrieve_data_from_urls(urls, limit=limit, poolsize=poolsize)
     tweets = get_tweets_in_daterange(data['tweets'], begindate, enddate)
+    return get_tweet_objects(tweets, data['users'])
 
 
 def get_tweet_objects(tweets_dict, users):
@@ -188,6 +189,7 @@ def get_tweet_objects(tweets_dict, users):
             parent_tweet_id=tweet_item['in_reply_to_status_id'],
             reply_to_users=tweet_item['in_reply_to_user_id'],  # hack?
         ))
+    return tweets
 
 
 def date_of_tweet(tweet):

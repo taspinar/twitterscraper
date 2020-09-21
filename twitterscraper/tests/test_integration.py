@@ -35,44 +35,16 @@ def test_get_multiple_correct_count(query_fn, is_data_request):
     # retrieve
     call_dict = dict(begindate=dt.date(2017, 11, 11), enddate=dt.date(2017, 11, 22),
                      poolsize=3, lang='en')
-    if is_data_request:
-        call_dict['queries'] = ['alphabet soup']
-        res0 = query_js.get_query_data(**call_dict)
-        js_by_date = {
-            d: [
-                t
-                for t in res0['tweets'].values()
-                if 'card' not in t and
-                dt.datetime.strptime(t['created_at'], '%a %b %d %H:%M:%S %z %Y').date() == d
-            ]
-            for d in expected_counts_by_date.keys()
-        }
-    else:
-        call_dict['query'] = 'alphabet soup'
-        res1 = query.query_tweets(**call_dict)
-        legacy_by_date = {
-            d: [r for r in res1 if r.timestamp.date() == d]
-            for d in expected_counts_by_date.keys()
-        }
+    call_dict['query'] = 'alphabet soup'
+    res = query.query_tweets(**call_dict)
 
     res = query_fn(**call_dict)
 
     # validate
-    if is_data_request:
-        actual_counts_by_date = {
-            d: sum([
-                2 if t.get('in_reply_to_status_id') else 1
-                for t in res['tweets'].values()
-                if 'card' not in t and
-                dt.datetime.strptime(t['created_at'], '%a %b %d %H:%M:%S %z %Y').date() == d
-            ])
-            for d in expected_counts_by_date.keys()
-        }
-    else:
-        actual_counts_by_date = {
-            d: len([r for r in res if r.timestamp.date() == d])
-            for d in expected_counts_by_date.keys()
-        }
+    actual_counts_by_date = {
+        d: len([r for r in res if r.timestamp.date() == d])
+        for d in expected_counts_by_date.keys()
+    }
 
     for k in expected_counts_by_date:
         print(k, expected_counts_by_date.get(k), actual_counts_by_date.get(k))
@@ -91,10 +63,7 @@ def test_same_count_multiple_tries(query_fn, is_data_request):
     for _ in range(10):
         call_dict = dict(begindate=dt.date(2019, 2, 2), enddate=dt.date(2019, 2, 3),
                          poolsize=1, lang='en')
-        if is_data_request:
-            call_dict['queries'] = ['lapp']
-        else:
-            call_dict['query'] = 'lapp'
+        call_dict['query'] = 'lapp'
 
         res = query_fn(**call_dict)
         if is_data_request:

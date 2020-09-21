@@ -3,4 +3,4 @@ bs4
 lxml
 requests
 billiard
-selenium-wire==1.0.1
+selenium-wire

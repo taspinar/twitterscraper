@@ -3,6 +3,7 @@ import requests
 import datetime as dt
 import time
 import sys
+import json
 
 from functools import lru_cache, partial
 from billiard.pool import Pool
@@ -45,7 +46,12 @@ def get_driver(proxy=None, timeout=10):
     opt = Options()
     opt.headless = True
 
-    driver = webdriver.Firefox(profile, options=opt)
+    driver = webdriver.Firefox(
+        profile,
+        options=opt,
+        seleniumwire_options={'verify_ssl': False}
+    )
+
     driver.implicitly_wait(timeout)
 
     return driver
@@ -58,6 +64,13 @@ def linspace(start, stop, n):
     h = (stop - start) / (n - 1)
     for i in range(n):
         yield start + h * i
+
+
+def decode_body(body):
+    try:
+        return json.loads(body)
+    except (UnicodeDecodeError, json.decoder.JSONDecodeError):
+        return None
 
 
 def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True, limit=None):
@@ -92,8 +105,8 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
             relevant_request_idxs = set([
                 i for i, r in enumerate(driver.requests)
                 if 'json' in r.path and 'guide.json' not in r.path and
-                r.response is not None and isinstance(r.response.body, dict) and
-                'globalObjects' in r.response.body and i not in already_idxs
+                r.response is not None and isinstance(decode_body(r.response.body), dict) and
+                'globalObjects' in decode_body(r.response.body) and i not in already_idxs
             ])
             already_idxs |= relevant_request_idxs
 
@@ -103,7 +116,7 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
                 continue
 
             # if no relevant requests, or latest relevant request isn't done loading, wait then check again
-            latest_tweets = driver.requests[max(relevant_request_idxs)].response.body['globalObjects']['tweets']
+            latest_tweets = decode_body(driver.requests[max(relevant_request_idxs)].response.body)['globalObjects']['tweets']
             if len(relevant_request_idxs) == 0 or not latest_tweets:
                 time.sleep(0.2)
                 retries -= 1
@@ -118,7 +131,7 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
             # record relevant responses
             for idx in relevant_request_idxs:
                 driver.requests[idx]
-                for key, value in driver.requests[idx].response.body['globalObjects'].items():
+                for key, value in decode_body(driver.requests[idx].response.body)['globalObjects'].items():
                     data[key].update(value)
 
             # reset retries
@@ -139,7 +152,7 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
     return defaultdict({})
 
 
-def get_query_data(queries, limit=None, begindate=None, enddate=None, poolsize=None, lang=''):
+def get_query_data(query, limit=None, begindate=None, enddate=None, poolsize=None, lang=''):
     begindate = begindate or dt.date(2006, 3, 21)
     enddate = enddate or dt.date.today()
     poolsize = poolsize or 5
@@ -154,14 +167,13 @@ def get_query_data(queries, limit=None, begindate=None, enddate=None, poolsize=N
         # the number of pools should not exceed the number of dates.
         poolsize = num_days
     # query one day at a time so driver doesn't use too much memory
-    dateranges = list(reversed([begindate + dt.timedelta(days=elem) for elem in linspace(0, num_days, num_days)]))
+    dateranges = list(reversed([begindate + dt.timedelta(days=elem) for elem in linspace(0, num_days, num_days + 1)]))
 
     urls = []
     for until, since in zip(dateranges[:-1], dateranges[1:]):
-        for query in queries:
-            query_str = '{} since:{} until:{}'.format(query, since, until)
-            urls.append(INIT_URL.format(q=query_str, lang=lang))
-            logger.info('query: {}'.format(query_str))
+        query_str = '{} since:{} until:{}'.format(query, since, until)
+        urls.append(INIT_URL.format(q=query_str, lang=lang))
+        logger.info('query: {}'.format(query_str))
 
     data = retrieve_data_from_urls(urls, limit=limit, poolsize=poolsize)
     tweets = get_tweets_in_daterange(data['tweets'], begindate, enddate)
@@ -171,7 +183,7 @@ def get_query_data(queries, limit=None, begindate=None, enddate=None, poolsize=N
 def get_tweet_objects(tweets_dict, users):
     tweets = []
     for tid, tweet_item in tweets_dict.items():
-        user = users[tweet_item['user_id']]
+        user = users[str(tweet_item['user_id'])]
         tweets.append(Tweet(
             screen_name=user['screen_name'],
             username=user['name'],
@@ -188,6 +200,12 @@ def get_tweet_objects(tweets_dict, users):
             img_urls=None,  # hack?
             parent_tweet_id=tweet_item['in_reply_to_status_id'],
             reply_to_users=tweet_item['in_reply_to_user_id'],  # hack?
+            video_url=None,  #hack?
+            likes=None,  #hack?,
+            retweets=None,  #hack?
+            replies=None,  #hack?
+            is_replied=None,  #hack?
+            is_reply_to=None,  #hack?
         ))
     return tweets
 

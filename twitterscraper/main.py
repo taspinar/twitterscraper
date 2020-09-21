@@ -113,10 +113,10 @@ def main():
         else:
             if args.javascript:
                 tweets = query_js.get_query_data(
-                    queries=[args.query], limit=args.limit,
+                    query=args.query, limit=args.limit,
                     begindate=args.begindate, enddate=args.enddate,
                     poolsize=args.poolsize, lang=args.lang
-                )['tweets']
+                )
             else:
                 tweets = query.query_tweets(
                     query=args.query, limit=args.limit,

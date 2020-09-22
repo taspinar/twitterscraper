@@ -176,6 +176,7 @@ def get_query_data(query, limit=None, begindate=None, enddate=None, poolsize=Non
         logger.info('query: {}'.format(query_str))
 
     data = retrieve_data_from_urls(urls, limit=limit, poolsize=poolsize)
+    import pdb;pdb.set_trace()
     tweets = get_tweets_in_daterange(data['tweets'], begindate, enddate)
     return get_tweet_objects(tweets, data['users'])
 
@@ -227,7 +228,7 @@ def get_tweets_in_daterange(tweets, begindate=None, enddate=None):
     enddate = enddate or dt.date(2100, 1, 1)
     return {
         tid: tweet for tid, tweet in tweets.items()
-        if begindate < date_of_tweet(tweet) < enddate
+        if begindate <= date_of_tweet(tweet) <= enddate
     }
 
 

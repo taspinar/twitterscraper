@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM python:3.7-alpine
 
 # Firefox browser
 RUN apt-get install -y firefox
@@ -15,6 +15,7 @@ RUN wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geck
   && ln -fs /opt/geckodriver-$GECKODRIVER_VERSION /usr/bin/wires
 
 # twitterscraper
+RUN apk add --update --no-cache g++ gcc libxslt-dev
 COPY . /app
 WORKDIR /app
 RUN python setup.py install

@@ -32,7 +32,9 @@ HEADERS_LIST = [
 HEADER = {'User-Agent': random.choice(HEADERS_LIST), 'X-Requested-With': 'XMLHttpRequest'}
 logger.info(HEADER)
 
-INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
+INIT_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
+             'default&include_available_features=1&include_entities=1&' \
+             'reset_error_state=false&src=typd&max_position=-1&q={q}&l={lang}'
 RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
              'default&include_available_features=1&include_entities=1&' \
              'reset_error_state=false&src=typd&max_position={pos}&q={q}&l={lang}'
@@ -98,8 +100,8 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60, u
             print('not using proxy')
             response = requests.get(url, headers=HEADER, timeout=timeout)
         if pos is None:  # html response
-            html = response.text or ''
-            json_resp = None
+           json_resp = response.json()
+            html = json_resp['items_html'] or ''
         else:
             html = ''
             try:

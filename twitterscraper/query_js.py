@@ -152,7 +152,7 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
     return defaultdict({})
 
 
-def get_query_data(query, limit=None, begindate=None, enddate=None, poolsize=None, lang=''):
+def get_query_data(query, limit=None, begindate=None, enddate=None, poolsize=None, lang='', use_proxy=True):
     begindate = begindate or dt.date(2006, 3, 21)
     enddate = enddate or dt.date.today()
     poolsize = poolsize or 5
@@ -175,8 +175,7 @@ def get_query_data(query, limit=None, begindate=None, enddate=None, poolsize=Non
         urls.append(INIT_URL.format(q=query_str, lang=lang))
         logger.info('query: {}'.format(query_str))
 
-    data = retrieve_data_from_urls(urls, limit=limit, poolsize=poolsize)
-    import pdb;pdb.set_trace()
+    data = retrieve_data_from_urls(urls, limit=limit, poolsize=poolsize, use_proxy=use_proxy)
     tweets = get_tweets_in_daterange(data['tweets'], begindate, enddate)
     return get_tweet_objects(tweets, data['users'])
 
@@ -239,7 +238,7 @@ def get_user_data(from_user, *args, **kwargs):
     return get_query_data([retweet_query, no_retweet_query], *args, **kwargs)
 
 
-def retrieve_data_from_urls(urls, limit, poolsize):
+def retrieve_data_from_urls(urls, limit, poolsize, use_proxy=True):
     # send query urls to multiprocessing pool, and aggregate
     if limit and poolsize:
         limit_per_pool = (limit // poolsize) + 1
@@ -250,7 +249,7 @@ def retrieve_data_from_urls(urls, limit, poolsize):
     try:
         pool = Pool(poolsize)
         try:
-            for new_data in pool.imap_unordered(partial(query_single_page, limit=limit_per_pool), urls):
+            for new_data in pool.imap_unordered(partial(query_single_page, limit=limit_per_pool, use_proxy=use_proxy), urls):
                 for key, value in new_data.items():
                     all_data[key].update(value)
                 logger.info('Got {} data ({} new).'.format(

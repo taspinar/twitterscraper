@@ -15,8 +15,10 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
-from twitterscraper.ts_logger import logger
 from twitterscraper.tweet import Tweet
+
+import logging
+logger = logging.getLogger('twitterscraper')
 
 
 INIT_URL = 'https://twitter.com/search?f=live&vertical=default&q={q}&l={lang}'

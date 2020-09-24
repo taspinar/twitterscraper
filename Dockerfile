@@ -30,7 +30,7 @@ RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.
   && mv /opt/geckodriver /opt/geckodriver-$GK_VERSION \
   && chmod 755 /opt/geckodriver-$GK_VERSION \
   && ln -fs /opt/geckodriver-$GK_VERSION /usr/bin/geckodriver
-
+  && ln -fs /opt/geckodriver-$GK_VERSION /usr/bin/wires
 # twitterscraper
 RUN apk add --update --no-cache g++ gcc libxslt-dev
 COPY . /app

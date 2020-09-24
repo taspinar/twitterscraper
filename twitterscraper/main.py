@@ -11,7 +11,6 @@ from os.path import isfile
 from pprint import pprint
 
 from twitterscraper import query_js, query
-from twitterscraper.ts_logger import logger
 
 
 from twitterscraper.query import (query_tweets, query_tweets_from_user,

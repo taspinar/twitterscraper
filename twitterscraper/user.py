@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-from twitterscraper.ts_logger import logger
 
 
 class User:
@@ -101,6 +100,6 @@ class User:
             try:
                 return self.from_soup(user_profile_header, user_profile_canopy)
             except AttributeError as e:
-                logger.exception(e)  # Incomplete info? Discard!
+                pass  # Incomplete info? Discard!
             except TypeError as e:
-                logger.exception(e)  # Incomplete info? Discard!
+                pass  # Incomplete info? Discard!

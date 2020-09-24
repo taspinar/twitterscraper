@@ -1,9 +1,6 @@
 import datetime as dt
-from twitterscraper import query_js, ts_logger
+from twitterscraper import query_js
 import logging
-
-
-ts_logger.loggerlevel = logging.WARNING
 
 
 def test_simple_js():

@@ -1,10 +1,7 @@
 import datetime as dt
 import pytest
-from twitterscraper import query, query_js, ts_logger
+from twitterscraper import query, query_js
 import logging
-
-
-ts_logger.loggerlevel = logging.WARNING
 
 
 @pytest.mark.parametrize(

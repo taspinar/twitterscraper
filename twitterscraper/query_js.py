@@ -237,7 +237,10 @@ def get_user_data(from_user, *args, **kwargs):
     # include retweets
     retweet_query = f'filter:nativeretweets from:{from_user}'
     no_retweet_query = f'from:{from_user}'
-    return get_query_data([retweet_query, no_retweet_query], *args, **kwargs)
+    return (
+        get_query_data(retweet_query, *args, **kwargs) +
+        get_query_data(no_retweet_query, *args, **kwargs)
+    )
 
 
 def retrieve_data_from_urls(urls, limit, poolsize, use_proxy=True):

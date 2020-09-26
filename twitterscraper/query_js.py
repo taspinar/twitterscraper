@@ -41,17 +41,18 @@ def get_proxy_pool():
 
 
 def get_driver(proxy=None, timeout=10):
-    profile = webdriver.FirefoxProfile()
+    seleniumwire_options = {'verify_ssl': False, 'suppress_connection_errors': False}
     if proxy:
-        profile.set_preference("network.proxy.http", proxy)
-
+        seleniumwire_options['proxy'] = {
+            'https': f'https://{proxy}',
+            'http': f'http://{proxy}',
+        }
     opt = Options()
     opt.headless = True
 
     driver = webdriver.Firefox(
-        profile,
         options=opt,
-        seleniumwire_options={'verify_ssl': False}
+        seleniumwire_options=seleniumwire_options
     )
 
     driver.implicitly_wait(timeout)
@@ -75,7 +76,7 @@ def decode_body(body):
         return None
 
 
-def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True, limit=None):
+def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True, limit=None, npasses=3):
     """
     Returns tweets from the given URL.
     :param query: The query url
@@ -100,8 +101,15 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
 
         # page down, recording the results, until there isn't anything new or limit has been breached
         driver.get(url)
-        retries = 20
+        retries = 100
         while retries > 0 and len(data['tweets']) < limit:
+
+            # scroll down
+            actions = ActionChains(driver)
+            for _ in range(100):
+                actions.send_keys(Keys.PAGE_DOWN)
+                actions.pause(0.03)
+            actions.perform()
 
             # relevant requests have completely responses, json in their path (but not guide.json), and a globalObjects key
             relevant_request_idxs = set([
@@ -113,22 +121,17 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
             already_idxs |= relevant_request_idxs
 
             if not relevant_request_idxs:
-                time.sleep(0.2)
+                # if most recent
+                time.sleep(0.01)
                 retries -= 1
                 continue
 
             # if no relevant requests, or latest relevant request isn't done loading, wait then check again
             latest_tweets = decode_body(driver.requests[max(relevant_request_idxs)].response.body)['globalObjects']['tweets']
             if len(relevant_request_idxs) == 0 or not latest_tweets:
-                time.sleep(0.2)
+                time.sleep(0.01)
                 retries -= 1
                 continue
-
-            # scroll down
-            actions = ActionChains(driver)
-            for _ in range(100):
-                actions.send_keys(Keys.PAGE_DOWN)
-            actions.perform()
 
             # record relevant responses
             for idx in relevant_request_idxs:
@@ -137,9 +140,7 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
                     data[key].update(value)
 
             # reset retries
-            retries = 20
-
-        return data
+            retries = 100
 
     except Exception as e:
         logger.exception('Exception {} while requesting "{}"'.format(
@@ -147,15 +148,29 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
     finally:
         driver.quit()
 
+    if npasses <= 1:
+        return data
+    else:
+        new_pass_data = query_single_page(
+            url, retry=retry, from_user=from_user, timeout=timeout,
+            use_proxy=use_proxy, limit=None, npasses=npasses - 1,
+        )
+        for key in data.keys():
+            data[key].update(new_pass_data[key])
+        return data
+
     if retry > 0:
         logger.debug('Retrying... (Attempts left: {})'.format(retry))
-        return query_single_page(url, retry - 1)
+        return query_single_page(
+            url, retry=retry - 1, from_user=from_user, timeout=timeout,
+            use_proxy=use_proxy, limit=None, npasses=npasses
+        )
     logger.error('Giving up.')
     return defaultdict({})
 
 
 def get_query_data(query, limit=None, begindate=None, enddate=None, poolsize=None, lang='', use_proxy=True):
-    begindate = begindate or dt.date(2006, 3, 21)
+    begindate = begindate or dt.date.today() - dt.timedelta(days=1)
     enddate = enddate or dt.date.today()
     poolsize = poolsize or 5
 
@@ -184,7 +199,7 @@ def get_query_data(query, limit=None, begindate=None, enddate=None, poolsize=Non
 
 def get_tweet_objects(tweets_dict, users):
     tweets = []
-    for tid, tweet_item in tweets_dict.items():
+    for tid, tweet_item in sorted(tweets_dict.items(), reverse=True):
         user = users[str(tweet_item['user_id'])]
         tweets.append(Tweet(
             screen_name=user['screen_name'],

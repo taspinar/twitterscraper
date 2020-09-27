@@ -1,21 +1,17 @@
 from collections import defaultdict
-import requests
 import datetime as dt
-import time
 import sys
 import json
-
-from functools import lru_cache, partial
-from billiard.pool import Pool
-from bs4 import BeautifulSoup
 from itertools import cycle
+from functools import partial
+from billiard.pool import Pool
 
-from seleniumwire import webdriver
-from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import TimeoutException
 
 from twitterscraper.tweet import Tweet
+from twitterscraper.browser import get_driver, get_proxy_pool
 
 import logging
 logger = logging.getLogger('twitterscraper')
@@ -23,41 +19,6 @@ logger = logging.getLogger('twitterscraper')
 
 INIT_URL = 'https://twitter.com/search?f=live&vertical=default&q={q}&l={lang}'
 INIT_URL_USER = 'https://twitter.com/{u}'
-PROXY_URL = 'https://free-proxy-list.net/'
-
-
-@lru_cache(1)
-def get_proxy_pool():
-    response = requests.get(PROXY_URL)
-    soup = BeautifulSoup(response.text, 'lxml')
-    table = soup.find('table', id='proxylisttable')
-    list_tr = table.find_all('tr')
-    list_td = [elem.find_all('td') for elem in list_tr]
-    list_td = list(filter(None, list_td))
-    list_ip = [elem[0].text for elem in list_td]
-    list_ports = [elem[1].text for elem in list_td]
-    list_proxies = [':'.join(elem) for elem in list(zip(list_ip, list_ports))]
-    return cycle(list_proxies)
-
-
-def get_driver(proxy=None, timeout=10):
-    seleniumwire_options = {'verify_ssl': False, 'suppress_connection_errors': False}
-    if proxy:
-        seleniumwire_options['proxy'] = {
-            'https': f'https://{proxy}',
-            'http': f'http://{proxy}',
-        }
-    opt = Options()
-    opt.headless = True
-
-    driver = webdriver.Firefox(
-        options=opt,
-        seleniumwire_options=seleniumwire_options
-    )
-
-    driver.implicitly_wait(timeout)
-
-    return driver
 
 
 def linspace(start, stop, n):
@@ -76,6 +37,81 @@ def decode_body(body):
         return None
 
 
+def scroll_down(driver, num_press=100, pause=0.1):
+    actions = ActionChains(driver)
+    for _ in range(num_press):
+        actions.send_keys(Keys.PAGE_DOWN)
+    actions.pause(pause)
+    actions.perform()
+
+
+def get_proxied_driver(use_proxy):
+    # get proxied driver if use_proxy, else get unproxied driver
+    proxy_pool = get_proxy_pool() if use_proxy else cycle([None])
+    proxy = next(proxy_pool)
+    logger.info('Using proxy {}'.format(proxy))
+    return get_driver(proxy)
+
+
+def retrieve_twitter_response_data(url, limit, use_proxy, retry):
+    logger.info('Scraping tweets from {}'.format(url))
+
+    driver = get_proxied_driver(use_proxy)
+
+    try:
+        driver.get(url)
+        relevant_responses = {}
+
+        # page down, recording the results, until there isn't anything new or limit has been breached
+        n_retries = 10
+        retries = 0
+        tweet_count = 0
+        # TODO: change retries count to expiration datetime
+        while retries < n_retries:
+            scroll_down(driver)
+
+            # relevant requests have completely responses, json in their path (but not guide.json), and a globalObjects key
+            new_relevant_responses = {
+                i: decode_body(r.response.body) for i, r in enumerate(driver.requests)
+                if 'json' in r.path and 'guide.json' not in r.path and
+                r.response is not None and isinstance(decode_body(r.response.body), dict) and
+                'globalObjects' in decode_body(r.response.body) and i not in relevant_responses
+            }
+
+            # ensure we don't surpass tweet limit
+            new_tweet_count = 0
+            for response in new_relevant_responses.values():
+                new_tweet_count += len(response['globalObjects']['tweets'])
+
+            # if no relevant requests, or latest relevant request isn't done loading, wait then check again
+            if not new_relevant_responses or not new_tweet_count:
+                retries += 1
+                continue
+
+            tweet_count += new_tweet_count
+            if tweet_count >= limit:
+                break
+
+            # merge into relevant responses
+            relevant_responses.update(new_relevant_responses)
+
+            # finished retrieval cycle successfully, reset retries to 0
+            retries = 0
+
+    except Exception as e:
+        driver.quit()
+        logger.exception('Exception {} while requesting "{}"'.format(
+            e, url))
+        if retry > 0:
+            logger.debug('Retrying with fresh browser... (Attempts left: {})'.format(retry))
+            return retrieve_twitter_response_data(url, limit, use_proxy, retry)
+        else:
+            return None
+
+    driver.quit()
+    return relevant_responses
+
+
 def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True, limit=None, npasses=3):
     """
     Returns tweets from the given URL.
@@ -87,86 +123,13 @@ def query_single_page(url, retry=50, from_user=False, timeout=60, use_proxy=True
     """
     limit = limit or float('inf')
 
-    logger.info('Scraping tweets from {}'.format(url))
+    data = defaultdict(dict)
+    for _ in range(npasses):
+        for response_body in retrieve_twitter_response_data(url, limit, use_proxy, retry).values():
+            for key, value in response_body['globalObjects'].items():
+                data[key].update(value)
 
-    proxy_pool = get_proxy_pool() if use_proxy else cycle([None])
-
-    proxy = next(proxy_pool)
-    logger.info('Using proxy {}'.format(proxy))
-    driver = get_driver(proxy)
-
-    try:
-        data = defaultdict(dict)
-        already_idxs = set()
-
-        # page down, recording the results, until there isn't anything new or limit has been breached
-        driver.get(url)
-        retries = 100
-        while retries > 0 and len(data['tweets']) < limit:
-
-            # scroll down
-            actions = ActionChains(driver)
-            for _ in range(100):
-                actions.send_keys(Keys.PAGE_DOWN)
-                actions.pause(0.03)
-            actions.perform()
-
-            # relevant requests have completely responses, json in their path (but not guide.json), and a globalObjects key
-            relevant_request_idxs = set([
-                i for i, r in enumerate(driver.requests)
-                if 'json' in r.path and 'guide.json' not in r.path and
-                r.response is not None and isinstance(decode_body(r.response.body), dict) and
-                'globalObjects' in decode_body(r.response.body) and i not in already_idxs
-            ])
-            already_idxs |= relevant_request_idxs
-
-            if not relevant_request_idxs:
-                # if most recent
-                time.sleep(0.01)
-                retries -= 1
-                continue
-
-            # if no relevant requests, or latest relevant request isn't done loading, wait then check again
-            latest_tweets = decode_body(driver.requests[max(relevant_request_idxs)].response.body)['globalObjects']['tweets']
-            if len(relevant_request_idxs) == 0 or not latest_tweets:
-                time.sleep(0.01)
-                retries -= 1
-                continue
-
-            # record relevant responses
-            for idx in relevant_request_idxs:
-                driver.requests[idx]
-                for key, value in decode_body(driver.requests[idx].response.body)['globalObjects'].items():
-                    data[key].update(value)
-
-            # reset retries
-            retries = 100
-
-    except Exception as e:
-        logger.exception('Exception {} while requesting "{}"'.format(
-            e, url))
-    finally:
-        driver.quit()
-
-    if npasses <= 1:
-        return data
-    else:
-        new_pass_data = query_single_page(
-            url, retry=retry, from_user=from_user, timeout=timeout,
-            use_proxy=use_proxy, limit=None, npasses=npasses - 1,
-        )
-        for key in data.keys():
-            data[key].update(new_pass_data[key])
-        return data
-
-    if retry > 0:
-        logger.debug('Retrying... (Attempts left: {})'.format(retry))
-        return query_single_page(
-            url, retry=retry - 1, from_user=from_user, timeout=timeout,
-            use_proxy=use_proxy, limit=None, npasses=npasses
-        )
-    logger.error('Giving up.')
-    return defaultdict({})
+    return data
 
 
 def get_query_data(query, limit=None, begindate=None, enddate=None, poolsize=None, lang='', use_proxy=True):

@@ -9,6 +9,6 @@ logger.setLevel(logging.DEBUG)
 
 def test_simple_js():
     call_dict = dict(begindate=dt.date(2018, 5, 5), enddate=dt.date(2018, 5, 7),
-                     poolsize=2, lang='en', query='foo bar', use_proxy=True)
+                     poolsize=2, lang='en', query='donald john trump', use_proxy=True)
     res = query_js.get_query_data(**call_dict)
     assert len(res) == 78

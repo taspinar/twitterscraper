@@ -5,10 +5,10 @@ import json
 from itertools import cycle
 from functools import partial
 from billiard.pool import Pool
+import time
 
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import TimeoutException
 
 from twitterscraper.tweet import Tweet
 from twitterscraper.browser import get_driver, get_proxy_pool
@@ -37,7 +37,7 @@ def decode_body(body):
         return None
 
 
-def scroll_down(driver, num_press=100, pause=0.1):
+def scroll_down(driver, num_press=1, pause=1):
     actions = ActionChains(driver)
     for _ in range(num_press):
         actions.send_keys(Keys.PAGE_DOWN)
@@ -53,7 +53,7 @@ def get_proxied_driver(use_proxy):
     return get_driver(proxy)
 
 
-def retrieve_twitter_response_data(url, limit, use_proxy, retry):
+def retrieve_twitter_response_data(url, limit, use_proxy, retry, wait_seconds=40):
     logger.info('Scraping tweets from {}'.format(url))
 
     driver = get_proxied_driver(use_proxy)
@@ -63,11 +63,10 @@ def retrieve_twitter_response_data(url, limit, use_proxy, retry):
         relevant_responses = {}
 
         # page down, recording the results, until there isn't anything new or limit has been breached
-        n_retries = 10
-        retries = 0
+        start_time = dt.datetime.now()
         tweet_count = 0
-        # TODO: change retries count to expiration datetime
-        while retries < n_retries:
+        while dt.datetime.now() < start_time + dt.timedelta(seconds=wait_seconds):
+            logger.info(f'found {tweet_count} tweets')
             scroll_down(driver)
 
             # relevant requests have completely responses, json in their path (but not guide.json), and a globalObjects key
@@ -85,7 +84,7 @@ def retrieve_twitter_response_data(url, limit, use_proxy, retry):
 
             # if no relevant requests, or latest relevant request isn't done loading, wait then check again
             if not new_relevant_responses or not new_tweet_count:
-                retries += 1
+                time.sleep(1)
                 continue
 
             tweet_count += new_tweet_count
@@ -95,8 +94,8 @@ def retrieve_twitter_response_data(url, limit, use_proxy, retry):
             # merge into relevant responses
             relevant_responses.update(new_relevant_responses)
 
-            # finished retrieval cycle successfully, reset retries to 0
-            retries = 0
+            # finished retrieval cycle successfully, reset start_time
+            start_time = dt.datetime.now()
 
     except Exception as e:
         driver.quit()

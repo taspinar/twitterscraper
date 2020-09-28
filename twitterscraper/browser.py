@@ -3,6 +3,7 @@ from functools import lru_cache
 from itertools import cycle
 from bs4 import BeautifulSoup
 from threading import Thread
+from random import shuffle
 
 from seleniumwire import webdriver
 from selenium.webdriver.firefox.options import Options
@@ -68,6 +69,7 @@ def get_proxy_pool():
     best_proxies = get_best_proxies(
         tuple(get_proxies())
     )
+    shuffle(best_proxies)
     return cycle(best_proxies)
 
 
@@ -77,7 +79,7 @@ def get_ublock():
     #download ublock here
 
 
-def get_driver(proxy=None, timeout=10):
+def get_driver(proxy=None, timeout=30):
     profile = webdriver.FirefoxProfile()
     profile.set_preference("http.response.timeout", 5)
 

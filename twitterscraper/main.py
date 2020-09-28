@@ -10,6 +10,9 @@ import logging
 from os.path import isfile
 from pprint import pprint
 
+from twitterscraper import query_js, query
+
+
 from twitterscraper.query import (query_tweets, query_tweets_from_user,
                                   query_user_info)
 
@@ -65,12 +68,14 @@ def main():
                                  "This may take a while. You can increase the number of parallel"
                                  "processes depending on the computational power you have.")
         parser.add_argument("-c", "--csv", action='store_true',
-                                help="Set this flag if you want to save the results to a CSV format.")
+                            help="Set this flag if you want to save the results to a CSV format.")
+        parser.add_argument("-j", "--javascript", action='store_true',
+                            help="Set this flag if you want to request using javascript via Selenium.")
         parser.add_argument("-u", "--user", action='store_true',
                             help="Set this flag to if you want to scrape tweets from a specific user"
                                  "The query should then consist of the profilename you want to scrape without @")
         parser.add_argument("--profiles", action='store_true',
-                            help="Set this flag to if you want to scrape profile info of all the users where you" 
+                            help="Set this flag to if you want to scrape profile info of all the users where you"
                             "have previously scraped from. After all of the tweets have been scraped it will start"
                             "a new process of scraping profile pages.")
         parser.add_argument("--lang", type=str, default=None,
@@ -113,14 +118,33 @@ def main():
             exit(-1)
 
         if args.all:
-            args.begindate = dt.date(2006,3,1)
+            args.begindate = dt.date(2006, 3, 1)
 
         if args.user:
-            tweets = query_tweets_from_user(user = args.query, limit = args.limit, use_proxy = not args.disableproxy)
+            if args.javascript:
+                tweets = query_js.get_user_data(
+                    from_user=args.query, limit=args.limit,
+                    begindate=args.begindate, enddate=args.enddate,
+                    poolsize=args.poolsize, lang=args.lang, use_proxy=not args.disableproxy
+                )['tweets']
+            else:
+                tweets = query.query_tweets_from_user(user=args.query, limit=args.limit, use_proxy=not args.disableproxy)
+
         else:
-            tweets = query_tweets(query = args.query, limit = args.limit,
-                              begindate = args.begindate, enddate = args.enddate,
-                              poolsize = args.poolsize, lang = args.lang, use_proxy = not args.disableproxy)
+            if args.javascript:
+                tweets = query_js.get_query_data(
+                    query=args.query, limit=args.limit,
+                    begindate=args.begindate, enddate=args.enddate,
+                    poolsize=args.poolsize, lang=args.lang,
+                    use_proxy=not args.disableproxy
+                )
+            else:
+                tweets = query.query_tweets(
+                    query=args.query, limit=args.limit,
+                    begindate=args.begindate, enddate=args.enddate,
+                    poolsize=args.poolsize, lang=args.lang,
+                    use_proxy=not args.disableproxy
+                )
 
         if args.dump:
             pprint([tweet.__dict__ for tweet in tweets])
@@ -151,8 +175,11 @@ def main():
                         json.dump(tweets, output, cls=JSONEncoder)
             if args.profiles and tweets:
                 list_users = list(set([tweet.username for tweet in tweets]))
-                list_users_info = [query_user_info(elem, not args.disableproxy) for elem in list_users]
-                filename = 'userprofiles_' + args.output
+
+                # Note: this has no query_js equivalent!
+                list_users_info = [query.query_user_info(elem, not args.disableproxy) for elem in list_users]
+
+                filename = 'userprofiles_' + args.outputp
                 with open(filename, "w", encoding="utf-8") as output:
                     json.dump(list_users_info, output, cls=JSONEncoder)
     except KeyboardInterrupt:

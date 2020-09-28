@@ -52,8 +52,8 @@ def get_proxies():
     list_ip = [elem[0].text for elem in list_td]
     list_ports = [elem[1].text for elem in list_td]
     list_proxies = [':'.join(elem) for elem in list(zip(list_ip, list_ports))]
-    return list_proxies               
-                  
+    return list_proxies
+
 def get_query_url(query, lang, pos, from_user = False):
     if from_user:
         if pos is None:
@@ -116,7 +116,7 @@ def query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60, u
                     pos = json_resp['min_position']
                     has_more_items = json_resp['has_more_items']
                     if not has_more_items:
-                        logger.info("Twitter returned : 'has_more_items' ")
+                        logger.info("Twitter response: 'has_more_items' == False ")
                         return [], None
                 else:
                     pos = None
@@ -217,10 +217,10 @@ def query_tweets_once(*args, **kwargs):
 
 def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang='', use_proxy=True):
     no_days = (enddate - begindate).days
-    
+
     if(no_days < 0):
         sys.exit('Begin date must occur before end date.')
-    
+
     if poolsize > no_days:
         # Since we are assigning each pool a range of dates to query,
 		# the number of pools should not exceed the number of dates.
@@ -329,8 +329,6 @@ def query_user_info(user, use_proxy=True):
 
     :param user: the twitter user to web scrape its twitter page info
     """
-
-
     try:
         user_info = query_user_page(INIT_URL_USER.format(u=user), use_proxy=use_proxy)
         if user_info:
@@ -343,4 +341,4 @@ def query_user_info(user, use_proxy=True):
         logger.exception("An unknown error occurred! Returning user information gathered so far...")
 
     logger.info("Got user information from username {}".format(user))
-    return user_info
+    return None

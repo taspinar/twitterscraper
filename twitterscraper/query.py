@@ -216,42 +216,45 @@ def query_tweets_once(*args, **kwargs):
 
 
 def query_tweets(query, limit=None, begindate=dt.date(2006, 3, 21), enddate=dt.date.today(), poolsize=20, lang='', use_proxy=True):
-    no_days = (enddate - begindate).days
-    
-    if(no_days < 0):
-        sys.exit('Begin date must occur before end date.')
-    
-    if poolsize > no_days:
-        # Since we are assigning each pool a range of dates to query,
-		# the number of pools should not exceed the number of dates.
-        poolsize = no_days
-    dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
-
-    if limit and poolsize:
-        limit_per_pool = (limit // poolsize)+1
-    else:
-        limit_per_pool = None
-
-    queries = ['{} since:{} until:{}'.format(query, since, until)
-               for since, until in zip(dateranges[:-1], dateranges[1:])]
-
-    all_tweets = []
     try:
-        pool = Pool(poolsize)
-        logger.info('queries: {}'.format(queries))
-        try:
-            for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool, lang=lang, use_proxy=use_proxy), queries):
-                all_tweets.extend(new_tweets)
-                logger.info('Got {} tweets ({} new).'.format(
-                    len(all_tweets), len(new_tweets)))
-        except KeyboardInterrupt:
-            logger.info('Program interrupted by user. Returning all tweets '
-                         'gathered so far.')
-    finally:
-        pool.close()
-        pool.join()
+        no_days = (enddate - begindate).days
+    
+        if(no_days < 0):
+            sys.exit('Begin date must occur before end date.')
+        
+        if poolsize > no_days:
+            # Since we are assigning each pool a range of dates to query,
+                    # the number of pools should not exceed the number of dates.
+            poolsize = no_days
+        dateranges = [begindate + dt.timedelta(days=elem) for elem in linspace(0, no_days, poolsize+1)]
 
-    return all_tweets
+        if limit and poolsize:
+            limit_per_pool = (limit // poolsize)+1
+        else:
+            limit_per_pool = None
+
+        queries = ['{} since:{} until:{}'.format(query, since, until)
+                   for since, until in zip(dateranges[:-1], dateranges[1:])]
+
+        all_tweets = []
+        try:
+            pool = Pool(poolsize)
+            logger.info('queries: {}'.format(queries))
+            try:
+                for new_tweets in pool.imap_unordered(partial(query_tweets_once, limit=limit_per_pool, lang=lang, use_proxy=use_proxy), queries):
+                    all_tweets.extend(new_tweets)
+                    logger.info('Got {} tweets ({} new).'.format(
+                        len(all_tweets), len(new_tweets)))
+            except KeyboardInterrupt:
+                logger.info('Program interrupted by user. Returning all tweets '
+                             'gathered so far.')
+        finally:
+            pool.close()
+            pool.join()
+
+        return all_tweets
+    except TypeError:
+        logger.exception('Begin or End date types invalid')
 
 
 def query_tweets_from_user(user, limit=None, use_proxy=True):

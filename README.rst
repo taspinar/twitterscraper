@@ -28,8 +28,8 @@ with a link to your website. [`Become a sponsor`_]
 Synopsis
 ========
 
-A simple script to scrape for Tweets using the Python package requests
-to retrieve the content and Beautifulsoup4 to parse the retrieved
+A simple script to scrape Tweets using the Python package ``requests``
+to retrieve the content and ``Beautifulsoup4`` to parse the retrieved
 content.
 
 1. Motivation
@@ -42,20 +42,20 @@ developers to access and read Twitter data. They have also provided a
 be used to access Twitter Data in real-time.
 
 Most of the software written to access Twitter data provide a library
-which functions as a wrapper around Twitters Search and Streaming API's
-and therefore are limited by the limitations of the API's.
+which functions as a wrapper around Twitter's Search and Streaming API's
+and are therefore constrained by the limitations of the API's.
 
-With Twitter's Search API you can only sent 180 Requests every 15
-minutes. With a maximum number of 100 tweets per Request this means you
-can mine for 4 x 180 x 100 = 72.000 tweets per hour. By using
+With Twitter's Search API you can only send 180 Requests every 15
+minutes. With a maximum number of 100 tweets per Request, you
+can mine 72 tweets per hour (4 x 180 x 100 =72) . By using
 TwitterScraper you are not limited by this number but by your internet
 speed/bandwith and the number of instances of TwitterScraper you are
 willing to start.
 
 One of the bigger disadvantages of the Search API is that you can only
 access Tweets written in the **past 7 days**. This is a major bottleneck
-for anyone looking for older past data to make a model from. With
-TwitterScraper there is no such limitation.
+for anyone looking for older data. With TwitterScraper there is no such 
+limitation.
 
 Per Tweet it scrapes the following information:
  + Tweet-id
@@ -147,7 +147,7 @@ JSON right away. Twitterscraper takes several arguments:
    use to stop scraping for your query. Format is YYYY-MM-DD. The
    default value is set to today. This does not work in combination with ``--user``.
 
--  ``-u`` or ``--user`` Scrapes the tweets from that users profile page.
+-  ``-u`` or ``--user`` Scrapes the tweets from that users' profile page.
    This also includes all retweets by that user. See section 2.2.4 in the examples below
    for more information.
 
@@ -179,6 +179,7 @@ JSON right away. Twitterscraper takes several arguments:
    it will be overwritten. If this argument is not set (default) twitterscraper will
    exit with the warning that the output file already exists.
 
+-  ``-dp`` or ``--disableproxy``: With this argument, proxy servers are not used when scrapping tweets or user profiles from twitter.
 
 2.2.1 Examples of simple queries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -221,7 +222,7 @@ Also see `Twitter's Standard operators <https://developer.twitter.com/en/docs/tw
 2.2.3 Examples of scraping user pages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can also scraped all tweets written or retweetet by a specific user.
+You can also scraped all tweets written or retweeted by a specific user.
 This can be done by adding the boolean argument ``-u / --user`` argument.
 If this argument is used, the search term should be equal to the username.
 
@@ -255,10 +256,45 @@ You can easily use TwitterScraper from within python:
         #Or save the retrieved tweets to file:
         file = open(“output.txt”,”w”)
         for tweet in query_tweets("Trump OR Clinton", 10):
-            file.write(tweet.encode('utf-8'))
+            file.write(str(tweet.text.encode('utf-8')))
         file.close()
 
+2.3.1 Examples of Python Queries
+--------------------------------
 
+   - Query tweets from a given URL:
+      Parameters:
+         - query:     The query search parameter of url
+         - lang:      Language of queried url
+         - pos:       Parameter passed for where to start looking in url
+         - retry:     Number of times to retry if error   
+
+      .. code:: python
+
+          query_single_page(query, lang, pos, retry=50, from_user=False, timeout=60)
+   
+   - Query all tweets that match qeury:
+      Parameters:
+         - query:     The query search parameter
+         - limit:     Number of tweets returned
+         - begindate: Start date of query
+         - enddate:   End date of query
+         - poolsize:  Tweets per poolsize
+         - lang:      Language of query
+      
+      .. code:: python
+
+          query_tweets('query', limit=None, begindate=dt.date.today(), enddate=dt.date.today(), poolsize=20, lang='')
+
+   - Query tweets from a specific user:
+      Parameters:
+         - user:      Twitter username
+         - limit:     Number of tweets returned
+
+      .. code:: python
+      
+          query_tweets(user, limit=None)
+      
 2.4 Scraping for retweets
 ----------------------
 
@@ -309,7 +345,7 @@ What you should do is open the file with the proper encoding:
 3.1.2 Opening into a pandas dataframe
 ---------------------------
 
-After the file has been opened, it can easily be converted into a pandas DataFrame
+After the file has been opened, it can easily be converted into a ```pandas``` DataFrame
 
 ::
 

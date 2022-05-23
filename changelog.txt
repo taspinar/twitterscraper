@@ -1,5 +1,23 @@
 # twitterscraper changelog
 
+# 1.6.1 ( 2020-07-28 )
+## Fixed
+- Issue 330: Added KeyError to the try / except so that it no longer breaks when json_resp does not have this key.
+
+# 1.6.0 ( 2020-07-22 )
+## Added
+- PR234: Adds command line argument -dp or --disableproxy to disable to use of proxy when querying.
+## Improved
+- PR261: Improve logging; there is no ts_logger file, logger is initiated in main.py and query.py, loglevel is set via CLI.
+
+# 1.5.0 ( 2020-07-22 )
+## Fixed
+- PR304: Fixed query.py by adding 'X-Requested-With': 'XMLHttpRequest' to header value.
+- PR253: Fixed Docker build
+## Added
+- PR313: Added example to README (section 2.3.1).
+- PR277: Support emojis by adding the alt text of images to the tweet text.
+
 # 1.4.0 ( 2019-11-03 )
 ## Fixed
 - PR228: Fixed Typo in Readme

@@ -45,7 +45,7 @@ PROXY_URL = 'https://free-proxy-list.net/'
 def get_proxies():
     response = requests.get(PROXY_URL)
     soup = BeautifulSoup(response.text, 'lxml')
-    table = soup.find('table',id='proxylisttable')
+    table = soup.select_one('div.fpl-list > table')
     list_tr = table.find_all('tr')
     list_td = [elem.find_all('td') for elem in list_tr]
     list_td = list(filter(None, list_td))
